@@ -1,0 +1,28 @@
+name: Proponer una mejora
+description: Una mejora concreta para preparar partidas de League of Legends.
+title: "[Mejora]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Explica el problema antes de proponer una implementación.
+        No incluyas datos personales, claves, conversaciones privadas ni capturas reales.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema que quieres resolver
+      description: Quién lo encuentra y en qué situación de uso.
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Resultado esperado
+      description: Qué debería poder hacer el usuario y cómo sabríamos que funciona.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas y contexto
+      description: Soluciones actuales, ejemplos sintéticos y posibles efectos en accesibilidad, privacidad o gasto.

@@ -1,0 +1,2998 @@
+{
+  "version": "16.20.1",
+  "source": "snapshot",
+  "updatedAt": "2026-10-11T02:05:17.066Z",
+  "champions": [
+    {
+      "id": "Aatrox",
+      "key": "266",
+      "name": "Aatrox",
+      "title": "la Espada Darkin",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Aatrox.png"
+    },
+    {
+      "id": "Ahri",
+      "key": "103",
+      "name": "Ahri",
+      "title": "la Vastaya de Nueve Colas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ahri.png"
+    },
+    {
+      "id": "Akali",
+      "key": "84",
+      "name": "Akali",
+      "title": "la Asesina Furtiva",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Akali.png"
+    },
+    {
+      "id": "Akshan",
+      "key": "166",
+      "name": "Akshan",
+      "title": "el Centinela Rebelde",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Akshan.png"
+    },
+    {
+      "id": "Alistar",
+      "key": "12",
+      "name": "Alistar",
+      "title": "el Minotauro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Alistar.png"
+    },
+    {
+      "id": "Ambessa",
+      "key": "799",
+      "name": "Ambessa",
+      "title": "La Matriarca de la Guerra",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ambessa.png"
+    },
+    {
+      "id": "Amumu",
+      "key": "32",
+      "name": "Amumu",
+      "title": "la Momia Triste",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Amumu.png"
+    },
+    {
+      "id": "Anivia",
+      "key": "34",
+      "name": "Anivia",
+      "title": "la Criofénix",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Anivia.png"
+    },
+    {
+      "id": "Annie",
+      "key": "1",
+      "name": "Annie",
+      "title": "la Hija de la Oscuridad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Annie.png"
+    },
+    {
+      "id": "Aphelios",
+      "key": "523",
+      "name": "Aphelios",
+      "title": "El Arma de los Adeptos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Aphelios.png"
+    },
+    {
+      "id": "Ashe",
+      "key": "22",
+      "name": "Ashe",
+      "title": "la Arquera de Hielo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ashe.png"
+    },
+    {
+      "id": "AurelionSol",
+      "key": "136",
+      "name": "Aurelion Sol",
+      "title": "el Forjador de Estrellas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/AurelionSol.png"
+    },
+    {
+      "id": "Aurora",
+      "key": "893",
+      "name": "Aurora",
+      "title": "la Bruja entre Mundos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Aurora.png"
+    },
+    {
+      "id": "Azir",
+      "key": "268",
+      "name": "Azir",
+      "title": "el Emperador de las Arenas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Azir.png"
+    },
+    {
+      "id": "Bard",
+      "key": "432",
+      "name": "Bardo",
+      "title": "el Guardián Trotamundos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Bard.png"
+    },
+    {
+      "id": "Belveth",
+      "key": "200",
+      "name": "Bel'Veth",
+      "title": "la Emperatriz del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Belveth.png"
+    },
+    {
+      "id": "Blitzcrank",
+      "key": "53",
+      "name": "Blitzcrank",
+      "title": "el Gran Gólem de Vapor",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Blitzcrank.png"
+    },
+    {
+      "id": "Brand",
+      "key": "63",
+      "name": "Brand",
+      "title": "la Venganza Ardiente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Brand.png"
+    },
+    {
+      "id": "Braum",
+      "key": "201",
+      "name": "Braum",
+      "title": "el Corazón del Fréljord",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Braum.png"
+    },
+    {
+      "id": "Briar",
+      "key": "233",
+      "name": "Briar",
+      "title": "el Hambre Contenida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Briar.png"
+    },
+    {
+      "id": "Caitlyn",
+      "key": "51",
+      "name": "Caitlyn",
+      "title": "la Sheriff de Piltóver",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Caitlyn.png"
+    },
+    {
+      "id": "Camille",
+      "key": "164",
+      "name": "Camille",
+      "title": "la Sombra de Acero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Camille.png"
+    },
+    {
+      "id": "Cassiopeia",
+      "key": "69",
+      "name": "Cassiopeia",
+      "title": "el Abrazo de la Serpiente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Cassiopeia.png"
+    },
+    {
+      "id": "Chogath",
+      "key": "31",
+      "name": "Cho'Gath",
+      "title": "el Terror del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Chogath.png"
+    },
+    {
+      "id": "Corki",
+      "key": "42",
+      "name": "Corki",
+      "title": "el Bombardero Osado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Corki.png"
+    },
+    {
+      "id": "Darius",
+      "key": "122",
+      "name": "Darius",
+      "title": "la mano de Noxus",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Darius.png"
+    },
+    {
+      "id": "Diana",
+      "key": "131",
+      "name": "Diana",
+      "title": "el Desdén de la Luna",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Diana.png"
+    },
+    {
+      "id": "DrMundo",
+      "key": "36",
+      "name": "Dr. Mundo",
+      "title": "el Loco de Zaun",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/DrMundo.png"
+    },
+    {
+      "id": "Draven",
+      "key": "119",
+      "name": "Draven",
+      "title": "el Glorioso Ejecutor",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Draven.png"
+    },
+    {
+      "id": "Ekko",
+      "key": "245",
+      "name": "Ekko",
+      "title": "el Joven que Fragmentó el Tiempo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ekko.png"
+    },
+    {
+      "id": "Elise",
+      "key": "60",
+      "name": "Elise",
+      "title": "la Reina de las Arañas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Elise.png"
+    },
+    {
+      "id": "Evelynn",
+      "key": "28",
+      "name": "Evelynn",
+      "title": "Abrazo de la Agonía",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Evelynn.png"
+    },
+    {
+      "id": "Ezreal",
+      "key": "81",
+      "name": "Ezreal",
+      "title": "el Explorador Pródigo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ezreal.png"
+    },
+    {
+      "id": "Fiddlesticks",
+      "key": "9",
+      "name": "Fiddlesticks",
+      "title": "el Terror Ancestral",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Fiddlesticks.png"
+    },
+    {
+      "id": "Fiora",
+      "key": "114",
+      "name": "Fiora",
+      "title": "la Gran Duelista",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Fiora.png"
+    },
+    {
+      "id": "Fizz",
+      "key": "105",
+      "name": "Fizz",
+      "title": "el Bromista de las Mareas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Fizz.png"
+    },
+    {
+      "id": "Galio",
+      "key": "3",
+      "name": "Galio",
+      "title": "el Coloso",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Galio.png"
+    },
+    {
+      "id": "Gangplank",
+      "key": "41",
+      "name": "Gangplank",
+      "title": "el Azote de los Mares",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Gangplank.png"
+    },
+    {
+      "id": "Garen",
+      "key": "86",
+      "name": "Garen",
+      "title": "el Poder de Demacia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Garen.png"
+    },
+    {
+      "id": "Gnar",
+      "key": "150",
+      "name": "Gnar",
+      "title": "el Eslabón Perdido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Gnar.png"
+    },
+    {
+      "id": "Gragas",
+      "key": "79",
+      "name": "Gragas",
+      "title": "el Revoltoso",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Gragas.png"
+    },
+    {
+      "id": "Graves",
+      "key": "104",
+      "name": "Graves",
+      "title": "el Forajido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Graves.png"
+    },
+    {
+      "id": "Gwen",
+      "key": "887",
+      "name": "Gwen",
+      "title": "La Costurera Sagrada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Gwen.png"
+    },
+    {
+      "id": "Hecarim",
+      "key": "120",
+      "name": "Hecarim",
+      "title": "la Sombra de la Guerra",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Hecarim.png"
+    },
+    {
+      "id": "Heimerdinger",
+      "key": "74",
+      "name": "Heimerdinger",
+      "title": "el Venerable Inventor",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Heimerdinger.png"
+    },
+    {
+      "id": "Hwei",
+      "key": "910",
+      "name": "Hwei",
+      "title": "el Visionario",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Hwei.png"
+    },
+    {
+      "id": "Illaoi",
+      "key": "420",
+      "name": "Illaoi",
+      "title": "la Sacerdotisa del Kraken",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Illaoi.png"
+    },
+    {
+      "id": "Irelia",
+      "key": "39",
+      "name": "Irelia",
+      "title": "la Cuchilla Danzante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Irelia.png"
+    },
+    {
+      "id": "Ivern",
+      "key": "427",
+      "name": "Ivern",
+      "title": "el Árbol Padre",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ivern.png"
+    },
+    {
+      "id": "Janna",
+      "key": "40",
+      "name": "Janna",
+      "title": "la Furia de la Tormenta",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Janna.png"
+    },
+    {
+      "id": "JarvanIV",
+      "key": "59",
+      "name": "Jarvan IV",
+      "title": "el Ejemplo de Demacia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/JarvanIV.png"
+    },
+    {
+      "id": "Jax",
+      "key": "24",
+      "name": "Jax",
+      "title": "el Maestro de Armas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Jax.png"
+    },
+    {
+      "id": "Jayce",
+      "key": "126",
+      "name": "Jayce",
+      "title": "el Defensor del Mañana",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Jayce.png"
+    },
+    {
+      "id": "Jhin",
+      "key": "202",
+      "name": "Jhin",
+      "title": "el Virtuoso",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Jhin.png"
+    },
+    {
+      "id": "Jinx",
+      "key": "222",
+      "name": "Jinx",
+      "title": "la Bala Perdida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Jinx.png"
+    },
+    {
+      "id": "KSante",
+      "key": "897",
+      "name": "K'Sante",
+      "title": "El Orgullo de Nazumah",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/KSante.png"
+    },
+    {
+      "id": "Kaisa",
+      "key": "145",
+      "name": "Kai'Sa",
+      "title": "La Hija del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kaisa.png"
+    },
+    {
+      "id": "Kalista",
+      "key": "429",
+      "name": "Kalista",
+      "title": "el Espíritu de la Venganza",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kalista.png"
+    },
+    {
+      "id": "Karma",
+      "key": "43",
+      "name": "Karma",
+      "title": "la Iluminada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Karma.png"
+    },
+    {
+      "id": "Karthus",
+      "key": "30",
+      "name": "Karthus",
+      "title": "el Canto de la Muerte",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Karthus.png"
+    },
+    {
+      "id": "Kassadin",
+      "key": "38",
+      "name": "Kassadin",
+      "title": "el Caminante del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kassadin.png"
+    },
+    {
+      "id": "Katarina",
+      "key": "55",
+      "name": "Katarina",
+      "title": "la Daga Siniestra",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Katarina.png"
+    },
+    {
+      "id": "Kayle",
+      "key": "10",
+      "name": "Kayle",
+      "title": "la Justiciera",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kayle.png"
+    },
+    {
+      "id": "Kayn",
+      "key": "141",
+      "name": "Kayn",
+      "title": "el Segador Sombrío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kayn.png"
+    },
+    {
+      "id": "Kennen",
+      "key": "85",
+      "name": "Kennen",
+      "title": "el Corazón de la Tempestad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kennen.png"
+    },
+    {
+      "id": "Khazix",
+      "key": "121",
+      "name": "Kha'Zix",
+      "title": "el Saqueador del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Khazix.png"
+    },
+    {
+      "id": "Kindred",
+      "key": "203",
+      "name": "Kindred",
+      "title": "los Cazadores Eternos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kindred.png"
+    },
+    {
+      "id": "Kled",
+      "key": "240",
+      "name": "Kled",
+      "title": "el Jinete Cascarrabias",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Kled.png"
+    },
+    {
+      "id": "KogMaw",
+      "key": "96",
+      "name": "Kog'Maw",
+      "title": "la Boca del Abismo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/KogMaw.png"
+    },
+    {
+      "id": "Leblanc",
+      "key": "7",
+      "name": "LeBlanc",
+      "title": "la Maquiavélica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Leblanc.png"
+    },
+    {
+      "id": "LeeSin",
+      "key": "64",
+      "name": "Lee Sin",
+      "title": "el Monje Ciego",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/LeeSin.png"
+    },
+    {
+      "id": "Leona",
+      "key": "89",
+      "name": "Leona",
+      "title": "el Radiante Amanecer",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Leona.png"
+    },
+    {
+      "id": "Lillia",
+      "key": "876",
+      "name": "Lillia",
+      "title": "La Flor Tímida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Lillia.png"
+    },
+    {
+      "id": "Lissandra",
+      "key": "127",
+      "name": "Lissandra",
+      "title": "la Bruja de Hielo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Lissandra.png"
+    },
+    {
+      "id": "Locke",
+      "key": "805",
+      "name": "Locke",
+      "title": "el Exorcista de las Cenizas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Locke.png"
+    },
+    {
+      "id": "Lucian",
+      "key": "236",
+      "name": "Lucian",
+      "title": "el Purificador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Lucian.png"
+    },
+    {
+      "id": "Lulu",
+      "key": "117",
+      "name": "Lulu",
+      "title": "La Hechicera Hadística",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Lulu.png"
+    },
+    {
+      "id": "Lux",
+      "key": "99",
+      "name": "Lux",
+      "title": "la Dama Luminosa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Lux.png"
+    },
+    {
+      "id": "MasterYi",
+      "key": "11",
+      "name": "Maestro Yi",
+      "title": "la Espada Wuju",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/MasterYi.png"
+    },
+    {
+      "id": "Malphite",
+      "key": "54",
+      "name": "Malphite",
+      "title": "el Fragmento del Monolito",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Malphite.png"
+    },
+    {
+      "id": "Malzahar",
+      "key": "90",
+      "name": "Malzahar",
+      "title": "el Profeta del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Malzahar.png"
+    },
+    {
+      "id": "Maokai",
+      "key": "57",
+      "name": "Maokai",
+      "title": "el Treant Retorcido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Maokai.png"
+    },
+    {
+      "id": "Mel",
+      "key": "800",
+      "name": "Mel",
+      "title": "el Reflejo del Alma",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Mel.png"
+    },
+    {
+      "id": "Milio",
+      "key": "902",
+      "name": "Milio",
+      "title": "La Flama Gentil",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Milio.png"
+    },
+    {
+      "id": "MissFortune",
+      "key": "21",
+      "name": "Miss Fortune",
+      "title": "la Cazarrecompensas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/MissFortune.png"
+    },
+    {
+      "id": "Mordekaiser",
+      "key": "82",
+      "name": "Mordekaiser",
+      "title": "el Renacido de Hierro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Mordekaiser.png"
+    },
+    {
+      "id": "Morgana",
+      "key": "25",
+      "name": "Morgana",
+      "title": "la Caída",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Morgana.png"
+    },
+    {
+      "id": "Naafiri",
+      "key": "950",
+      "name": "Naafiri",
+      "title": "la Sabueso de las Cien Mordidas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Naafiri.png"
+    },
+    {
+      "id": "Nami",
+      "key": "267",
+      "name": "Nami",
+      "title": "la Invocadora de Mareas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nami.png"
+    },
+    {
+      "id": "Nasus",
+      "key": "75",
+      "name": "Nasus",
+      "title": "el Curador de las Arenas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nasus.png"
+    },
+    {
+      "id": "Nautilus",
+      "key": "111",
+      "name": "Nautilus",
+      "title": "el Titán de las Profundidades",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nautilus.png"
+    },
+    {
+      "id": "Neeko",
+      "key": "518",
+      "name": "Neeko",
+      "title": "la Camaleón Curiosa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Neeko.png"
+    },
+    {
+      "id": "Nidalee",
+      "key": "76",
+      "name": "Nidalee",
+      "title": "la Cazadora Salvaje",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nidalee.png"
+    },
+    {
+      "id": "Nilah",
+      "key": "895",
+      "name": "Nilah",
+      "title": "la Alegría Desatada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nilah.png"
+    },
+    {
+      "id": "Nocturne",
+      "key": "56",
+      "name": "Nocturne",
+      "title": "la Pesadilla Eterna",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nocturne.png"
+    },
+    {
+      "id": "Nunu",
+      "key": "20",
+      "name": "Nunu y Willump",
+      "title": "el Niño y su Yeti",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Nunu.png"
+    },
+    {
+      "id": "Olaf",
+      "key": "2",
+      "name": "Olaf",
+      "title": "el Berserker",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Olaf.png"
+    },
+    {
+      "id": "Orianna",
+      "key": "61",
+      "name": "Orianna",
+      "title": "la Doncella Mecánica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Orianna.png"
+    },
+    {
+      "id": "Ornn",
+      "key": "516",
+      "name": "Ornn",
+      "title": "El Fuego Debajo de la Montaña",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ornn.png"
+    },
+    {
+      "id": "Pantheon",
+      "key": "80",
+      "name": "Pantheon",
+      "title": "la Lanza Inquebrantable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Pantheon.png"
+    },
+    {
+      "id": "Poppy",
+      "key": "78",
+      "name": "Poppy",
+      "title": "la Guardiana del Martillo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Poppy.png"
+    },
+    {
+      "id": "Pyke",
+      "key": "555",
+      "name": "Pyke",
+      "title": "el Destripador del Muelle Rojo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Pyke.png"
+    },
+    {
+      "id": "Qiyana",
+      "key": "246",
+      "name": "Qiyana",
+      "title": "La Emperatriz de los Elementos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Qiyana.png"
+    },
+    {
+      "id": "Quinn",
+      "key": "133",
+      "name": "Quinn",
+      "title": "las Alas de Demacia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Quinn.png"
+    },
+    {
+      "id": "Rakan",
+      "key": "497",
+      "name": "Rakan",
+      "title": "El Encantador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Rakan.png"
+    },
+    {
+      "id": "Rammus",
+      "key": "33",
+      "name": "Rammus",
+      "title": "el Armadurillo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Rammus.png"
+    },
+    {
+      "id": "RekSai",
+      "key": "421",
+      "name": "Rek'Sai",
+      "title": "la Excavadora del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/RekSai.png"
+    },
+    {
+      "id": "Rell",
+      "key": "526",
+      "name": "Rell",
+      "title": "la Doncella de Hierro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Rell.png"
+    },
+    {
+      "id": "Renata",
+      "key": "888",
+      "name": "Renata Glasc",
+      "title": "la Quimobaronesa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Renata.png"
+    },
+    {
+      "id": "Renekton",
+      "key": "58",
+      "name": "Renekton",
+      "title": "el Carnicero de las Arenas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Renekton.png"
+    },
+    {
+      "id": "Rengar",
+      "key": "107",
+      "name": "Rengar",
+      "title": "el Orgullo Acechante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Rengar.png"
+    },
+    {
+      "id": "Riven",
+      "key": "92",
+      "name": "Riven",
+      "title": "la Desterrada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Riven.png"
+    },
+    {
+      "id": "Rumble",
+      "key": "68",
+      "name": "Rumble",
+      "title": "la Amenaza Mecánica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Rumble.png"
+    },
+    {
+      "id": "Ryze",
+      "key": "13",
+      "name": "Ryze",
+      "title": "el Mago Rúnico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ryze.png"
+    },
+    {
+      "id": "Samira",
+      "key": "360",
+      "name": "Samira",
+      "title": "la Rosa del Desierto",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Samira.png"
+    },
+    {
+      "id": "Sejuani",
+      "key": "113",
+      "name": "Sejuani",
+      "title": "la Furia del Norte",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Sejuani.png"
+    },
+    {
+      "id": "Senna",
+      "key": "235",
+      "name": "Senna",
+      "title": "la Redentora",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Senna.png"
+    },
+    {
+      "id": "Seraphine",
+      "key": "147",
+      "name": "Seraphine",
+      "title": "la Cantante Soñadora",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Seraphine.png"
+    },
+    {
+      "id": "Sett",
+      "key": "875",
+      "name": "Sett",
+      "title": "El Jefe",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Sett.png"
+    },
+    {
+      "id": "Shaco",
+      "key": "35",
+      "name": "Shaco",
+      "title": "el Bufón Siniestro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Shaco.png"
+    },
+    {
+      "id": "Shen",
+      "key": "98",
+      "name": "Shen",
+      "title": "el Ojo del Crepúsculo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Shen.png"
+    },
+    {
+      "id": "Shyvana",
+      "key": "102",
+      "name": "Shyvana",
+      "title": "la Hija del Dragón",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Shyvana.png"
+    },
+    {
+      "id": "Singed",
+      "key": "27",
+      "name": "Singed",
+      "title": "el Químico Loco",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Singed.png"
+    },
+    {
+      "id": "Sion",
+      "key": "14",
+      "name": "Sion",
+      "title": "el Coloso no Muerto",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Sion.png"
+    },
+    {
+      "id": "Sivir",
+      "key": "15",
+      "name": "Sivir",
+      "title": "la Señora de la Batalla",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Sivir.png"
+    },
+    {
+      "id": "Skarner",
+      "key": "72",
+      "name": "Skarner",
+      "title": "El Soberano Primordial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Skarner.png"
+    },
+    {
+      "id": "Smolder",
+      "key": "901",
+      "name": "Smolder",
+      "title": "el Dragoncito Flamante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Smolder.png"
+    },
+    {
+      "id": "Sona",
+      "key": "37",
+      "name": "Sona",
+      "title": "la Virtuosa de las Cuerdas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Sona.png"
+    },
+    {
+      "id": "Soraka",
+      "key": "16",
+      "name": "Soraka",
+      "title": "la Hija de las Estrellas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Soraka.png"
+    },
+    {
+      "id": "Swain",
+      "key": "50",
+      "name": "Swain",
+      "title": "el Gran General Noxiano",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Swain.png"
+    },
+    {
+      "id": "Sylas",
+      "key": "517",
+      "name": "Sylas",
+      "title": "el Usurpador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Sylas.png"
+    },
+    {
+      "id": "Syndra",
+      "key": "134",
+      "name": "Syndra",
+      "title": "la Soberana Oscura",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Syndra.png"
+    },
+    {
+      "id": "TahmKench",
+      "key": "223",
+      "name": "Tahm Kench",
+      "title": "El Rey del Río",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/TahmKench.png"
+    },
+    {
+      "id": "Taliyah",
+      "key": "163",
+      "name": "Taliyah",
+      "title": "la Tejedora de Piedra",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Taliyah.png"
+    },
+    {
+      "id": "Talon",
+      "key": "91",
+      "name": "Talon",
+      "title": "la Sombra de la Navaja",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Talon.png"
+    },
+    {
+      "id": "Taric",
+      "key": "44",
+      "name": "Taric",
+      "title": "el Escudo de Valoran",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Taric.png"
+    },
+    {
+      "id": "Teemo",
+      "key": "17",
+      "name": "Teemo",
+      "title": "el Explorador Veloz",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Teemo.png"
+    },
+    {
+      "id": "Thresh",
+      "key": "412",
+      "name": "Thresh",
+      "title": "el Carcelero Implacable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Thresh.png"
+    },
+    {
+      "id": "Tristana",
+      "key": "18",
+      "name": "Tristana",
+      "title": "la Artillera Yordle",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Tristana.png"
+    },
+    {
+      "id": "Trundle",
+      "key": "48",
+      "name": "Trundle",
+      "title": "el Rey de los Troles",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Trundle.png"
+    },
+    {
+      "id": "Tryndamere",
+      "key": "23",
+      "name": "Tryndamere",
+      "title": "el Rey Bárbaro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Tryndamere.png"
+    },
+    {
+      "id": "TwistedFate",
+      "key": "4",
+      "name": "Twisted Fate",
+      "title": "el Maestro de las Cartas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/TwistedFate.png"
+    },
+    {
+      "id": "Twitch",
+      "key": "29",
+      "name": "Twitch",
+      "title": "la Rata Mutante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Twitch.png"
+    },
+    {
+      "id": "Udyr",
+      "key": "77",
+      "name": "Udyr",
+      "title": "el Cambiapieles",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Udyr.png"
+    },
+    {
+      "id": "Urgot",
+      "key": "6",
+      "name": "Urgot",
+      "title": "el Temerario",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Urgot.png"
+    },
+    {
+      "id": "Varus",
+      "key": "110",
+      "name": "Varus",
+      "title": "la Flecha del Castigo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Varus.png"
+    },
+    {
+      "id": "Vayne",
+      "key": "67",
+      "name": "Vayne",
+      "title": "la Cazadora Nocturna",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Vayne.png"
+    },
+    {
+      "id": "Veigar",
+      "key": "45",
+      "name": "Veigar",
+      "title": "el Pequeño Maestro del Mal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Veigar.png"
+    },
+    {
+      "id": "Velkoz",
+      "key": "161",
+      "name": "Vel'Koz",
+      "title": "el Ojo del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Velkoz.png"
+    },
+    {
+      "id": "Vex",
+      "key": "711",
+      "name": "Vex",
+      "title": "la Tristóloga",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Vex.png"
+    },
+    {
+      "id": "Vi",
+      "key": "254",
+      "name": "Vi",
+      "title": "la Vigilante de Piltóver",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Vi.png"
+    },
+    {
+      "id": "Viego",
+      "key": "234",
+      "name": "Viego",
+      "title": "El Rey Arruinado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Viego.png"
+    },
+    {
+      "id": "Viktor",
+      "key": "112",
+      "name": "Viktor",
+      "title": "El Heraldo de lo Arcano",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Viktor.png"
+    },
+    {
+      "id": "Vladimir",
+      "key": "8",
+      "name": "Vladimir",
+      "title": "el Segador Carmesí",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Vladimir.png"
+    },
+    {
+      "id": "Volibear",
+      "key": "106",
+      "name": "Volibear",
+      "title": "la Tormenta Implacable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Volibear.png"
+    },
+    {
+      "id": "Warwick",
+      "key": "19",
+      "name": "Warwick",
+      "title": "la Furia Desatada de Zaun",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Warwick.png"
+    },
+    {
+      "id": "MonkeyKing",
+      "key": "62",
+      "name": "Wukong",
+      "title": "el Rey de los Monos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/MonkeyKing.png"
+    },
+    {
+      "id": "Xayah",
+      "key": "498",
+      "name": "Xayah",
+      "title": "la Rebelde",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Xayah.png"
+    },
+    {
+      "id": "Xerath",
+      "key": "101",
+      "name": "Xerath",
+      "title": "el Mago Ascendente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Xerath.png"
+    },
+    {
+      "id": "XinZhao",
+      "key": "5",
+      "name": "Xin Zhao",
+      "title": "el Senescal de Demacia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/XinZhao.png"
+    },
+    {
+      "id": "Yasuo",
+      "key": "157",
+      "name": "Yasuo",
+      "title": "el Imperdonable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yasuo.png"
+    },
+    {
+      "id": "Yone",
+      "key": "777",
+      "name": "Yone",
+      "title": "el Imborrable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yone.png"
+    },
+    {
+      "id": "Yorick",
+      "key": "83",
+      "name": "Yorick",
+      "title": "Pastor de Almas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yorick.png"
+    },
+    {
+      "id": "Yunara",
+      "key": "804",
+      "name": "Yunara",
+      "title": "La Fe Inquebrantable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yunara.png"
+    },
+    {
+      "id": "Yuumi",
+      "key": "350",
+      "name": "Yuumi",
+      "title": "la gatita mágica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yuumi.png"
+    },
+    {
+      "id": "Zaahen",
+      "key": "904",
+      "name": "Zaahen",
+      "title": "El Incorrupto",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zaahen.png"
+    },
+    {
+      "id": "Zac",
+      "key": "154",
+      "name": "Zac",
+      "title": "el Arma Secreta",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zac.png"
+    },
+    {
+      "id": "Zed",
+      "key": "238",
+      "name": "Zed",
+      "title": "el Maestro de las Sombras",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zed.png"
+    },
+    {
+      "id": "Zeri",
+      "key": "221",
+      "name": "Zeri",
+      "title": "La chispa de Zaun",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zeri.png"
+    },
+    {
+      "id": "Ziggs",
+      "key": "115",
+      "name": "Ziggs",
+      "title": "el Experto en Hexplosivos ",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ziggs.png"
+    },
+    {
+      "id": "Zilean",
+      "key": "26",
+      "name": "Zilean",
+      "title": "el Guardián del Tiempo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zilean.png"
+    },
+    {
+      "id": "Zoe",
+      "key": "142",
+      "name": "Zoe",
+      "title": "el Aspecto del Crepúsculo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zoe.png"
+    },
+    {
+      "id": "Zyra",
+      "key": "143",
+      "name": "Zyra",
+      "title": "el Despertar de las Espinas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Zyra.png"
+    }
+  ],
+  "items": [
+    {
+      "id": "1001",
+      "name": "Botas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1001.png",
+      "description": "25 de Velocidad de Movimiento",
+      "gold": 300
+    },
+    {
+      "id": "1004",
+      "name": "Amuleto de las Hadas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1004.png",
+      "description": "50% de Regen. de Maná Básica",
+      "gold": 200
+    },
+    {
+      "id": "1006",
+      "name": "Perla de Rejuvenecimiento",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1006.png",
+      "description": "100% de Regen. de Vida Básica",
+      "gold": 300
+    },
+    {
+      "id": "1011",
+      "name": "Cinturón de Gigante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1011.png",
+      "description": "350 de Vida",
+      "gold": 900
+    },
+    {
+      "id": "1018",
+      "name": "Capa de Agilidad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1018.png",
+      "description": "15% de Probabilidad de Golpe Crítico",
+      "gold": 600
+    },
+    {
+      "id": "1026",
+      "name": "Varita Explosiva",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1026.png",
+      "description": "45 de Poder de Habilidad",
+      "gold": 850
+    },
+    {
+      "id": "1027",
+      "name": "Cristal de Zafiro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1027.png",
+      "description": "300 de Maná",
+      "gold": 300
+    },
+    {
+      "id": "1028",
+      "name": "Cristal de Rubí",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1028.png",
+      "description": "150 de Vida",
+      "gold": 400
+    },
+    {
+      "id": "1029",
+      "name": "Armadura de Tela",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1029.png",
+      "description": "15 de Armadura",
+      "gold": 300
+    },
+    {
+      "id": "1031",
+      "name": "Cota de Malla",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1031.png",
+      "description": "40 de Armadura",
+      "gold": 800
+    },
+    {
+      "id": "1033",
+      "name": "Manto Anulamagia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1033.png",
+      "description": "20 de Resistencia Mágica",
+      "gold": 400
+    },
+    {
+      "id": "1036",
+      "name": "Espada Larga",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1036.png",
+      "description": "10 de Daño de Ataque",
+      "gold": 350
+    },
+    {
+      "id": "1037",
+      "name": "Picacha",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1037.png",
+      "description": "25 de Daño de Ataque",
+      "gold": 875
+    },
+    {
+      "id": "1038",
+      "name": "Espadón",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1038.png",
+      "description": "40 de Daño de Ataque",
+      "gold": 1300
+    },
+    {
+      "id": "1042",
+      "name": "Daga",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1042.png",
+      "description": "10% de Velocidad de Ataque",
+      "gold": 250
+    },
+    {
+      "id": "1043",
+      "name": "Arco Recurvado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1043.png",
+      "description": "15% de Velocidad de Ataque Aguijón Los ataques infligen 15 de daño físico adicional al impacto .",
+      "gold": 700
+    },
+    {
+      "id": "1052",
+      "name": "Libro Amplificador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1052.png",
+      "description": "20 de Poder de Habilidad",
+      "gold": 400
+    },
+    {
+      "id": "1053",
+      "name": "Cetro Vampírico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1053.png",
+      "description": "15 de Daño de Ataque 7% de Robo de Vida",
+      "gold": 900
+    },
+    {
+      "id": "1054",
+      "name": "Escudo de Doran",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1054.png",
+      "description": "110 de Vida Concentración Tenaz Recuperas 4 de Vida cada 5 seg. Tras recibir daño de un campeón, restauras vida a lo largo de 8 seg. Una Ayudita Los ataques infligen 5 de daño físico adicional a súbditos.",
+      "gold": 450
+    },
+    {
+      "id": "1055",
+      "name": "Espada de Doran",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1055.png",
+      "description": "10 de Daño de Ataque 80 de Vida 2.5% de Omnivampirismo",
+      "gold": 450
+    },
+    {
+      "id": "1056",
+      "name": "Sortija de Doran",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1056.png",
+      "description": "18 de Poder de Habilidad 90 de Vida Drenar: Restaura 1 de Maná por segundo y aumenta a 2 de Maná por segundo durante 5 seg después de infligir daño a un campeón enemigo. Si no puedes obtener maná, cura un 45% de este valor. Una Ayudita Los ataques infligen 5 de daño físico adicional a súbditos.",
+      "gold": 400
+    },
+    {
+      "id": "1057",
+      "name": "Capa de Negatrones",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1057.png",
+      "description": "45 de Resistencia Mágica",
+      "gold": 850
+    },
+    {
+      "id": "1058",
+      "name": "Vara Innecesariamente Grande",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1058.png",
+      "description": "65 de Poder de Habilidad",
+      "gold": 1200
+    },
+    {
+      "id": "1082",
+      "name": "El Sello de la Oscuridad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1082.png",
+      "description": "15 de Poder de Habilidad 50 de Vida Gloria Los derribos otorgan Gloria (hasta 10). Pierdes 5 de Gloria al morir. Obtienes 4 de Poder de Habilidad por cada acumulación de Gloria .",
+      "gold": 350
+    },
+    {
+      "id": "1083",
+      "name": "Sacrificar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1083.png",
+      "description": "7 de Daño de Ataque Cosechar Restaura 3 de Vida al impacto . Matar súbditos otorga 1 de oro , hasta 100 . Alcanzar el límite otorga 350 de oro adicional .",
+      "gold": 450
+    },
+    {
+      "id": "1086",
+      "name": "Arco de Doran",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1086.png",
+      "description": "8 de Daño de Ataque 15% de Velocidad de Ataque 1.5% de Omnivampirismo",
+      "gold": 400
+    },
+    {
+      "id": "1101",
+      "name": "Cachorro de Rasgafuegos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1101.png",
+      "description": "Compañeros de la Jungla Invocas un Rasgafuegos que te ayuda a pelear contra los monstruos. El compañero crece conforme cazas monstruos, lo que potencia tu Castigo . Cuando el compañero alcanza la madurez, completas tu misión de jungla. Además, cada cierto tiempo, tu próximo ataque o habilidad quema a los enemigos y los ralentiza . Al derribar monstruos grandes, obtienes el efecto al instante.",
+      "gold": 450
+    },
+    {
+      "id": "1102",
+      "name": "Cría de Trotabrisas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1102.png",
+      "description": "Compañeros de la Jungla Invocas un Trotabrisas que te ayuda a pelear contra los monstruos. El compañero crece conforme cazas monstruos, lo que potencia tu Castigo . Cuando el compañero alcanza la madurez, completas tu misión de jungla. Además, obtienes velocidad de movimiento al entrar a la maleza, que aumenta al derribar monstruos grandes.",
+      "gold": 450
+    },
+    {
+      "id": "1103",
+      "name": "Retoño de Pisamusgo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1103.png",
+      "description": "Compañeros de la Jungla Invocas un Pisamusgo que te ayuda a pelear contra los monstruos. El compañero crece conforme cazas monstruos, lo que potencia tu Castigo . Cuando el compañero alcanza la madurez, completas tu misión de jungla. Además, obtienes un escudo mientras estás fuera de combate y después de derribar monstruos grandes.",
+      "gold": 450
+    },
+    {
+      "id": "1105",
+      "name": "Retoño de Pisamusgo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1105.png",
+      "description": "Compañeros de la Jungla Invocas un Pisamusgo que te ayuda a pelear contra los monstruos. El compañero crece conforme cazas monstruos, lo que potencia tu Castigo . Cuando el compañero alcanza la madurez, completas tu misión de jungla. Además, obtienes un escudo mientras estás fuera de combate y después de derribar monstruos grandes.",
+      "gold": 450
+    },
+    {
+      "id": "1106",
+      "name": "Cría de Trotabrisas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1106.png",
+      "description": "Compañeros de la Jungla Invocas un Trotabrisas que te ayuda a pelear contra los monstruos. El compañero crece conforme cazas monstruos, lo que potencia tu Castigo . Cuando el compañero alcanza la madurez, completas tu misión de jungla. Además, obtienes velocidad de movimiento al entrar a la maleza, que aumenta al derribar monstruos grandes.",
+      "gold": 450
+    },
+    {
+      "id": "1107",
+      "name": "Cachorro de Rasgafuegos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1107.png",
+      "description": "Compañeros de la Jungla Invocas un Rasgafuegos que te ayuda a pelear contra los monstruos. El compañero crece conforme cazas monstruos, lo que potencia tu Castigo . Cuando el compañero alcanza la madurez, completas tu misión de jungla. Además, cada cierto tiempo, tu próximo ataque o habilidad quema a los enemigos y los ralentiza . Al derribar monstruos grandes, obtienes el efecto al instante.",
+      "gold": 450
+    },
+    {
+      "id": "1120",
+      "name": "Casco de Doran",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/1120.png",
+      "description": "150 de Vida 8 de Armadura 8 de Resistencia Mágica Una Ayudita Los ataques infligen 5 de daño físico adicional contra súbditos.",
+      "gold": 450
+    },
+    {
+      "id": "2003",
+      "name": "Poción de Vida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2003.png",
+      "description": "Voracidad Restaura 120 de Vida a lo largo de 15 seg.",
+      "gold": 50
+    },
+    {
+      "id": "2019",
+      "name": "Sello de Acero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2019.png",
+      "description": "15 de Daño de Ataque 30 de Armadura",
+      "gold": 1100
+    },
+    {
+      "id": "2020",
+      "name": "El Brutalizador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2020.png",
+      "description": "25 de Daño de Ataque 10 de Aceleración de Habilidad 5 de Letalidad",
+      "gold": 1337
+    },
+    {
+      "id": "2021",
+      "name": "Excavador de Túneles",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2021.png",
+      "description": "15 de Daño de Ataque 250 de Vida",
+      "gold": 1150
+    },
+    {
+      "id": "2022",
+      "name": "Mena Brillante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2022.png",
+      "description": "5 de Aceleración de Habilidad",
+      "gold": 250
+    },
+    {
+      "id": "2031",
+      "name": "Poción Reutilizable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2031.png",
+      "description": "Activa (2 cargas) Restaura 100 de Vida a lo largo de 12 seg. Se rellena al visitar la tienda.",
+      "gold": 150
+    },
+    {
+      "id": "2051",
+      "name": "Cuerno del Guardián",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2051.png",
+      "description": "150 de Vida Restauración: Restaura 20 de Vida cada 5 seg. Osadía: Bloquea 15 de daño de los ataques y hechizos de campeones (25% de efectividad contra habilidades de daño prolongado).",
+      "gold": 950
+    },
+    {
+      "id": "2055",
+      "name": "Centinela de Control",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2055.png",
+      "description": "Consumible Coloca un Centinela de Control que otorga visión y revela los Centinelas Invisibles, las trampas y los enemigos camuflados .",
+      "gold": 75
+    },
+    {
+      "id": "2065",
+      "name": "Canto de Guerra de Shurelya",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2065.png",
+      "description": "50 de Poder de Habilidad 15 de Aceleración de Habilidad 4% de Velocidad de Movimiento 125% de Regen. de Maná Básica Discurso Inspirador Otorga a los aliados cercanos un 30% de Velocidad de Movimiento durante 4 seg.",
+      "gold": 2200
+    },
+    {
+      "id": "2138",
+      "name": "Elixir de Hierro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2138.png",
+      "description": "Consumible Otorga 300 de Vida , un 25% de Tenacidad y tamaño aumentado durante 3 min. Mientras dure el efecto, dejas una estela tras de tí que aumenta la Velocidad de Movimiento de los campeones aliados en un 15% .",
+      "gold": 500
+    },
+    {
+      "id": "2139",
+      "name": "Elixir de Brujería",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2139.png",
+      "description": "Consumible Otorga 50 de Poder de Habilidad y un 15% de Regen. de Maná durante 3 min. Mientras está activa, infligir daño a un campeón o una torreta inflige 25 de daño verdadero adicional (5 seg contra campeones).",
+      "gold": 500
+    },
+    {
+      "id": "2140",
+      "name": "Elixir de Furia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2140.png",
+      "description": "Consumible Otorga 30 de Daño de Ataque y un 12% de Vampirismo Físico contra campeones durante 3 min.",
+      "gold": 500
+    },
+    {
+      "id": "2141",
+      "name": "Juguito de Gorrito",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2141.png",
+      "description": "Te ayuda a ir con la cabeza en alto. Activa, Consumir: Este jugo no hace nada.",
+      "gold": 300
+    },
+    {
+      "id": "2420",
+      "name": "Guardabrazo del Buscador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2420.png",
+      "description": "40 de Poder de Habilidad 25 de Armadura Detener el Tiempo (Un solo uso): Entra en Estasis durante 2.5 seg.",
+      "gold": 1600
+    },
+    {
+      "id": "2421",
+      "name": "Guardabrazo Fragmentado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2421.png",
+      "description": "40 de Poder de Habilidad 25 de Armadura Tiempo Fragmentado El Guardabrazo se destruye, pero aún puede mejorarse. Tras destruir un Guardabrazo, el vendedor solo te venderá Guardabrazo Fragmentado.",
+      "gold": 1600
+    },
+    {
+      "id": "2501",
+      "name": "Cota Sangrienta del Soberano",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2501.png",
+      "description": "30 de Daño de Ataque 550 de Vida Tiranía Obtienes un 2.5% de tu Vida adicional como Daño de Ataque . Reprensión Obtienes hasta un 12% de Daño de Ataque aumentado según el porcentaje de tu vida faltante.",
+      "gold": 3300
+    },
+    {
+      "id": "2502",
+      "name": "Desesperación Eterna",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2502.png",
+      "description": "400 de Vida 50 de Armadura 15 de Aceleración de Habilidad Angustia Cada 4 seg en combate contra campeones, infliges daño mágico a campeones enemigos cercanos y te curas por un 250% del daño infligido.",
+      "gold": 2800
+    },
+    {
+      "id": "2503",
+      "name": "Antorcha de Fuegoscuro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2503.png",
+      "description": "80 de Poder de Habilidad 600 de Maná 20 de Aceleración de Habilidad Llamarada Maligna Las habilidades de daño infligen daño mágico adicional durante 3 seg. Fuegoscuro Por cada campeón enemigo, monstruo grande o épico afectado por tu Llamarada Maligna , obtienes un 4% de Poder de Habilidad .",
+      "gold": 2800
+    },
+    {
+      "id": "2504",
+      "name": "Rukerno Kaénico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2504.png",
+      "description": "400 de Vida 80 de Resistencia Mágica 100% de Regen. de Vida Básica Ruina del Mago Si no recibes daño mágico durante 15 seg, obtienes un escudo mágico .",
+      "gold": 2900
+    },
+    {
+      "id": "2508",
+      "name": "Cenizas Predestinadas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2508.png",
+      "description": "30 de Poder de Habilidad Enardecer Las habilidades de daño infligen 15 de daño mágico adicional a lo largo de 3 seg. Inflige 45 de daño mágico adicional a monstruos.",
+      "gold": 900
+    },
+    {
+      "id": "2510",
+      "name": "Ocaso y Alba",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2510.png",
+      "description": "300 de Vida 60 de Poder de Habilidad 20 de Aceleración de Habilidad 20% de Velocidad de Ataque Espada Encantada (0 seg) Tras usar una habilidad, tu siguiente ataque inflige 0 de daño mágico adicional , te cura un 0 al impacto y aplica efectos al impacto una vez más.",
+      "gold": 3100
+    },
+    {
+      "id": "2512",
+      "name": "Proyectiles Cazademonios",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2512.png",
+      "description": "45% de Velocidad de Ataque 25% de Probabilidad de Golpe Crítico 4% de Velocidad de Movimiento Vigilancia Nocturna Obtienes 30 de Aceleración de Habilidad para la definitiva. Ráfaga Inicial Tras lanzar la definitiva, tus siguientes 3 ataques básicos obtienen un 50% de Velocidad de Ataque e infligen golpes críticos equivalente a un 80% de tu daño de golpe crítico durante 8 seg. Un ataque que sería un golpe crítico, inflige un 15% de daño verdadero adicional en lugar de un golpe crítico.",
+      "gold": 2650
+    },
+    {
+      "id": "2517",
+      "name": "Hambre Infinita",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2517.png",
+      "description": "65 de Daño de Ataque 5% de Omnivampirismo 20% de Tenacidad Sed Obtienes aceleración de habilidad según la cantidad de daño de ataque adicional que tengas. Festín Cuando un campeón muere al poco tiempo de haberle infligido daño, obtienes omnivampirismo durante cierto tiempo.",
+      "gold": 3100
+    },
+    {
+      "id": "2520",
+      "name": "Rompebastiones",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2520.png",
+      "description": "55 de Daño de Ataque 22 de Letalidad 15 de Aceleración de Habilidad Carga Hueca (0 seg) Causarle daño de habilidad a un campeón o monstruo épico inflige 0 de daño verdadero . Sabotaje Derribar a un campeón en un lapso de 3 seg después de dañarlo te otorga Sabotaje por 90 seg. Mientras tengas Sabotaje, tu próximo ataque contra un monstruo épico o torreta infligirá 0 de daño verdadero adicional durante 3 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "2522",
+      "name": "Actualizador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2522.png",
+      "description": "90 de Poder de Habilidad 300 de Maná 10 de Aceleración de Habilidad Maná de Verdad (0 seg) Durante 8 seg, tu maná se potencia. Mientras esté potenciado, tus hechizos cuestan un 100% más de Maná, obtienes un aumento de 0 de daño de habilidad, de Escudo y de Curación, y el enfriamiento de tus habilidades básicas se completa un 30% más rápido.",
+      "gold": 2800
+    },
+    {
+      "id": "2523",
+      "name": "Hexóptica C44",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2523.png",
+      "description": "55 de Daño de Ataque 25% de Probabilidad de Golpe Crítico Magnificación Inflige hasta un 10% de daño aumentado con ataques, según cuán lejos esté el enemigo (el máximo de daño se inflige a un alcance de 500). Precisión Arcana Cuando un campeón al que le infligiste daño muere en un lapso de 3 seg, obtienes 100 de alcance de ataque adicional durante 8 seg.",
+      "gold": 2800
+    },
+    {
+      "id": "2524",
+      "name": "Flautas de Bandle",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2524.png",
+      "description": "200 de Vida 15 de Aceleración de Habilidad 20 de Armadura 20 de Resistencia Mágica Fanfarria Al ralentizar o inmovilizar a un campeón enemigo, obtienes la mejora Fanfarria durante 0 seg. Fanfarria te otorga 20 de Velocidad de Movimiento . Además, mientras esté activa, tanto tú como tus aliados cercanos obtienen 0 de Velocidad de Ataque .",
+      "gold": 2300
+    },
+    {
+      "id": "2525",
+      "name": "Arnés de Protoplasma",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2525.png",
+      "description": "600 de Vida 20 de Aceleración de Habilidad Salvavidas (0 seg) Al recibir daño que reduciría tu Vida por debajo de un 30%, obtienes 0 de Vida Máxima durante 5 seg y te curas 0 de Vida a lo largo del efecto. Mientras recuperas vida, aumentas de tamaño en un 15%, y obtienes un 10% de Velocidad de Movimiento y un 25% de Tenacidad.",
+      "gold": 2600
+    },
+    {
+      "id": "2526",
+      "name": "Tiara Susurrante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/2526.png",
+      "description": "200 de Vida 8% de poder de curaciones y escudos 75% de Regen. de Maná Básica 300 de Maná Armonía Obtienes un 0% de poder de curaciones y escudos. Flujo de Maná (8 seg; máx.: 5 cargas) Al impactar a un enemigo con una habilidad, obtienes 4 de Maná Máximo (la bonificación se duplica contra campeones). Se transforma en Diadema Musical al tener 360 de Maná Máximo .",
+      "gold": 2250
+    },
+    {
+      "id": "3003",
+      "name": "Báculo del Arcángel",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3003.png",
+      "description": "70 de Poder de Habilidad 600 de Maná 25 de Aceleración de Habilidad Asombro . Obtienes Poder de Habilidad igual a un 1% del Maná adicional . Flujo de Maná (8 seg. Hasta 5 cargas) Asestar impactos con habilidades otorga 5 de Maná Máximo (se duplica contra campeones). Se transforma en Abrazo del Serafín al tener 360 de Maná Máximo .",
+      "gold": 2900
+    },
+    {
+      "id": "3004",
+      "name": "Manamune",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3004.png",
+      "description": "35 de Daño de Ataque 500 de Maná 15 de Aceleración de Habilidad Asombro . Obtienes 0 de Daño de ataque adicional . Flujo de Maná (8 seg. Hasta 4 cargas) Asestar impactos con habilidades y ataques otorga 3 de Maná Máximo (se duplica contra campeones). Se transforma en Muramaná al tener 360 de Maná Máximo .",
+      "gold": 2900
+    },
+    {
+      "id": "3006",
+      "name": "Grebas del Berserker",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3006.png",
+      "description": "30% de Velocidad de Ataque 45 de Velocidad de Movimiento",
+      "gold": 1100
+    },
+    {
+      "id": "3008",
+      "name": "Grebas Glotonas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3008.png",
+      "description": "45 de Velocidad de Movimiento 4% de Omnivampirismo Exterminar Al derribar campeones, obtienes un 0.6% de Omnivampirismo. El efecto se acumula hasta 10 veces.",
+      "gold": 1000
+    },
+    {
+      "id": "3009",
+      "name": "Botas de Rapidez",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3009.png",
+      "description": "55 de Velocidad de Movimiento Pies ligeros Reduce la eficacia de los efectos de ralentización en un 25%.",
+      "gold": 1000
+    },
+    {
+      "id": "3020",
+      "name": "Botas del Hechicero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3020.png",
+      "description": "12 de Penetración de Magia 45 de Velocidad de Movimiento",
+      "gold": 1100
+    },
+    {
+      "id": "3024",
+      "name": "Escudo Glacial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3024.png",
+      "description": "25 de Armadura 300 de Maná 10 de Aceleración de Habilidad",
+      "gold": 900
+    },
+    {
+      "id": "3026",
+      "name": "Ángel Guardián",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3026.png",
+      "description": "55 de Daño de Ataque 45 de Armadura Renacimiento Tras recibir daño letal, restaura un 50% de Vida básica y un 100% del Maná Máximo luego de 4 seg de Estasis .",
+      "gold": 3200
+    },
+    {
+      "id": "3031",
+      "name": "Filo del Infinito",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3031.png",
+      "description": "75 de Daño de Ataque 25% de Probabilidad de Golpe Crítico 30% de Daño de Golpe Crítico",
+      "gold": 3500
+    },
+    {
+      "id": "3032",
+      "name": "Flechas Salvajes de Yun Tal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3032.png",
+      "description": "50 de Daño de Ataque 45% de Velocidad de Ataque 0% de Probabilidad de Golpe Crítico A Más Práctica, Más Letalidad Al atacar, obtienes probabilidad de golpe crítico de forma permanente, hasta un máximo de un 25%. Ráfaga Al atacar un campeón enemigo, obtienes un 30% de Velocidad de Ataque durante 6 seg (30 seg de enfriamiento). Los ataques reducen este enfriamiento en 1 seg, que aumenta a 2 seg si asestas un golpe crítico.",
+      "gold": 3000
+    },
+    {
+      "id": "3033",
+      "name": "Recordatorio Mortal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3033.png",
+      "description": "35 de Daño de Ataque 30% de Penetración de Armadura 25% de Probabilidad de Golpe Crítico Heridas Graves Infligir daño físico aplica un 40% de Heridas a los campeones enemigos durante 3 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "3035",
+      "name": "Último Suspiro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3035.png",
+      "description": "20 de Daño de Ataque 18% de Penetración de Armadura",
+      "gold": 1450
+    },
+    {
+      "id": "3036",
+      "name": "Recuerdos de Lord Dominik",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3036.png",
+      "description": "35 de Daño de Ataque 35% de Penetración de Armadura 25% de Probabilidad de Golpe Crítico Verdugo de Gigantes Infliges hasta un 15% de daño adicional contra campeones según su vida adicional. Infliges el máximo de daño adicional cuando el enemigo tiene 1500 de Vida adicional.",
+      "gold": 3300
+    },
+    {
+      "id": "3041",
+      "name": "Robaalmas de Mejai",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3041.png",
+      "description": "20 de Poder de Habilidad 100 de Vida Gloria Los derribos otorgan Gloria (hasta 25). Pierdes 10 de Gloria al morir. Obtienes 5 de Poder de Habilidad por cada acumulación de Gloria y un 10% de Velocidad de Movimiento al tener 10 o más acumulaciones de Gloria .",
+      "gold": 1500
+    },
+    {
+      "id": "3044",
+      "name": "Bacteriófago",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3044.png",
+      "description": "15 de Daño de Ataque 200 de Vida Rabia Los ataques te otorgan velocidad de movimiento durante 2 seg.",
+      "gold": 1100
+    },
+    {
+      "id": "3046",
+      "name": "Bailarín Espectral",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3046.png",
+      "description": "65% de Velocidad de Ataque 25% de Probabilidad de Golpe Crítico 10% de Velocidad de Movimiento Vals Espectral Te vuelves Fantasma .",
+      "gold": 2650
+    },
+    {
+      "id": "3047",
+      "name": "Punteras de Acero Revestidas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3047.png",
+      "description": "25 de Armadura 45 de Velocidad de Movimiento Revestimiento Reduce el daño recibido de los ataques en un 10%.",
+      "gold": 1200
+    },
+    {
+      "id": "3050",
+      "name": "Convergencia de Zeke",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3050.png",
+      "description": "300 de Vida 25 de Armadura 25 de Resistencia Mágica 10 de Aceleración de Habilidad Tempestad de Fuego Escarchado Al lanzar tu definitiva, invocas una tormenta a tu alrededor durante 5 seg. La tormenta inflige 30 de daño mágico por seg a los campeones enemigos y los ralentiza en un 30%.",
+      "gold": 2200
+    },
+    {
+      "id": "3051",
+      "name": "Hacha Hogareña",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3051.png",
+      "description": "20 de Daño de Ataque 20% de Velocidad de Ataque",
+      "gold": 1200
+    },
+    {
+      "id": "3053",
+      "name": "Guantelete de Sterak",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3053.png",
+      "description": "400 de Vida 20% de Tenacidad Garras que Atrapan Obtienes daño de ataque adicional . Salvavidas Al recibir daño que reduciría tu Vida por debajo de un 30%, obtienes un escudo que decae durante 4.5 seg.",
+      "gold": 3200
+    },
+    {
+      "id": "3057",
+      "name": "Brillo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3057.png",
+      "description": "10 de Aceleración de Habilidad Espada Encantada Después de usar una habilidad, tu siguiente ataque inflige daño físico adicional al impacto .",
+      "gold": 900
+    },
+    {
+      "id": "3065",
+      "name": "Apariencia Espiritual",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3065.png",
+      "description": "400 de Vida 50 de Resistencia Mágica 10 de Aceleración de Habilidad 100% de Regen. de Vida Básica Vitalidad Ilimitada Las curaciones y los escudos que tengas aumentarán en un 25%.",
+      "gold": 2700
+    },
+    {
+      "id": "3066",
+      "name": "Placa Lunar Alada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3066.png",
+      "description": "200 de Vida 4% de Velocidad de Movimiento",
+      "gold": 800
+    },
+    {
+      "id": "3067",
+      "name": "Gemaluz",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3067.png",
+      "description": "200 de Vida 10 de Aceleración de Habilidad",
+      "gold": 800
+    },
+    {
+      "id": "3068",
+      "name": "Égida de Fuego Solar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3068.png",
+      "description": "350 de Vida 50 de Armadura 10 de Aceleración de Habilidad Inmolar Tras recibir o infligir daño, inflige daño mágico por seg a los enemigos cercanos durante 3 seg.",
+      "gold": 2800
+    },
+    {
+      "id": "3070",
+      "name": "Lágrima de la Diosa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3070.png",
+      "description": "240 de Maná Flujo de Maná (8 seg. Hasta 4 cargas) Asestar impactos con habilidades otorga 3 de Maná Máximo (se duplica contra campeones), hasta un 360 . Una Ayudita Los ataques infligen 5 de Daño físico adicional a los súbditos.",
+      "gold": 400
+    },
+    {
+      "id": "3071",
+      "name": "Cuchilla Oscura",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3071.png",
+      "description": "45 de Daño de Ataque 400 de Vida 20 de Aceleración de Habilidad Cortar Al infligir daño físico a campeones, reduces la Armadura del objetivo en un 6% durante 6 seg. El efecto puede acumularse hasta 5 veces. Fervor Al infligir daño físico , obtienes 0 de Velocidad de Movimiento durante 2 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "3072",
+      "name": "La Sanguinaria",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3072.png",
+      "description": "80 de Daño de Ataque 15% de Robo de Vida Escudo de Icor Convierte el exceso de curación recibida del robo de vida en un escudo .",
+      "gold": 3400
+    },
+    {
+      "id": "3073",
+      "name": "Placa Hexperimental",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3073.png",
+      "description": "40 de Daño de Ataque 20% de Velocidad de Ataque 450 de Vida Carga Hex Obtienes 30 de Aceleración de Habilidad para la definitiva. Sobremarcha Tras lanzar tu definitiva, obtienes un 0% de Velocidad de Ataque y un 0% de Velocidad de Movimiento durante 8 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "3074",
+      "name": "Hidra Voraz",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3074.png",
+      "description": "65 de Daño de Ataque 15 de Aceleración de Habilidad 12% de Robo de Vida Hender Los ataques infligen daño físico a los enemigos cercanos. Creciente Voraz Inflige daño físico a los enemigos a tu alrededor. Tu robo de vida se aplica a este daño.",
+      "gold": 3300
+    },
+    {
+      "id": "3075",
+      "name": "Cota de Espinas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3075.png",
+      "description": "150 de Vida 75 de Armadura Espinas Al recibir un ataque, inflige daño mágico al atacante. Si el atacante es un campeón, le aplica un 40% de Heridas durante 3 seg.",
+      "gold": 2450
+    },
+    {
+      "id": "3076",
+      "name": "Vesta Espinosa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3076.png",
+      "description": "30 de Armadura Espinas Al recibir un ataque, inflige 0 de daño mágico al atacante y, si es un campeón, le aplica un 40% de Heridas Graves durante 3 seg.",
+      "gold": 800
+    },
+    {
+      "id": "3077",
+      "name": "Tiamat",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3077.png",
+      "description": "25 de Daño de Ataque Hender Los ataques infligen daño físico a los enemigos cercanos. Creciente Inflige daño físico a los enemigos a tu alrededor.",
+      "gold": 1200
+    },
+    {
+      "id": "3078",
+      "name": "Fuerza de la Trinidad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3078.png",
+      "description": "36 de Daño de Ataque 30% de Velocidad de Ataque 333 de Vida 15 de Aceleración de Habilidad Espada Encantada Después de usar una habilidad, tu siguiente ataque inflige daño físico adicional al impacto . Apresurar Atacar te otorga 20 de Velocidad de Movimiento durante 2 seg.",
+      "gold": 3333
+    },
+    {
+      "id": "3082",
+      "name": "Cota del Guardabosques",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3082.png",
+      "description": "40 de Armadura Duro como piedra Reduce el daño proveniente de ataques.",
+      "gold": 1000
+    },
+    {
+      "id": "3083",
+      "name": "Armadura de Warmog",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3083.png",
+      "description": "1000 de Vida 100% de Regen. de Vida Básica Corazón de Warmog Si tienes 2000 de Vida adicional y no has recibido daño en un lapso de 8 seg, restaura 0 de Vida por seg. Vitalidad de Warmog Obtienes Vida adicional equivalente a un 12% de la Vida que te otorgan tus objetos ( 0 ).",
+      "gold": 3100
+    },
+    {
+      "id": "3084",
+      "name": "Corazón de Acero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3084.png",
+      "description": "900 de Vida 100% de Regen. de Vida Básica Consumo Colosal (0 seg) por objetivo Si un campeón enemigo está cerca de ti durante unos seg, tu siguiente ataque contra él le inflige 70 más un 6% de tu Vida Máxima como daño físico adicional y te otorga un 10% del daño como Vida Máxima. Goliat Por cada 1000 de Vida Máxima , obtienes un 3% de tamaño adicional, hasta un máximo de un 30%.",
+      "gold": 3000
+    },
+    {
+      "id": "3085",
+      "name": "Huracán de Runaan",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3085.png",
+      "description": "40% de Velocidad de Ataque 25% de Probabilidad de Golpe Crítico 5% de Velocidad de Movimiento Furia del Viento Los ataques disparan proyectiles a 2 enemigos adicionales cerca del objetivo. Cada proyectil inflige daño físico y aplica efectos al impacto .",
+      "gold": 2650
+    },
+    {
+      "id": "3086",
+      "name": "Fervor",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3086.png",
+      "description": "15% de Velocidad de Ataque 15% de Probabilidad de Golpe Crítico 4% de Velocidad de Movimiento",
+      "gold": 1200
+    },
+    {
+      "id": "3087",
+      "name": "Navaja de Statikk",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3087.png",
+      "description": "45 de Daño de Ataque 45 de Poder de Habilidad 30% de Velocidad de Ataque 4% de Velocidad de Movimiento Electrochispa Tus ataques energizados lanzan una cadena de rayos que aplica efectos al impacto () e inflige daño mágico a los objetivos cercanos. Electrochoque Los ataques básicos otorgan acumulaciones de Energizado adicionales.",
+      "gold": 3000
+    },
+    {
+      "id": "3089",
+      "name": "Sombrero Mortífero de Rabadon",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3089.png",
+      "description": "130 de Poder de Habilidad Obra Mágica Aumenta tu Poder de Habilidad total en un 30% .",
+      "gold": 3500
+    },
+    {
+      "id": "3091",
+      "name": "Al Filo de la Cordura",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3091.png",
+      "description": "50% de Velocidad de Ataque 45 de Resistencia Mágica 20% de Tenacidad Fragor Los ataques infligen daño mágico adicional al impacto .",
+      "gold": 2800
+    },
+    {
+      "id": "3094",
+      "name": "Cañón de Fuego Rápido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3094.png",
+      "description": "35% de Velocidad de Ataque 25% de Probabilidad de Golpe Crítico 4% de Velocidad de Movimiento Francotirador Tu ataque energizado inflige 40 daño mágico adicional y obtiene un 35% de alcance de Ataque adicional.",
+      "gold": 2650
+    },
+    {
+      "id": "3095",
+      "name": "Filo de la Tormenta",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3095.png",
+      "description": "50 de Daño de Ataque 25% de Velocidad de Ataque 25% de Probabilidad de Golpe Crítico Energizado Moverse y atacar generará un ataque energizado . Proyectil Tus ataques energizados infligen 0 de daño mágico adicional y otorgan un 45% de Velocidad de Movimiento durante 1.5 seg.",
+      "gold": 3200
+    },
+    {
+      "id": "3100",
+      "name": "Maldición del Liche",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3100.png",
+      "description": "100 de Poder de Habilidad 6% de Velocidad de Movimiento 10 de Aceleración de Habilidad Espada Encantada Después de usar una habilidad, tu próximo ataque inflige daño mágico adicional al impacto .",
+      "gold": 2900
+    },
+    {
+      "id": "3102",
+      "name": "Velo de la Banshee",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3102.png",
+      "description": "105 de Poder de Habilidad 40 de Resistencia Mágica Anulación Otorga un escudo antihechizos que bloquea la siguiente habilidad de un enemigo.",
+      "gold": 3000
+    },
+    {
+      "id": "3107",
+      "name": "Redención",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3107.png",
+      "description": "30 de Poder de Habilidad 15 de Aceleración de Habilidad 100% de Regen. de Maná Básica 10% de poder de curaciones y escudos Intervención Restaura de 150 a 350 de Vida a unidades aliadas e inflige un 10% de la Vida Máxima como daño verdadero a campeones enemigos tras 2.5 seg.",
+      "gold": 2300
+    },
+    {
+      "id": "3108",
+      "name": "Códice Diabólico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3108.png",
+      "description": "25 de Poder de Habilidad 10 de Aceleración de Habilidad",
+      "gold": 850
+    },
+    {
+      "id": "3109",
+      "name": "Promesa del Caballero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3109.png",
+      "description": "200 de Vida 40 de Armadura 10 de Aceleración de Habilidad 100% de Regen. de Vida Básica Sacrificio Al estar cerca de tu aliado digno , recibes un 14% del daño que reciba y te curas un 12% del daño que inflija a los campeones. Juramento (0 seg) Designa a un aliado como digno .",
+      "gold": 2300
+    },
+    {
+      "id": "3110",
+      "name": "Corazón de Hielo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3110.png",
+      "description": "75 de Armadura 400 de Maná 20 de Aceleración de Habilidad Caricia Invernal Reduce la Velocidad de Ataque de los campeones cercanos en un 20% .",
+      "gold": 2500
+    },
+    {
+      "id": "3111",
+      "name": "Botas de Mercurio",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3111.png",
+      "description": "20 de Resistencia Mágica 45 de Velocidad de Movimiento 30% de Tenacidad",
+      "gold": 1250
+    },
+    {
+      "id": "3112",
+      "name": "Orbe del Guardián",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3112.png",
+      "description": "50 de Poder de Habilidad 150 de Vida Restauración: Restaura 10 de Maná cada 5 seg. Si no puedes obtener maná, restaura 15 de Vida .",
+      "gold": 950
+    },
+    {
+      "id": "3113",
+      "name": "Brisa de Éter",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3113.png",
+      "description": "30 de Poder de Habilidad 4% de Velocidad de Movimiento",
+      "gold": 900
+    },
+    {
+      "id": "3114",
+      "name": "Ídolo Prohibido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3114.png",
+      "description": "50% de Regen. de Maná Básica 8% de poder de curaciones y escudos",
+      "gold": 600
+    },
+    {
+      "id": "3115",
+      "name": "Diente de Nashor",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3115.png",
+      "description": "80 de Poder de Habilidad 50% de Velocidad de Ataque 15 de Aceleración de Habilidad Mordida de Icathia Los ataques infligen daño mágico adicional al impacto .",
+      "gold": 2900
+    },
+    {
+      "id": "3116",
+      "name": "Cetro de Cristal de Rylai",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3116.png",
+      "description": "65 de Poder de Habilidad 400 de Vida Hielo Escarchado Las habilidades de daño ralentizan a los enemigos un 30% durante 1 seg.",
+      "gold": 2600
+    },
+    {
+      "id": "3118",
+      "name": "Maldad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3118.png",
+      "description": "90 de Poder de Habilidad 600 de Maná 15 de Aceleración de Habilidad Desdén Obtienes 20 de Aceleración de Habilidad de la definitiva. Campo Tóxico Infligir daño a un campeón con tu definitiva quema el suelo donde esté parado durante 3 seg, lo que le inflige daño mágico por seg y reduce su resistencia mágica .",
+      "gold": 2700
+    },
+    {
+      "id": "3119",
+      "name": "Umbral del Invierno",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3119.png",
+      "description": "550 de Vida 500 de Maná 15 de Aceleración de Habilidad Asombro Otorga 0 de Vida . Flujo de Maná (8 seg. Hasta 4 cargas) Asestar ataques y habilidades otorga 3 de Maná Máximo (se duplica contra campeones). Se transforma en Invierno Nórdico al tener 360 de Maná Máximo .",
+      "gold": 2400
+    },
+    {
+      "id": "3123",
+      "name": "El Llamado del Verdugo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3123.png",
+      "description": "15 de Daño de Ataque Heridas Graves Infligir daño físico a campeones les aplica un 40% de Heridas Graves durante 3 seg.",
+      "gold": 800
+    },
+    {
+      "id": "3124",
+      "name": "Espadafuria de Guinsoo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3124.png",
+      "description": "30 de Daño de Ataque 30 de Poder de Habilidad 25% de Velocidad de Ataque Ira Los ataques infligen 30 de daño mágico adicional al impacto . Ataque Furioso Los ataques otorgan un 8% de Velocidad de Ataque durante 4 seg. (Se acumula 4 veces). Al tener el máximo de acumulaciones, cada tercer ataque aplica efectos al impacto dos veces.",
+      "gold": 3000
+    },
+    {
+      "id": "3133",
+      "name": "Martillo de Guerra de Caulfield",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3133.png",
+      "description": "20 de Daño de Ataque 10 de Aceleración de Habilidad",
+      "gold": 1050
+    },
+    {
+      "id": "3134",
+      "name": "Puñal Serrado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3134.png",
+      "description": "20 de Daño de Ataque 10 de Letalidad",
+      "gold": 1000
+    },
+    {
+      "id": "3135",
+      "name": "Báculo del Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3135.png",
+      "description": "95 de Poder de Habilidad 40% Penetración de Magia",
+      "gold": 3000
+    },
+    {
+      "id": "3137",
+      "name": "Criptorretoño",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3137.png",
+      "description": "75 de Poder de Habilidad 30% Penetración de Magia 20 de Aceleración de Habilidad Vida en la Muerte Cuando un campeón muere en un lapso de 3 seg tras haberle infligido daño, una nova que cura se expande desde su cuerpo.",
+      "gold": 3000
+    },
+    {
+      "id": "3139",
+      "name": "Cimitarra Mercurial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3139.png",
+      "description": "50 de Daño de Ataque 35 de Resistencia Mágica 10% de Robo de Vida ACTIVA Capa Mercurial Elimina todas las debilitaciones de control de masas (excluyendo levantamientos por el aire ) y otorga velocidad de movimiento.",
+      "gold": 3200
+    },
+    {
+      "id": "3140",
+      "name": "Fajín de Mercurio",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3140.png",
+      "description": "30 de Resistencia Mágica Capa Mercurial Elimina todas las debilitaciones de control de masas (excepto lanzamientos por el aire ).",
+      "gold": 1300
+    },
+    {
+      "id": "3142",
+      "name": "Espada Fantasma de Youmuu",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3142.png",
+      "description": "55 de Daño de Ataque 18 de Letalidad 4% de Velocidad de Movimiento Persecución Obtienes 0 de Velocidad de Movimiento al estar fuera de combate. Paso Espectral Obtienes velocidad de movimiento y te vuelves Fantasma durante 0 seg.",
+      "gold": 2800
+    },
+    {
+      "id": "3143",
+      "name": "Presagio de Randuin",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3143.png",
+      "description": "350 de Vida 75 de Armadura Resiliencia Recibes un 30% menos de daño de los golpes críticos. Humildad Ralentiza a los enemigos cercanos en un 70% durante 2 seg.",
+      "gold": 2700
+    },
+    {
+      "id": "3144",
+      "name": "Honda del Explorador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3144.png",
+      "description": "20% de Velocidad de Ataque Tiro Certero Infligir daño a un campeón le inflige daño mágico adicional . Los ataques reducen este enfriamiento en 1 seg.",
+      "gold": 600
+    },
+    {
+      "id": "3145",
+      "name": "Alternador Hextech",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3145.png",
+      "description": "45 de Poder de Habilidad Acelerado Infligir daño a un campeón le inflige daño mágico adicional .",
+      "gold": 1100
+    },
+    {
+      "id": "3146",
+      "name": "Sablepistola Hextech",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3146.png",
+      "description": "80 de Poder de Habilidad 40 de Daño de Ataque 10% de Omnivampirismo ACTIVA (0 seg) Relámpago Lanza una descarga al campeón enemigo objetivo, inflige 0 de daño mágico y lo ralentiza en un 25% durante 1.5 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "3147",
+      "name": "Antifaz Embrujado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3147.png",
+      "description": "30 de Poder de Habilidad 200 de Vida Locura Por cada seg en combate contra campeones enemigos, inflige un 2% de daño adicional, hasta un máximo del 6%.",
+      "gold": 1300
+    },
+    {
+      "id": "3152",
+      "name": "Cinturón Cohete Hextech",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3152.png",
+      "description": "60 de Poder de Habilidad 350 de Vida 10 de Aceleración de Habilidad Supersónico Te desplazas en la dirección objetivo y liberas misiles que infligen daño mágico .",
+      "gold": 2650
+    },
+    {
+      "id": "3153",
+      "name": "Espada del Rey Arruinado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3153.png",
+      "description": "40 de Daño de Ataque 25% de Velocidad de Ataque 10% de Robo de Vida Filo Neblina Los ataques infligen un porcentaje de la vida actual del enemigo como daño físico adicional al impacto . Sombras Desgarradoras Atacar a un campeón tres veces lo ralentiza en un 30% durante 1 seg.",
+      "gold": 3200
+    },
+    {
+      "id": "3155",
+      "name": "Sorbechizos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3155.png",
+      "description": "25 de Daño de Ataque 25 de Resistencia Mágica Salvavidas Tras recibir daño mágico que reduciría tu Vida por debajo de un 30%, obtienes un escudo contra daño mágico durante 2.5 seg.",
+      "gold": 1300
+    },
+    {
+      "id": "3156",
+      "name": "Fauces de Malmortius",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3156.png",
+      "description": "60 de Daño de Ataque 15 de Aceleración de Habilidad 40 de Resistencia Mágica Salvavidas Tras recibir daño mágico que reduciría tu Vida por debajo de un 30%, obtienes un escudo contra daño mágico durante 3 seg y un 10% de Omnivampirismo hasta el final del combate.",
+      "gold": 3100
+    },
+    {
+      "id": "3157",
+      "name": "Reloj de Arena de Zhonya",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3157.png",
+      "description": "105 de Poder de Habilidad 50 de Armadura Detener el Tiempo Entras en Estasis durante 2.5 seg.",
+      "gold": 3250
+    },
+    {
+      "id": "3158",
+      "name": "Botas Jonias de la Lucidez",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3158.png",
+      "description": "10 de Aceleración de Habilidad 45 de Velocidad de Movimiento Percepción Jonia Obtienes 10 de Aceleración de Hechizos de invocador.",
+      "gold": 900
+    },
+    {
+      "id": "3161",
+      "name": "Lanza de Shojin",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3161.png",
+      "description": "45 de Daño de Ataque 450 de Vida Fuerza del Dragón Obtienes 25 de Aceleración de Habilidad para habilidades básicas. Voluntad Enfocada Al infligir daño con habilidades, el daño de las habilidades y de la pasiva de tu campeón aumenta en un 3% durante 6 seg. (Se acumula 4 veces).",
+      "gold": 3100
+    },
+    {
+      "id": "3165",
+      "name": "Morellonomicón",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3165.png",
+      "description": "75 de Poder de Habilidad 350 de Vida 15 de Aceleración de Habilidad Heridas Graves Infligir daño mágico a campeones les aplica un 40% de Heridas Graves durante 3 seg.",
+      "gold": 2850
+    },
+    {
+      "id": "3168",
+      "name": "Camino Inmortal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3168.png",
+      "description": "45 de Velocidad de Movimiento 4% de Omnivampirismo Exterminar Al derribar campeones, obtienes un 0.6% de Omnivampirismo. El efecto se acumula hasta 10 veces. Ahora y Siempre Cuando tienes más de la mitad de vida, infliges un 4% más de daño. Cuando tienes menos de la mitad de vida, obtienes un 12% más de curaciones, escudos y regeneración.",
+      "gold": 1000
+    },
+    {
+      "id": "3170",
+      "name": "Botas de Marcha Rápida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3170.png",
+      "description": "65 de Velocidad de Movimiento Pies ligeros Reduce la eficacia de los efectos de ralentización en un 25%. Fervor Noxiano Obtienes un 5% de tu Velocidad de Movimiento como fuerza adaptable.",
+      "gold": 1000
+    },
+    {
+      "id": "3171",
+      "name": "Botas de Lucidez Carmesí ",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3171.png",
+      "description": "20 de Aceleración de Habilidad 45 de Velocidad de Movimiento Percepción Jonia Obtienes 20 de Aceleración de Hechizos de invocador. Aceleración Noxiana Potenciar o proteger aliados con habilidades, infligir daño a campeones enemigos con habilidades, o lanzar un hechizo de invocador otorga 0 de Velocidad de Movimiento durante 4 seg. Aceleración Noxiana solo puede activarse una vez por cada lanzamiento de habilidad.",
+      "gold": 900
+    },
+    {
+      "id": "3172",
+      "name": "Grebas de Armacero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3172.png",
+      "description": "45% de Velocidad de Ataque 45 de Velocidad de Movimiento 5% de Robo de Vida",
+      "gold": 1100
+    },
+    {
+      "id": "3173",
+      "name": "Trituradoras Aceradas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3173.png",
+      "description": "25 de Resistencia Mágica 45 de Velocidad de Movimiento 30% de Tenacidad Persistencia Noxiana (0 seg) Tras recibir daño mágico de un campeón, obtienes un escudo que protege contra 0 de daño mágico durante 5 seg.",
+      "gold": 1250
+    },
+    {
+      "id": "3174",
+      "name": "Blindadas de Avance ",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3174.png",
+      "description": "35 de Armadura 45 de Velocidad de Movimiento Revestimiento Reduce el daño recibido de los ataques en un 10%. Resistencia Noxiana (0 seg) Tras recibir daño físico de un campeón, obtienes un escudo que protege contra 0 de daño físico durante 5 seg.",
+      "gold": 1200
+    },
+    {
+      "id": "3175",
+      "name": "Zapatos de Lanzahechizos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3175.png",
+      "description": "20 de Penetración de Magia 8% Penetración de Magia 45 de Velocidad de Movimiento",
+      "gold": 1100
+    },
+    {
+      "id": "3177",
+      "name": "Espada del Guardián",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3177.png",
+      "description": "30 de Daño de Ataque 150 de Vida 15 de Aceleración de Habilidad",
+      "gold": 950
+    },
+    {
+      "id": "3179",
+      "name": "Espada de la Penumbra",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3179.png",
+      "description": "60 de Daño de Ataque 18 de Letalidad 15 de Aceleración de Habilidad Acechador Nocturno Si tus enemigos no te ven durante unos segundos, tu siguiente ataque contra un campeón inflige daño verdadero adicional. Apagón Cuando estás cerca de trampas y centinelas invisibles enemigos, los revelas durante unos segundos. Al revelar centinelas, tus ataques les infligen daño adicional.",
+      "gold": 2800
+    },
+    {
+      "id": "3181",
+      "name": "Rompecascos",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3181.png",
+      "description": "40 de Daño de Ataque 500 de Vida 4% de Velocidad de Movimiento Capitán Cada quinto ataque contra campeones y monstruos épicos inflige daño físico adicional (aumenta contra estructuras). Tripulación de Abordaje Los supersúbditos y los súbditos de asedio aliados cercanos obtienen armadura y resistencia mágica .",
+      "gold": 3000
+    },
+    {
+      "id": "3184",
+      "name": "Martillo del Guardián",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3184.png",
+      "description": "25 de Daño de Ataque 150 de Vida 5% de Robo de Vida",
+      "gold": 950
+    },
+    {
+      "id": "3190",
+      "name": "Relicario de los Solari de Hierro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3190.png",
+      "description": "200 de Vida 30 de Armadura 30 de Resistencia Mágica 10 de Aceleración de Habilidad Devoción Otorga a los aliados cercanos de 290 a 360 de escudo que decae a lo largo de 2.5 seg.",
+      "gold": 2200
+    },
+    {
+      "id": "3211",
+      "name": "Hábito del Espectro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3211.png",
+      "description": "200 de Vida 35 de Resistencia Mágica 100% de Regen. de Vida Básica",
+      "gold": 1250
+    },
+    {
+      "id": "3222",
+      "name": "Bendición de Mikael",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3222.png",
+      "description": "250 de Vida 100% de Regen. de Maná Básica 12% de poder de curaciones y escudos 15 de Aceleración de Habilidad Purificar Elimina todas las debilitaciones de control de masas (excepto lanzamientos por el aire y supresiones ) de un campeón aliado y restaura de 100 a 250 de Vida .",
+      "gold": 2300
+    },
+    {
+      "id": "3302",
+      "name": "Terminus",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3302.png",
+      "description": "30 de Daño de Ataque 35% de Velocidad de Ataque Sombra Los ataques infligen 0 de daño mágico adicional al impacto . Yuxtaposición Alterna entre ataques de Luz y Oscuridad contra campeones: Los ataques de Luz otorgan armadura y resistencia mágica durante 5 seg. Los ataques de Oscuridad otorgan un 10% de Penetración de Armadura y de Penetración de Magia durante 5 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "3330",
+      "name": "Efigie de Espantapájaros",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3330.png",
+      "description": "No se puede vender Activa, Baratija: Coloca una Efigie que dura 0 seg y tiene la misma apariencia que Fiddlesticks para tus enemigos. Acumula una carga cada 0 seg, hasta un máximo de 2 cargas. Los campeones enemigos que se acerquen la activarán, lo que hará que la efigie finja una acción aleatoria. Después, se destruye.",
+      "gold": 0
+    },
+    {
+      "id": "3340",
+      "name": "Centinela Invisible",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3340.png",
+      "description": "Activa ( 210 a 90 seg, máx. 2 cargas) Colocas un centinela invisible que otorga visión durante 90 a 120 seg.",
+      "gold": 0
+    },
+    {
+      "id": "3363",
+      "name": "Alteración de Visión Lejana",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3363.png",
+      "description": "Activa ( 198 a 99 seg) Revela un área distante durante 2 seg y deja un Centinela que expira al detectar a un campeón enemigo.",
+      "gold": 0
+    },
+    {
+      "id": "3364",
+      "name": "Lente del Oráculo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3364.png",
+      "description": "Activa ( 160 a 100 seg, máx. 2 cargas) Revela los Centinelas Invisibles y las trampas enemigas a tu alrededor durante 8 seg.",
+      "gold": 0
+    },
+    {
+      "id": "3504",
+      "name": "Pebetero Ardiente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3504.png",
+      "description": "45 de Poder de Habilidad 10% de poder de curaciones y escudos 125% de Regen. de Maná Básica 4% de Velocidad de Movimiento Santificación Curar o escudar a un aliado los mejora a ambos durante 6 seg, lo que les otorga un 25% de Velocidad de Ataque y 20 de daño mágico al impacto .",
+      "gold": 2200
+    },
+    {
+      "id": "3508",
+      "name": "Saqueador de Esencias",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3508.png",
+      "description": "50 de Daño de Ataque 20 de Aceleración de Habilidad 25% de Probabilidad de Golpe Crítico Espada Encantada Después de usar una habilidad, tu siguiente ataque inflige daño físico adicional y otorga maná al impacto .",
+      "gold": 3050
+    },
+    {
+      "id": "3599",
+      "name": "Lanza Negra de Kalista",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3599.png",
+      "description": "Activa, Consumir: Crea un vínculo con un aliado durante el resto de la partida, lo que los convierte a ambos en Juramentados. Los Juramentados obtienen más poder al estar cerca el uno del otro.",
+      "gold": 0
+    },
+    {
+      "id": "3600",
+      "name": "Lanza Negra de Kalista",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3600.png",
+      "description": "Activa, Consumir: Crea un vínculo con un aliado durante el resto de la partida, lo que los convierte a ambos en Juramentados. Los Juramentados obtienen más poder al estar cerca el uno del otro. Se requiere para usar la habilidad definitiva de Kalista .",
+      "gold": 0
+    },
+    {
+      "id": "3742",
+      "name": "Placa del Hombre Muerto",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3742.png",
+      "description": "350 de Vida 55 de Armadura 4% de Velocidad de Movimiento Hundebarcos Al desplazarte, acumulas hasta 20 de Velocidad de Movimiento adicional . Tu próximo ataque descarga la velocidad de movimiento acumulada e inflige daño físico adicional . Inhundible Reduce la eficacia de las ralentizaciones en un 15%.",
+      "gold": 2900
+    },
+    {
+      "id": "3748",
+      "name": "Hidra Titánica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3748.png",
+      "description": "40 de Daño de Ataque 600 de Vida Hender Los ataques infligen daño físico al impacto y a los enemigos detrás del objetivo. Creciente Titánica Potencia tu próximo Hender para que inflija daño físico adicional al impacto y daño físico adicional a los enemigos detrás del objetivo.",
+      "gold": 3300
+    },
+    {
+      "id": "3801",
+      "name": "Brazal Cristalino",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3801.png",
+      "description": "200 de Vida 100% de Regen. de Vida Básica",
+      "gold": 800
+    },
+    {
+      "id": "3802",
+      "name": "Capítulo Perdido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3802.png",
+      "description": "40 de Poder de Habilidad 300 de Maná 10 de Aceleración de Habilidad Iluminación Al subir de nivel, restaura un 20% del Maná Máximo a lo largo de 3 seg.",
+      "gold": 1200
+    },
+    {
+      "id": "3803",
+      "name": "Catalizador de Eones",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3803.png",
+      "description": "300 de Vida 375 de Maná Eternidad Restaura un 10% del daño recibido de campeones como Maná . Lanzar una habilidad cura por un 25% del Maná gastado.",
+      "gold": 1300
+    },
+    {
+      "id": "3814",
+      "name": "Filo de la Noche",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3814.png",
+      "description": "50 de Daño de Ataque 15 de Letalidad 250 de Vida Anulación Otorga un escudo antihechizos que bloquea la siguiente habilidad de un enemigo.",
+      "gold": 3000
+    },
+    {
+      "id": "3865",
+      "name": "Mapamundi",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3865.png",
+      "description": "",
+      "gold": 400
+    },
+    {
+      "id": "3869",
+      "name": "Oposición Celestial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3869.png",
+      "description": "200 de Vida 75% de Regen. de Vida Básica 75% de Regen. de Maná Básica 9 de oro cada 10 seg Bendición de la Montaña Reduce el daño recibido de campeones durante 2 seg tras recibir daño de un campeón. Al finalizar el efecto, ralentiza a los enemigos cercanos en un 50% durante 1.5 seg. Activa (4 cargas) Coloca un Centinela Invisible que otorga visión.",
+      "gold": 400
+    },
+    {
+      "id": "3870",
+      "name": "Tejesueños",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3870.png",
+      "description": "200 de Vida 75% de Regen. de Vida Básica 75% de Regen. de Maná Básica 9 de oro cada 10 seg Tejesueños Curar o escudar a otro aliado le lanza Burbujas de Sueño durante 3 seg. Su siguiente ataque inflige daño mágico adicional al impacto y reduce el próximo daño que reciba. Activa (4 cargas) Coloca un Centinela Invisible que otorga visión.",
+      "gold": 400
+    },
+    {
+      "id": "3871",
+      "name": "Espina Dimensional de Zaz'Zak",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3871.png",
+      "description": "200 de Vida 75% de Regen. de Vida Básica 75% de Regen. de Maná Básica 9 de oro cada 10 seg Explosión del Vacío Infligir daño a un campeón con una habilidad provoca una explosión que inflige daño mágico . Activa (4 cargas) Coloca un Centinela Invisible que otorga visión.",
+      "gold": 400
+    },
+    {
+      "id": "3876",
+      "name": "Trineo del Solsticio",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3876.png",
+      "description": "200 de Vida 75% de Regen. de Vida Básica 75% de Regen. de Maná Básica 9 de oro cada 10 seg Paseo en Trineo Ralentizar o inmovilizar a un campeón enemigo cerca de tus aliados restaura vida . Además, te otorga a ti y a un aliado cercano un 20% de Velocidad de Movimiento que decae a lo largo de 2.5 seg. Activa (4 cargas) Coloca un Centinela Invisible que otorga visión.",
+      "gold": 400
+    },
+    {
+      "id": "3877",
+      "name": "Canción de Sangre",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3877.png",
+      "description": "200 de Vida 75% de Regen. de Vida Básica 75% de Regen. de Maná Básica 9 de oro cada 10 seg Espada Encantada Después de usar una habilidad, tu siguiente ataque inflige daño físico adicional al impacto . Si el objetivo es un campeón, recibe daño aumentado durante 4 seg. Activa (4 cargas) Coloca un Centinela Invisible que otorga visión.",
+      "gold": 400
+    },
+    {
+      "id": "3916",
+      "name": "Orbe del Olvido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/3916.png",
+      "description": "25 de Poder de Habilidad Heridas Graves Infligir daño mágico a campeones les aplica un 40% de Heridas Graves durante 3 seg.",
+      "gold": 800
+    },
+    {
+      "id": "4005",
+      "name": "Mandato Imperial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4005.png",
+      "description": "60 de Poder de Habilidad 15 de Aceleración de Habilidad 150% de Regen. de Maná Básica Control Obtienes 20 de Aceleración de Habilidad para tus habilidades con efectos inmovilizadores . Orden Al inmovilizar a un campeón enemigo, lo marcas y lo vuelves un 7% Vulnerable durante 4 seg.",
+      "gold": 2400
+    },
+    {
+      "id": "4401",
+      "name": "Fuerza de la Naturaleza",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4401.png",
+      "description": "400 de Vida 55 de Resistencia Mágica 4% de Velocidad de Movimiento Firmeza Obtienes 70 de Resistencia Mágica y un 6% de Velocidad de Movimiento adicional tras recibir daño mágico de campeones 8 veces.",
+      "gold": 2800
+    },
+    {
+      "id": "4628",
+      "name": "Enfoque al Horizonte",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4628.png",
+      "description": "75 de Poder de Habilidad 25 de Aceleración de Habilidad Hiperdisparo Al infligir daño con habilidades a campeones que se encuentren a 600 o más de distancia, los revela durante 6 seg. Enfoque Cuando se activa Hiperdisparo , se revelan los demás campeones enemigos en un radio de 1400 de alcance durante 3 seg.",
+      "gold": 2700
+    },
+    {
+      "id": "4629",
+      "name": "Impulso Cósmico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4629.png",
+      "description": "70 de Poder de Habilidad 350 de Vida 25 de Aceleración de Habilidad 4% de Velocidad de Movimiento Danza de Hechizos Infligir daño mágico o daño verdadero a campeones otorga Velocidad de Movimiento durante 4 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "4630",
+      "name": "Joya Maldita",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4630.png",
+      "description": "25 de Poder de Habilidad 13% Penetración de Magia",
+      "gold": 1100
+    },
+    {
+      "id": "4632",
+      "name": "Barrera Esmeralda",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4632.png",
+      "description": "40 de Poder de Habilidad 25 de Resistencia Mágica Anulación Otorga un escudo antihechizos que bloquea la siguiente habilidad de un enemigo.",
+      "gold": 1600
+    },
+    {
+      "id": "4633",
+      "name": "Agrietador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4633.png",
+      "description": "70 de Poder de Habilidad 350 de Vida 15 de Aceleración de Habilidad Corrupción del Vacío Por cada seg en combate contra campeones enemigos, infliges un 2% de daño adicional (hasta un 8%). Al tener el máximo de fuerza, obtienes Omnivampirismo . Infusión del Vacío Obtienes un 2% de tu Vida adicional como Poder de Habilidad .",
+      "gold": 3100
+    },
+    {
+      "id": "4642",
+      "name": "Espejo de Vitrobandle",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4642.png",
+      "description": "20 de Poder de Habilidad 100% de Regen. de Maná Básica 10 de Aceleración de Habilidad",
+      "gold": 900
+    },
+    {
+      "id": "4645",
+      "name": "Lumbría",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4645.png",
+      "description": "110 de Poder de Habilidad 15 de Penetración de Magia Flor de Ceniza El daño mágico y el daño verdadero asestan golpes críticos a los enemigos con menos de un 40% de Vida y les infligen un 20% más de daño.",
+      "gold": 3200
+    },
+    {
+      "id": "4646",
+      "name": "Descarga Tormentosa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/4646.png",
+      "description": "90 de Poder de Habilidad 15 de Penetración de Magia 6% de Velocidad de Movimiento Jinete de la Tormenta Infligir daño equivalente a un 25% de la Vida Máxima de un campeón en un lapso de 2.5 seg le aplica Aguacero . Aguacero Después de 2 seg, inflige daño mágico . Si el objetivo muere antes de que se active Aguacero , inflige daño a los enemigos cercanos.",
+      "gold": 2800
+    },
+    {
+      "id": "6333",
+      "name": "Danza de la Muerte",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6333.png",
+      "description": "60 de Daño de Ataque 50 de Armadura 15 de Aceleración de Habilidad Ignorar Dolor Un porcentaje del daño recibido se distribuye a lo largo de 3 seg. Desafiar Cuando un campeón muere en un lapso de 3 seg después de que le hayas infligido daño, se disipa el daño restante de Ignorar Dolor y recuperas vida a lo largo de 2 seg.",
+      "gold": 3300
+    },
+    {
+      "id": "6609",
+      "name": "Sierraespada Quimpunk",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6609.png",
+      "description": "45 de Daño de Ataque 450 de Vida 15 de Aceleración de Habilidad Corte Mutilador Infligir daño físico aplica un 40% de Heridas a los campeones enemigos durante 3 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "6610",
+      "name": "Cielo Desgarrado",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6610.png",
+      "description": "40 de Daño de Ataque 400 de Vida 10 de Aceleración de Habilidad Golpe de Escudo de Luz Tu primer ataque contra un campeón asesta un golpe crítico y restaura vida .",
+      "gold": 3100
+    },
+    {
+      "id": "6616",
+      "name": "Báculo de Agua Fluyente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6616.png",
+      "description": "35 de Poder de Habilidad 10% de poder de curaciones y escudos 125% de Regen. de Maná Básica 10 de Aceleración de Habilidad Rápidos Al curar u otorgar escudo a un aliado, ambos obtienen 40 de Poder de Habilidad y 15 de Aceleración de Habilidad durante 6 seg.",
+      "gold": 2250
+    },
+    {
+      "id": "6617",
+      "name": "Renovador de Piedra Lunar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6617.png",
+      "description": "25 de Poder de Habilidad 200 de Vida 20 de Aceleración de Habilidad 125% de Regen. de Maná Básica Gracia Estrellada Curar o escudar a un aliado extiende el efecto a otro aliado (que no seas tú), lo que cura un 30% o escuda un 35% de la cantidad original.",
+      "gold": 2200
+    },
+    {
+      "id": "6620",
+      "name": "Ecos de Helia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6620.png",
+      "description": "35 de Poder de Habilidad 200 de Vida 20 de Aceleración de Habilidad 125% de Regen. de Maná Básica Sifón del Alma Obtienes un 30% del daño infligido contra campeones antes de la mitigación como Cargas Álmicas. Al curar u otorgar escudo a un aliado, consumes todas las Cargas Álmicas para restaurarle vida .",
+      "gold": 2200
+    },
+    {
+      "id": "6621",
+      "name": "Esfera del Amanecer",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6621.png",
+      "description": "45 de Poder de Habilidad 16% de poder de curaciones y escudos 100% de Regen. de Maná Básica Primera Luz Obtienes un 2% de Curación y Poder de Escudo y 10 de Poder de Habilidad por cada 100% de Regeneración de Maná Básica.",
+      "gold": 2500
+    },
+    {
+      "id": "6631",
+      "name": "Rompeavances",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6631.png",
+      "description": "40 de Daño de Ataque 25% de Velocidad de Ataque 450 de Vida Hender Los ataques infligen daño físico a los enemigos cercanos. Onda Rompiente Inflige daño físico y ralentiza a los enemigos cercanos en un 35%. Por cada campeón impactado, obtienes un 35% de Velocidad de Movimiento que decae durante 3 seg.",
+      "gold": 3300
+    },
+    {
+      "id": "6653",
+      "name": "El Tormento de Liandry",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6653.png",
+      "description": "60 de Poder de Habilidad 300 de Vida Tormento Infligir daño con habilidades quema a los enemigos por un 2% de su Vida Máxima como daño mágico por seg durante 3 seg. Sufrimiento Por cada seg en combate contra campeones enemigos, inflige un 2% de daño adicional, hasta un 6%.",
+      "gold": 3000
+    },
+    {
+      "id": "6655",
+      "name": "Eco de Luden",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6655.png",
+      "description": "100 de Poder de Habilidad 600 de Maná 10 de Aceleración de Habilidad Eco Las habilidades que infligen daño producen 6 ecos, que infligen de daño mágico adicional al objetivo y a los enemigos cercanos. Los ecos restantes se dirigen al objetivo principal e infligen un 20% del daño.",
+      "gold": 2750
+    },
+    {
+      "id": "6657",
+      "name": "Vara de las Edades",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6657.png",
+      "description": "45 de Poder de Habilidad 350 de Vida 500 de Maná Atemporal Este objeto obtiene 10 de Vida , 30 de Maná y 3 de Poder de Habilidad cada 60 seg hasta 10 veces. Al alcanzar el máximo de acumulaciones, subes un nivel. Eternidad Recibir daño de campeones restaura un 10% del daño como Maná . Lanzar una habilidad cura por un 25% del Maná gastado.",
+      "gold": 2600
+    },
+    {
+      "id": "6660",
+      "name": "Ceniza de Bami",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6660.png",
+      "description": "150 de Vida 5 de Aceleración de Habilidad Inmolar Tras recibir o infligir daño, infliges daño mágico a los enemigos cercanos durante 3 seg.",
+      "gold": 900
+    },
+    {
+      "id": "6662",
+      "name": "Guantelete del Hijo del Hielo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6662.png",
+      "description": "300 de Vida 50 de Armadura 15 de Aceleración de Habilidad Espada Encantada Después de usar una habilidad, tu siguiente ataque inflige daño físico adicional al impacto y crea un campo congelado que ralentiza durante 2 seg.",
+      "gold": 2900
+    },
+    {
+      "id": "6664",
+      "name": "Resplandor Vacío",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6664.png",
+      "description": "400 de Vida 40 de Resistencia Mágica 10 de Aceleración de Habilidad 100% de Regen. de Vida Básica Inmolar Tras recibir o infligir daño, infliges daño mágico por seg a los enemigos cercanos durante 3 seg. Desolar Matar a un enemigo inflige daño mágico a su alrededor.",
+      "gold": 2800
+    },
+    {
+      "id": "6665",
+      "name": "Jak'Sho, el Proteico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6665.png",
+      "description": "350 de Vida 45 de Armadura 45 de Resistencia Mágica Resiliencia del Vacuonato Después de 5 seg de combate contra campeones, aumenta tu Armadura y Resistencia Mágica adicionales en un 30% hasta el final del combate.",
+      "gold": 3200
+    },
+    {
+      "id": "6670",
+      "name": "Carcaj de Mediodía",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6670.png",
+      "description": "15 de Daño de Ataque 20% de Probabilidad de Golpe Crítico",
+      "gold": 1300
+    },
+    {
+      "id": "6672",
+      "name": "Matakrakens",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6672.png",
+      "description": "45 de Daño de Ataque 40% de Velocidad de Ataque 4% de Velocidad de Movimiento Derríbalo Cada tercer ataque inflige daño físico adicional al impacto . Este daño aumenta según la vida faltante del objetivo.",
+      "gold": 3000
+    },
+    {
+      "id": "6673",
+      "name": "Arcoescudo Inmortal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6673.png",
+      "description": "55 de Daño de Ataque 25% de Probabilidad de Golpe Crítico Salvavidas Al recibir daño que reduciría tu Vida por debajo de un 30%, te otorga un escudo durante 3 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "6675",
+      "name": "Cuchilla Rauda de Navori",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6675.png",
+      "description": "40% de Velocidad de Ataque 25% de Probabilidad de Golpe Crítico 4% de Velocidad de Movimiento Trascendencia Tus ataques reducen los enfriamientos de tus habilidades básicas en un 15% de su enfriamiento restante.",
+      "gold": 2650
+    },
+    {
+      "id": "6676",
+      "name": "El Coleccionista",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6676.png",
+      "description": "50 de Daño de Ataque 10 de Letalidad 25% de Probabilidad de Golpe Crítico Muerte Tu daño ejecuta a los campeones que están por debajo de un 5% de Vida. Impuestos Los asesinatos de campeones otorgan 25 de oro adicional .",
+      "gold": 3000
+    },
+    {
+      "id": "6690",
+      "name": "Rectriz",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6690.png",
+      "description": "15 de Daño de Ataque 4% de Velocidad de Movimiento",
+      "gold": 775
+    },
+    {
+      "id": "6692",
+      "name": "Eclipse",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6692.png",
+      "description": "60 de Daño de Ataque 15 de Aceleración de Habilidad Luna Eterna Al impactar a un campeón con dos ataques o habilidades diferentes en un lapso de 2 seg, obtienes un escudo durante 2 seg.",
+      "gold": 2900
+    },
+    {
+      "id": "6694",
+      "name": "Rencor de Serylda",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6694.png",
+      "description": "45 de Daño de Ataque 35% de Penetración de Armadura 15 de Aceleración de Habilidad Frío Implacable Las habilidades de daño ralentizan a los enemigos con menos del 50% de Vida en un 30% durante 1 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "6695",
+      "name": "Colmillo de Serpiente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6695.png",
+      "description": "55 de Daño de Ataque 15 de Letalidad Rompeescudos Infligir daño a un campeón enemigo reduce el escudo que obtenga en un 0% durante 3 seg. Si no está bajo los efectos de Rompeescudos , reduce los escudos que tenga en un 0%.",
+      "gold": 2500
+    },
+    {
+      "id": "6696",
+      "name": "Arco Axiomático",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6696.png",
+      "description": "55 de Daño de Ataque 18 de Letalidad 20 de Aceleración de Habilidad Flujo Cuando un campeón muere en un lapso de 3 seg después de haberle infligido daño, se restaura un porcentaje del enfriamiento total de tu habilidad definitiva.",
+      "gold": 2750
+    },
+    {
+      "id": "6697",
+      "name": "Arrogancia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6697.png",
+      "description": "55 de Daño de Ataque 18 de Letalidad 10 de Aceleración de Habilidad Eminencia Cuando un campeón al que le infligiste daño muere en 3 seg, obtienes 12 de Daño de Ataque más 3 por cada campeón asesinado durante 90 seg.",
+      "gold": 2800
+    },
+    {
+      "id": "6698",
+      "name": "Hidra Profana",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6698.png",
+      "description": "55 de Daño de Ataque 18 de Letalidad 10 de Aceleración de Habilidad Hender Los ataques infligen daño físico a los enemigos cercanos. Corte Herético Inflige daño físico a tu alrededor.",
+      "gold": 2850
+    },
+    {
+      "id": "6699",
+      "name": "Cicloespada Voltaica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/6699.png",
+      "description": "55 de Daño de Ataque 10 de Letalidad 10 de Aceleración de Habilidad Galvanizar Infligir daño a campeones enemigos con una habilidad activa el efecto Energizado si está listo. Firmamento Los ataques energizados infligen un porcentaje de la vida actual del objetivo como daño físico adicional y te otorgan letalidad adicional durante 4 seg.",
+      "gold": 3000
+    },
+    {
+      "id": "8010",
+      "name": "Maldición de la Vampiresa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/8010.png",
+      "description": "65 de Poder de Habilidad 400 de Vida 15 de Aceleración de Habilidad Deterioro Vil Al infligir daño mágico a campeones con pasivas y habilidades, reduces la Resistencia Mágica del objetivo en un 7.5% durante 6 seg. (El efecto se puede acumular hasta 4 veces).",
+      "gold": 2900
+    },
+    {
+      "id": "8020",
+      "name": "Máscara Abisal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/8020.png",
+      "description": "350 de Vida 45 de Resistencia Mágica 15 de Aceleración de Habilidad Deshacer Los campeones enemigos cercanos reciben un 12% más de daño mágico .",
+      "gold": 2650
+    },
+    {
+      "id": "322065",
+      "name": "Canto de Guerra de Shurelya",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/322065.png",
+      "description": "65 de Poder de Habilidad 15 de Aceleración de Habilidad 6% de Velocidad de Movimiento 150% de Regen. de Maná Básica Discurso Inspirador Otorga a los aliados cercanos un 30% de Velocidad de Movimiento durante 4 seg.",
+      "gold": 2600
+    },
+    {
+      "id": "322526",
+      "name": "Tiara Susurrante",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/322526.png",
+      "description": "200 de Vida 8% de poder de curaciones y escudos 75% de Regen. de Maná Básica 300 de Maná Armonía Obtienes un 0% de poder de curaciones y escudos. Flujo de Maná (8 seg; máx.: 5 cargas) Al impactar a un enemigo con una habilidad, obtienes 4 de Maná Máximo (la bonificación se duplica contra campeones). Se transforma en Diadema Musical al tener 360 de Maná Máximo .",
+      "gold": 2250
+    },
+    {
+      "id": "323003",
+      "name": "Báculo del Arcángel",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323003.png",
+      "description": "70 de Poder de Habilidad 600 de Maná 25 de Aceleración de Habilidad Asombro . Obtienes Poder de Habilidad igual a un 1% del Maná adicional . Flujo de Maná (8 seg. Hasta 5 cargas) Asestar impactos con habilidades otorga 9.5 de Maná Máximo (se duplica contra campeones). Se transforma en Abrazo del Serafín al tener 360 de Maná Máximo .",
+      "gold": 2900
+    },
+    {
+      "id": "323004",
+      "name": "Manamune",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323004.png",
+      "description": "35 de Daño de Ataque 500 de Maná 15 de Aceleración de Habilidad Asombro . Obtienes 0 de Daño de ataque adicional . Flujo de Maná (8 seg. Hasta 4 cargas) Asestar impactos con habilidades y ataques otorga 6.5 de Maná Máximo (se duplica contra campeones). Se transforma en Muramaná al tener 360 de Maná Máximo .",
+      "gold": 2900
+    },
+    {
+      "id": "323050",
+      "name": "Convergencia de Zeke",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323050.png",
+      "description": "350 de Vida 30 de Armadura 30 de Resistencia Mágica 10 de Aceleración de Habilidad Tempestad de Fuego Escarchado Al lanzar tu definitiva, invocas una tormenta a tu alrededor durante 5 seg. La tormenta inflige 30 de daño mágico por seg a los campeones enemigos y los ralentiza en un 30%.",
+      "gold": 2300
+    },
+    {
+      "id": "323070",
+      "name": "Lágrima de la Diosa",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323070.png",
+      "description": "240 de Maná Flujo de Maná (8 seg. Hasta 4 cargas) Asestar impactos con habilidades otorga 6.5 de Maná Máximo (se duplica contra campeones), hasta un 360 . Una Ayudita Los ataques infligen 5 de Daño físico adicional a los súbditos.",
+      "gold": 400
+    },
+    {
+      "id": "323075",
+      "name": "Cota de Espinas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323075.png",
+      "description": "200 de Vida 85 de Armadura Espinas Al recibir un ataque, inflige daño mágico al atacante. Si el atacante es un campeón, le aplica un 40% de Heridas durante 3 seg.",
+      "gold": 2650
+    },
+    {
+      "id": "323107",
+      "name": "Redención",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323107.png",
+      "description": "30 de Poder de Habilidad 15 de Aceleración de Habilidad 100% de Regen. de Maná Básica 10% de poder de curaciones y escudos Intervención Restaura de 150 a 350 de Vida a unidades aliadas e inflige un 10% de la Vida Máxima como daño verdadero a campeones enemigos tras 2.5 seg.",
+      "gold": 2800
+    },
+    {
+      "id": "323109",
+      "name": "Promesa del Caballero",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323109.png",
+      "description": "300 de Vida 50 de Armadura 10 de Aceleración de Habilidad 150% de Regen. de Vida Básica Sacrificio Al estar cerca de tu aliado digno , recibes un 14% del daño que reciba y te curas un 12% del daño que inflija a los campeones. Juramento (0 seg) Designa a un aliado como digno .",
+      "gold": 2900
+    },
+    {
+      "id": "323110",
+      "name": "Corazón de Hielo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323110.png",
+      "description": "75 de Armadura 500 de Maná 25 de Aceleración de Habilidad Caricia Invernal Reduce la Velocidad de Ataque de los campeones cercanos en un 20% .",
+      "gold": 2700
+    },
+    {
+      "id": "323119",
+      "name": "Umbral del Invierno",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323119.png",
+      "description": "550 de Vida 500 de Maná 15 de Aceleración de Habilidad Asombro Otorga 0 de Vida . Flujo de Maná (8 seg. Hasta 4 cargas) Asestar ataques y habilidades otorga 6.5 de Maná Máximo (se duplica contra campeones). Se transforma en Invierno Nórdico al tener 360 de Maná Máximo .",
+      "gold": 2400
+    },
+    {
+      "id": "323190",
+      "name": "Relicario de los Solari de Hierro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323190.png",
+      "description": "250 de Vida 30 de Armadura 30 de Resistencia Mágica 10 de Aceleración de Habilidad Devoción Otorga a los aliados cercanos de 290 a 360 de escudo que decae a lo largo de 2.5 seg.",
+      "gold": 2600
+    },
+    {
+      "id": "323222",
+      "name": "Bendición de Mikael",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323222.png",
+      "description": "400 de Vida 100% de Regen. de Maná Básica 15% de poder de curaciones y escudos 15 de Aceleración de Habilidad Purificar Elimina todas las debilitaciones de control de masas (excepto lanzamientos por el aire y supresiones ) de un campeón aliado y restaura de 100 a 250 de Vida .",
+      "gold": 2800
+    },
+    {
+      "id": "323504",
+      "name": "Pebetero Ardiente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/323504.png",
+      "description": "55 de Poder de Habilidad 10% de poder de curaciones y escudos 150% de Regen. de Maná Básica 6% de Velocidad de Movimiento Santificación Curar o escudar a un aliado los mejora a ambos durante 6 seg, lo que les otorga un 25% de Velocidad de Ataque y 20 de daño mágico al impacto .",
+      "gold": 2600
+    },
+    {
+      "id": "324005",
+      "name": "Mandato Imperial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/324005.png",
+      "description": "65 de Poder de Habilidad 15 de Aceleración de Habilidad 150% de Regen. de Maná Básica Control Obtienes 20 de Aceleración de Habilidad para tus habilidades con efectos inmovilizadores . Orden Al inmovilizar a un campeón enemigo, lo marcas y lo vuelves un 7% Vulnerable durante 4 seg.",
+      "gold": 2400
+    },
+    {
+      "id": "326616",
+      "name": "Báculo de Agua Fluyente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/326616.png",
+      "description": "45 de Poder de Habilidad 10% de poder de curaciones y escudos 150% de Regen. de Maná Básica 10 de Aceleración de Habilidad Rápidos Al curar u otorgar escudo a un aliado, ambos obtienen 40 de Poder de Habilidad y 15 de Aceleración de Habilidad durante 6 seg.",
+      "gold": 2600
+    },
+    {
+      "id": "326617",
+      "name": "Renovador de Piedra Lunar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/326617.png",
+      "description": "35 de Poder de Habilidad 400 de Vida 20 de Aceleración de Habilidad 150% de Regen. de Maná Básica Gracia Estrellada Curar o escudar a un aliado extiende el efecto a otro aliado (que no seas tú), lo que cura un 30% o escuda un 35% de la cantidad original.",
+      "gold": 2900
+    },
+    {
+      "id": "326620",
+      "name": "Ecos de Helia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/326620.png",
+      "description": "35 de Poder de Habilidad 250 de Vida 20 de Aceleración de Habilidad 150% de Regen. de Maná Básica Sifón del Alma Obtienes un 30% del daño infligido contra campeones antes de la mitigación como Cargas Álmicas. Al curar u otorgar escudo a un aliado, consumes todas las Cargas Álmicas para restaurarle vida .",
+      "gold": 2600
+    },
+    {
+      "id": "326621",
+      "name": "Esfera del Amanecer",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/326621.png",
+      "description": "50 de Poder de Habilidad 20% de poder de curaciones y escudos 150% de Regen. de Maná Básica Primera Luz Obtienes un 2% de Curación y Poder de Escudo y 10 de Poder de Habilidad por cada 100% de Regeneración de Maná Básica.",
+      "gold": 2900
+    },
+    {
+      "id": "326657",
+      "name": "Vara de las Edades",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/326657.png",
+      "description": "45 de Poder de Habilidad 350 de Vida 500 de Maná Atemporal Este objeto obtiene 10 de Vida , 30 de Maná y 3 de Poder de Habilidad cada 60 seg hasta 10 veces. Al alcanzar el máximo de acumulaciones, subes un nivel. Eternidad Recibir daño de campeones restaura un 10% del daño como Maná . Lanzar una habilidad cura por un 25% del Maná gastado.",
+      "gold": 2600
+    },
+    {
+      "id": "328020",
+      "name": "Máscara Abisal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/328020.png",
+      "description": "350 de Vida 50 de Resistencia Mágica 15 de Aceleración de Habilidad Deshacer Los campeones enemigos cercanos reciben un 12% más de daño mágico .",
+      "gold": 2850
+    },
+    {
+      "id": "663039",
+      "name": "Juicio de Atma",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663039.png",
+      "description": "500 de Vida 20% de Probabilidad de Golpe Crítico Manos Grandes Obtienes de 0 a 30% de Probabilidad de Golpe Crítico que aumenta con tu vida adicional .",
+      "gold": 2500
+    },
+    {
+      "id": "663056",
+      "name": "La Corona del Rey Demonio",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663056.png",
+      "description": "Supremacía Aumenta tu Vida, Armadura, Resistencia Mágica, Daño de Ataque, Poder de Habilidad, Velocidad de Ataque y Aceleración de Habilidad en un 20%, que aumenta en un 0% por derribo y un -3% por muerte después de obtener este objeto.",
+      "gold": 2500
+    },
+    {
+      "id": "663058",
+      "name": "Escudo de Roca Fundida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663058.png",
+      "description": "250 de Vida 80 de Armadura Inamovible como la Tierra Aumenta tu Armadura en un 20% y obtienes probabilidad de bloqueo según tu armadura.",
+      "gold": 2500
+    },
+    {
+      "id": "663059",
+      "name": "Manto de la Noche Estrellada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663059.png",
+      "description": "250 de Vida 60 de Resistencia Mágica Ilimitado como las Estrellas Tu Resistencia Mágica aumenta en un 10%. Todo el daño que recibes de fuentes de ataques no básicos se reduce en un porcentaje que aumenta con tu resistencia mágica , hasta un límite de un 25%.",
+      "gold": 2500
+    },
+    {
+      "id": "663060",
+      "name": "Espada de los Dioses",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663060.png",
+      "description": "90 de fuerza adaptable 50% de Probabilidad de Golpe Crítico Excoriar Cada golpe crítico inflige un daño de golpe crítico adicional aleatorio, que aumenta hasta un 50% tu Probabilidad de Golpe Crítico.",
+      "gold": 2500
+    },
+    {
+      "id": "663064",
+      "name": "Talismán de Ascensión de Veigar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663064.png",
+      "description": "Obtiene 100% de experiencia adicional No ofrece estadísticas y no se puede vender... ... Pero valdrá la pena si llegas a nivel 30.",
+      "gold": 900
+    },
+    {
+      "id": "663146",
+      "name": "Sablepistola Hextech",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663146.png",
+      "description": "90 de Poder de Habilidad 45 de Daño de Ataque 15% de Omnivampirismo ACTIVA (0 seg) Relámpago Lanza una descarga al campeón enemigo objetivo, inflige 0 de daño mágico y lo ralentiza en un 40% durante 2 seg.",
+      "gold": 2500
+    },
+    {
+      "id": "663172",
+      "name": "Céfiro",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663172.png",
+      "description": "40% de Velocidad de Ataque 8% de Velocidad de Movimiento 25 de Aceleración de Habilidad 20% de Tenacidad Como el Viento Obtienes un 5% de Velocidad de Movimiento al impacto durante 6 seg, que se acumula hasta un 25% de Velocidad de Movimiento.",
+      "gold": 2500
+    },
+    {
+      "id": "663193",
+      "name": "Armadura Pétrea",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/663193.png",
+      "description": "55 de Armadura 55 de Resistencia Mágica 10 de Aceleración de Habilidad 8% de Velocidad de Movimiento Activa: Inquebrantable: Obtienes un escudo que decae y crece en tamaño.",
+      "gold": 2500
+    },
+    {
+      "id": "664011",
+      "name": "Espada del Amanecer Floreciente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/664011.png",
+      "description": "35 de Poder de Habilidad 150 de Vida 10% de poder de curaciones y escudos 10 de Aceleración de Habilidad Efervescencia Obtienes + 1% de Velocidad de Ataque por cada 1% de poder de curaciones y escudos que tengas. Hierbabuena al impacto , cura al campeón aliado cercano con menos vida por 0, priorizando a los aliados con menos vida.",
+      "gold": 2500
+    },
+    {
+      "id": "664644",
+      "name": "Corona de la Reina Fragmentada",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/664644.png",
+      "description": "65 de Poder de Habilidad 250 de Vida 600 de Maná 15 de Aceleración de Habilidad Salvaguarda Obtienes Salvaguarda , lo que reduce un 40% del daño recibido de campeones. El efecto de Salvaguarda perdura durante 3 seg tras recibir daño de campeones. (0 seg). El enfriamiento del objeto se reinicia cuando recibes daño de campeones.",
+      "gold": 2500
+    },
+    {
+      "id": "667101",
+      "name": "Espada del Apostador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/667101.png",
+      "description": "55 de fuerza adaptable 10 de Aceleración de Habilidad 15 de Letalidad 15 de Penetración de Magia 15% de Velocidad de Movimiento Ganar tiempo Los derribos de campeones al usar la Espada del Apostador retrasan la llegada de Veigar Jefe de la Perdición en 10 seg más. Las muertes mientras se porta la Espada aceleran el efecto en 10 seg. (No se retrasará a partir de los 14:30 minutos) Dobla la apuesta Los derribos de campeones otorgan una acumulación y cada una de ellas otorga 10 de oro adicional por asesinato. Además, recibes un 5% más de daño por cada acumulación. Pierdes todas las acumulaciones al morir.",
+      "gold": 2500
+    },
+    {
+      "id": "667109",
+      "name": "Crueldad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/667109.png",
+      "description": "60 de Poder de Habilidad 25 de Armadura 25 de Resistencia Mágica Míralos Caer Cuando inmovilizas o anclas a un campeón enemigo, invocas un cometa sobre él. El cometa aterriza después de 1 seg, lo que inflige 0 de daño mágico adicional en el área. Este efecto tiene 6 seg de enfriamiento por objetivo por lanzamiento de hechizo.",
+      "gold": 2500
+    },
+    {
+      "id": "667112",
+      "name": "Caníbal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/667112.png",
+      "description": "55 de fuerza adaptable 500 de Vida Trocear la Carne Al infligir daño a un objetivo, le reduces 3 de Armadura y de Resistencia Mágica durante 5 seg. El efecto se puede acumular hasta 10 veces. Cada habilidad tiene un enfriamiento de 1 seg para aplicar acumulaciones. Canibalizar Al derribar a un campeón, le robas un 10% de sus estadísticas y de su tamaño durante el resto de la ronda.",
+      "gold": 2500
+    },
+    {
+      "id": "667666",
+      "name": "El Coleccionista",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/item/667666.png",
+      "description": "50 de Daño de Ataque 10 de Letalidad 25% de Probabilidad de Golpe Crítico Muerte Tu daño ejecuta a los campeones que están por debajo de un 5% de Vida. Impuestos Los asesinatos de campeones otorgan 25 de oro adicional .",
+      "gold": 3000
+    }
+  ]
+}

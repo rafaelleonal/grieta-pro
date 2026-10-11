@@ -1,0 +1,12 @@
+node_modules/
+.next/
+generated/
+.local/
+out/
+coverage/
+artifacts/
+next-env.d.ts
+pnpm-lock.yaml
+data/catalog-snapshot.json
+prisma/migrations/
+.env*

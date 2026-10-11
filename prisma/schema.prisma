@@ -1,0 +1,242 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+enum PlanCode {
+  FREE
+  PRO
+}
+
+enum AccessSource {
+  COMPLIMENTARY
+  SUBSCRIPTION
+}
+
+enum AiOperation {
+  COACH
+  DRAFT
+}
+
+enum AiRequestStatus {
+  RESERVED
+  DISPATCHED
+  SETTLED
+  VOID
+  UNKNOWN
+}
+
+enum UsageScope {
+  USER
+  PLAN
+  GLOBAL
+  IP
+}
+
+model User {
+  id            String        @id
+  name          String
+  email         String        @unique
+  emailVerified Boolean       @default(false)
+  image         String?
+  role          UserRole      @default(USER)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  records       CoachRecord[]
+  aiRequests    AiRequest[]
+  accessGrants  AccessGrant[] @relation("GrantedUser")
+  grantsIssued  AccessGrant[] @relation("GrantAdmin")
+  invitesIssued Invitation[]  @relation("InviteAdmin")
+  invitesUsed   Invitation[]  @relation("InviteUser")
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
+model RateLimit {
+  id          String @id
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@map("rateLimit")
+}
+
+model Plan {
+  id                 String        @id @default(cuid())
+  code               PlanCode      @unique
+  name               String
+  version            Int           @default(1)
+  monthlyCoachLimit  Int
+  monthlyDraftLimit  Int
+  monthlySearchLimit Int
+  monthlyBudgetUsd   Decimal       @db.Decimal(18, 8)
+  dailyBudgetUsd     Decimal       @db.Decimal(18, 8)
+  minuteRequestLimit Int
+  allowedModels      String[]
+  webSearchAllowed   Boolean       @default(false)
+  concurrentLimit    Int           @default(1)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+  grants             AccessGrant[]
+  invitations        Invitation[]
+}
+
+model AccessGrant {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation("GrantedUser", fields: [userId], references: [id], onDelete: Cascade)
+  planId      String
+  plan        Plan         @relation(fields: [planId], references: [id], onDelete: Restrict)
+  source      AccessSource
+  startsAt    DateTime     @default(now())
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  grantedById String?
+  grantedBy   User?        @relation("GrantAdmin", fields: [grantedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime     @default(now())
+
+  @@index([userId, startsAt, expiresAt])
+}
+
+model Invitation {
+  id          String    @id @default(cuid())
+  email       String
+  tokenHash   String    @unique
+  planId      String
+  plan        Plan      @relation(fields: [planId], references: [id], onDelete: Restrict)
+  expiresAt   DateTime
+  revokedAt   DateTime?
+  usedAt      DateTime?
+  usedById    String?
+  usedBy      User?     @relation("InviteUser", fields: [usedById], references: [id], onDelete: SetNull)
+  createdById String?
+  createdBy   User?     @relation("InviteAdmin", fields: [createdById], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+
+  @@index([email])
+}
+
+model CoachRecord {
+  id            String    @id @default(cuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestId     String    @unique
+  request       AiRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  input         Json
+  plan          Json
+  meta          Json
+  formatVersion Int       @default(1)
+  createdAt     DateTime  @default(now())
+
+  @@index([userId, createdAt])
+}
+
+model AiRequest {
+  id                String          @id @default(cuid())
+  userId            String
+  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  idempotencyKey    String
+  inputHash         String
+  operation         AiOperation
+  status            AiRequestStatus @default(RESERVED)
+  model             String
+  reservedCostUsd   Decimal         @db.Decimal(18, 8)
+  actualCostUsd     Decimal?        @db.Decimal(18, 8)
+  promptTokens      Int?
+  completionTokens  Int?
+  providerRequestId String?
+  pricing           Json
+  webSearch         Boolean         @default(false)
+  byok              Boolean         @default(false)
+  response          Json?
+  failureStatus     Int?
+  failureMessage    String?
+  createdAt         DateTime        @default(now())
+  dispatchedAt      DateTime?
+  settledAt         DateTime?
+  record            CoachRecord?
+
+  @@unique([userId, idempotencyKey])
+  @@index([userId, status, createdAt])
+  @@index([providerRequestId])
+}
+
+model UsageBucket {
+  id              String     @id @default(cuid())
+  scope           UsageScope
+  scopeId         String
+  period          String
+  coachUsed       Int        @default(0)
+  draftUsed       Int        @default(0)
+  searchUsed      Int        @default(0)
+  coachReserved   Int        @default(0)
+  draftReserved   Int        @default(0)
+  searchReserved  Int        @default(0)
+  costUsedUsd     Decimal    @default(0) @db.Decimal(18, 8)
+  costReservedUsd Decimal    @default(0) @db.Decimal(18, 8)
+  activeRequests  Int        @default(0)
+  blocked         Boolean    @default(false)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@unique([scope, scopeId, period])
+}

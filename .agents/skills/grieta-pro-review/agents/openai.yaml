@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revisión de GrietaPro"
+  short_description: "Seguridad, privacidad y gasto de IA del coach"
+  default_prompt: "Usa $grieta-pro-review para revisar los cambios de GrietaPro y comprobar seguridad, privacidad y límites de gasto."

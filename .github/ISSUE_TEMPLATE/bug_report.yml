@@ -1,0 +1,39 @@
+name: Reportar un error
+description: Un problema de funcionamiento reproducible con datos sintéticos.
+title: "[Error]: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Para vulnerabilidades, sigue SECURITY.md y utiliza un canal privado.
+        No publiques claves, tokens, datos personales, conversaciones, prompts internos ni fotos reales.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema
+      description: Qué ocurrió y qué esperabas que sucediera.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Pasos para reproducir
+      description: Usa cuentas y datos sintéticos. No pegues archivos de entorno ni respuestas privadas.
+      placeholder: |
+        1. Abrir…
+        2. Seleccionar…
+        3. Observar…
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Entorno
+      description: Revisión o versión, navegador, sistema y tamaño de pantalla. Indica si ocurre en local o en un despliegue.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidencia sanitizada
+      description: Mensajes de error o capturas con datos ficticios, cuando ayuden. Revisa que no contengan secretos.

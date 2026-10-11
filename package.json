@@ -1,0 +1,60 @@
+{
+  "name": "grieta-pro",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.2",
+  "engines": {
+    "node": "^22.12 || >=24.0"
+  },
+  "scripts": {
+    "postinstall": "prisma generate",
+    "dev": "next dev --hostname 0.0.0.0",
+    "build": "prisma generate && next build",
+    "start": "next start --hostname 0.0.0.0",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix --max-warnings=0",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "audit:security": "pnpm audit --audit-level=moderate",
+    "test": "node --import tsx --test tests/*.test.ts",
+    "eval:security": "node --import tsx --test tests/coach-safety.test.ts tests/security-evaluation.test.ts",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
+    "db:generate": "prisma generate",
+    "db:local": "tsx scripts/db-local.ts",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "tsx scripts/seed-plans.ts",
+    "db:setup": "pnpm db:generate && pnpm db:migrate && pnpm db:seed",
+    "access": "tsx scripts/manage-access.ts",
+    "test:accounts": "tsx scripts/smoke-accounts.ts"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "better-auth": "1.7.7",
+    "lucide-react": "1.55.0",
+    "next": "16.4.0",
+    "pg": "8.23.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "sharp": "0.35.5",
+    "zod": "4.6.5"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.39.5",
+    "@types/node": "24.19.2",
+    "@types/pg": "8.23.1",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "embedded-postgres": "18.4.0-beta.17",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.0",
+    "eslint-config-prettier": "10.1.8",
+    "globals": "17.13.0",
+    "prettier": "3.9.10",
+    "prisma": "7.10.0",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.71.1"
+  }
+}

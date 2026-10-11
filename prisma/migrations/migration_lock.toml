@@ -1,0 +1,2 @@
+# Versioned migrations are applied by Prisma; never edited after deployment.
+provider = "postgresql"
