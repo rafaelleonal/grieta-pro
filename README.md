@@ -203,6 +203,6 @@ La aplicación utiliza Next.js con servicios externos independientes del alojami
 5. En una vista previa, verifica la carga del catálogo, la autenticación, una consulta de IA y una captura. Si activaste Riot, comprueba el importador durante una partida activa.
 6. Publica después de esa comprobación. Los cambios de variables requieren un nuevo despliegue.
 
-[Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) detecta Next.js. Netlify ofrece OpenNext, pero sus funciones síncronas tienen un [límite de 60 segundos](https://docs.netlify.com/build/functions/configuration/): hay que adaptar y probar la espera actual de OpenRouter de 90 segundos antes de usarlo. La [guía portable](docs/vps-deployment.md) explica estas condiciones. Preparar Docker o publicar una compilación no demuestra el flujo completo de cuentas y proveedores; verifica cada entorno antes de darlo por listo.
+[Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) detecta Next.js. Netlify ofrece OpenNext, pero sus funciones síncronas tienen un [límite de 60 segundos](https://docs.netlify.com/build/functions/configuration/): hay que adaptar y probar la espera del proveedor, de hasta 240 segundos con Haiku max antes de usarlo. La [guía portable](docs/vps-deployment.md) explica estas condiciones. Preparar Docker o publicar una compilación no demuestra el flujo completo de cuentas y proveedores; verifica cada entorno antes de darlo por listo.
 
 Elociencia no está afiliado ni respaldado por Riot Games. League of Legends y las marcas asociadas pertenecen a Riot Games.

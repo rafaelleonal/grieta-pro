@@ -586,12 +586,32 @@ test("search disabled omits tool costs and never labels a source-free build veri
   assert.ok(noSources.meta.warnings.some((warning) => warning.includes("no devolvió fuentes")));
 });
 
+test("bounded provider metadata larger than the plan is read but never retained", async () => {
+  const result = await generateCoach(input, catalog, undefined, async () =>
+    Response.json({
+      choices: [
+        {
+          finish_reason: "stop",
+          message: {
+            content: JSON.stringify({ decision: "coach", plan }),
+            reasoning_details: [
+              { type: "reasoning.encrypted", data: "private-metadata".repeat(15000) },
+            ],
+          },
+        },
+      ],
+    }),
+  );
+  assert.equal(result.plan.levels.length, 6);
+  assert.ok(!JSON.stringify(result).includes("private-metadata"));
+});
+
 test("provider responses are bounded even with chunked bodies and errors never echo oversized content", async () => {
   for (const declared of [false, true]) {
     let cancelled = false;
     const body = new ReadableStream<Uint8Array>({
       start(controller) {
-        controller.enqueue(new TextEncoder().encode("provider-private-secret".repeat(7000)));
+        controller.enqueue(new TextEncoder().encode("provider-private-secret".repeat(30000)));
       },
       cancel() {
         cancelled = true;
@@ -606,7 +626,7 @@ test("provider responses are bounded even with chunked bodies and errors never e
           new Response(body, {
             headers: {
               "Content-Type": "application/json",
-              ...(declared ? { "Content-Length": "200000" } : {}),
+              ...(declared ? { "Content-Length": "600000" } : {}),
             },
           }),
       ),
@@ -849,7 +869,7 @@ test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every in
       `${operation}: image=${hasImage}, web=${webSearch}`,
     );
   // Existing models retain their policies; historical requests keep stored prices.
-  assert.equal(maximumCost("anthropic/claude-haiku-5.5", "COACH").toString(), "0.0895");
+  assert.equal(maximumCost("anthropic/claude-haiku-5.5", "COACH").toString(), "0.187");
   assert.ok("openai/gpt-6-luna" in MODEL_POLICIES);
   assert.ok("anthropic/claude-sonnet-5.5" in MODEL_POLICIES);
   // Coach prompts are bounded tighter than drafts, which keep the original allowance.
@@ -1012,4 +1032,38 @@ test("draft transport is compatible while oversized output and excessive warning
       extractDraft(draftInput, catalog, async () => provider(invalidDraft, [], true)),
       isStatus(502),
     );
+});
+
+test("cancellation after headers interrupts a stalled body even if stream cleanup never settles", async () => {
+  const controller = new AbortController();
+  let cancelled = false;
+  let calls = 0;
+  const started = Date.now();
+  await assert.rejects(
+    generateCoach(
+      input,
+      catalog,
+      undefined,
+      async () => {
+        calls++;
+        setTimeout(() => controller.abort(), 10);
+        return new Response(
+          new ReadableStream({
+            start(c) {
+              c.enqueue(new TextEncoder().encode(" "));
+            },
+            cancel() {
+              cancelled = true;
+              return new Promise(() => {});
+            },
+          }),
+        );
+      },
+      controller.signal,
+    ),
+    isStatus(504),
+  );
+  assert.equal(calls, 1);
+  assert.equal(cancelled, true);
+  assert.ok(Date.now() - started < 2000);
 });

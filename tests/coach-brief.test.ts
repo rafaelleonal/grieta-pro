@@ -195,59 +195,51 @@ const completeTransportPlan = () => ({
 const schemaFor = async (overrides: Partial<CoachInput> = {}) => {
   let schema: ReturnType<typeof JSON.parse>;
   await generateCoach({ ...input, ...overrides }, fixtureCatalog, undefined, async (_, init) => {
-    schema = JSON.parse(String(init?.body)).response_format.json_schema.schema;
-    return response(completeTransportPlan());
+    const body = JSON.parse(String(init?.body));
+    assert.equal(body.response_format, undefined);
+    schema = JSON.parse(
+      body.system
+        ? body.system.split("CONTRATO_JSON: ")[1]
+        : body.messages.at(-1).content.slice("CONTRATO_JSON: ".length),
+    );
+    return body.output_config
+      ? Response.json({
+          stop_reason: "end_turn",
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({ decision: "coach", plan: completeTransportPlan() }),
+            },
+          ],
+        })
+      : response(completeTransportPlan());
   });
   return schema;
 };
 
-test("Claude transport schemas avoid regex and unions while requiring every coach section", async () => {
-  for (const model of CLAUDE_MODELS) {
-    assert.ok(model in MODEL_POLICIES);
-    const schema = await schemaFor({ model, allies: ["LeeSin"], enemies: ["Nautilus"] });
-    const text = JSON.stringify(schema);
-    assert.ok(!text.includes('"pattern"'), "Claude compiles regex into its grammar");
-    let unions = 0;
-    const visit = (node: unknown) => {
-      if (!node || typeof node !== "object") return;
-      if (Array.isArray((node as { anyOf?: unknown }).anyOf)) unions++;
-      Object.values(node).forEach(visit);
-    };
-    visit(schema);
-    // Only the nullable refusal envelope remains (Claude allows at most 16 unions).
-    assert.equal(unions, 1);
-    const plan = schema.properties.plan.anyOf[0];
-    assert.deepEqual(plan.required, ["brief", "levels", "reactions", "build", "macro"]);
-    assert.deepEqual(plan.properties.build.required, [
-      "starting",
-      "core",
-      "situational",
-      "runes",
-      "summoners",
-      "skillOrder",
-    ]);
-    assert.deepEqual(plan.properties.levels.items.properties.champions.items.enum.sort(), [
-      "Ahri",
-      "LeeSin",
-      "Nautilus",
-      "Yasuo",
-    ]);
-    assert.deepEqual(plan.properties.build.properties.skillOrder.properties.max.items.enum, [
-      "Q",
-      "W",
-      "E",
-    ]);
-    assert.ok(plan.properties.build.properties.core.items.enum.includes("3020"));
+test("Claude sends a fixed named JSON contract without compiling a provider grammar", async () => {
+  let original = "";
+  for (const model of [...CLAUDE_MODELS, "anthropic/claude-haiku-5.5"]) {
+    for (const champion of ["Ahri", "Udyr", "Aphelios"]) {
+      const schema = await schemaFor({
+        model,
+        champion,
+        allies: ["LeeSin"],
+        enemies: ["Nautilus"],
+      });
+      const text = JSON.stringify(schema);
+      assert.ok(!text.includes('"pattern"'));
+      assert.ok(text.length < 6000);
+      if (original) assert.equal(text, original);
+      original = text;
+      const plan = schema.properties.plan.anyOf[0];
+      assert.equal(plan.properties.format.const, "compact-v1");
+      assert.deepEqual(plan.required, ["format", "brief", "levels", "reactions", "build", "macro"]);
+      assert.equal(plan.properties.levels.items.properties.level.type, "string");
+      assert.equal(plan.properties.build.properties.core.items.type, "string");
+      assert.equal(plan.additionalProperties, false);
+    }
   }
-  const udyr = await schemaFor({ champion: "Udyr", model: CLAUDE_MODELS[0] });
-  assert.deepEqual(
-    udyr.properties.plan.anyOf[0].properties.build.properties.skillOrder.properties.max.items.enum,
-    ["Q", "W", "E", "R"],
-  );
-  const aphelios = await schemaFor({ champion: "Aphelios", model: CLAUDE_MODELS[1] });
-  const order = aphelios.properties.plan.anyOf[0].properties.build.properties.skillOrder;
-  assert.equal(order.properties.first6.items.type, "null");
-  assert.deepEqual(order.properties.max.items.enum, ["AD", "AS", "Letalidad"]);
 });
 
 test("a structured skill priority is stored as the readable legacy string and validated", async () => {
@@ -308,15 +300,19 @@ test("the coach prompt sends compact, deduplicated items and bounded abilities",
         ),
       );
       assert.deepEqual(Object.keys(context.runeStyles[0]), ["key", "name"]);
-      const items =
-        body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.build.properties
-          .core.items.enum;
-      assert.deepEqual(items, ids);
+      assert.deepEqual(
+        context.purchasableRiftItems.map((row: string[]) => row[0]),
+        ids,
+      );
+      const schema = JSON.parse(body.messages.at(-1).content.slice("CONTRATO_JSON: ".length));
+      assert.equal(
+        schema.properties.plan.anyOf[0].properties.build.properties.core.items.type,
+        "string",
+      );
       assert.ok(
         Buffer.byteLength(
           JSON.stringify({
             messages: body.messages,
-            schema: body.response_format.json_schema.schema,
           }),
         ) <= MAX_COACH_PROMPT_BYTES,
       );

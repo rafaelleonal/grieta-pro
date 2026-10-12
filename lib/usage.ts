@@ -18,17 +18,31 @@ export type ModelPolicy = {
   prompt: number;
   completion: number;
   reasoning: boolean;
-  reasoningEffort?: "low" | "medium" | "high";
+  reasoningEffort?: "low" | "medium" | "high" | "max";
+  coachReasoningEffort?: "low" | "medium" | "high" | "max";
   coachCompletionTokens?: number;
   draftCompletionTokens?: number;
   maxInputTokens?: number;
+  coachTimeoutMs?: number;
+  coachTaskBudgetTokens?: number;
+  coachProviderOrder?: readonly string[];
   image?: number;
 };
 export const MODEL_POLICIES = {
   // GPT 5.6 Luna's higher-context tier starts at 272,000 input tokens. Even
   // text + one image + web allowances stay below it; max_price keeps base caps.
   "openai/gpt-5.6-luna": { prompt: 0.2, completion: 1.2, reasoning: false },
-  "anthropic/claude-haiku-5.5": { prompt: 0.5, completion: 2.5, reasoning: false },
+  // Keep the high-context tariff caps for image/search inputs; historical prices stay stored.
+  "anthropic/claude-haiku-5.5": {
+    prompt: 0.5,
+    completion: 2.5,
+    reasoning: false,
+    coachReasoningEffort: "max",
+    coachCompletionTokens: 46_000,
+    coachProviderOrder: ["anthropic"],
+    coachTimeoutMs: 240_000,
+    coachTaskBudgetTokens: 40_000,
+  },
   "openai/gpt-6-luna": { prompt: 0.2, completion: 0.75, reasoning: false },
   // A complete coach plan is ~3-5k output tokens; the caps leave room for adaptive
   // thinking at medium effort without truncating the JSON.

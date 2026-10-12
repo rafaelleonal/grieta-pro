@@ -1228,10 +1228,6 @@
     color: var(--color-neutral-400);
     font-size: 10px;
   }
-  .result-panel {
-    min-height: 330px;
-    overflow: hidden;
-  }
   .empty-result {
     padding: 29px 28px 24px;
   }

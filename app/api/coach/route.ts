@@ -8,7 +8,8 @@ import { safeCoachInput } from "@/lib/usage";
 import { validateCoachInput, validateCoachInputStructure } from "@/lib/validation";
 
 export const runtime = "nodejs";
-export const maxDuration = 120;
+// Haiku max may spend longer reasoning; leave time for catalog, accounting and history.
+export const maxDuration = 300;
 
 export async function POST(request: Request): Promise<Response> {
   try {

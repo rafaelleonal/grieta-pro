@@ -14,7 +14,13 @@ function formatDate(value: string) {
 }
 
 /** Estado de acceso: cuenta, verificación, consultas en curso y reservas inciertas. */
-export function AccessNotice({ session }: { session: AccountSession }) {
+export function AccessNotice({
+  session,
+  recoveryVisible = false,
+}: {
+  session: AccountSession;
+  recoveryVisible?: boolean;
+}) {
   const { account, accountError, consumptionError, checkingConsumption } = session;
   const link = (href: string, label: string) => (
     <Link href={href} className={buttonClasses("ghost")}>
@@ -59,7 +65,9 @@ export function AccessNotice({ session }: { session: AccountSession }) {
         Verifica tu correo para generar planes.
       </Alert>
     );
-  if (account.usage?.pending || account.usage?.uncertain || consumptionError)
+  // The recovery panel owns this status and its action while a plan has failed.
+  if (account.usage?.pending || account.usage?.uncertain || consumptionError) {
+    if (recoveryVisible) return null;
     return (
       <Alert
         tone="warning"
@@ -81,6 +89,7 @@ export function AccessNotice({ session }: { session: AccountSession }) {
             : "Coste por confirmar. La reserva se mantiene; puedes seguir si tienes cuota.")}
       </Alert>
     );
+  }
   if (account.usage?.coachRemaining === 0)
     return (
       <Alert tone="warning" icon={<ShieldCheck size={18} />}>

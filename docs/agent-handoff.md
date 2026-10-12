@@ -29,7 +29,9 @@ Los últimos commits de implementación antes de este documento fueron:
 | `75688ef` | Recuperación de secciones independientes de respuestas incompletas.               |
 | `42cb8fe` | Consejo central primero, detalles opcionales y recuperación sin nueva generación. |
 
-Desde el 12 de octubre (sin publicar), el contrato pide un plan **completo**: `brief`, 6 `levels`, 2–3 `reactions.linea`, `build` (inicio, núcleo, situacionales, runas, hechizos y habilidades) y 2–3 `macro`. Los IDs de campeones, objetos, runas y hechizos son enums de la partida y del catálogo; `skillOrder.max` viaja como arreglo de 3 teclas y se guarda como `Q > E > W`. El esquema de transporte no usa `pattern` y sólo conserva una unión (el sobre de rechazo). Ya no exige títulos, resúmenes duplicados, fases extensas ni alternativas de preparación. La respuesta completa se analiza por seguridad antes de omitir campos.
+El contrato pide un plan **completo**: `brief`, 6 `levels`, 2–3 `reactions.linea`, `build` (inicio, núcleo, situacionales, runas, hechizos y habilidades) y 2–3 `macro`. La validación local conserva IDs del catálogo, habilidades legales y límites de texto. `skillOrder.max` se guarda como `Q > E > W`. No se exigen títulos, resúmenes duplicados, fases extensas ni alternativas de preparación.
+
+Claude recibe ahora el contrato fijo `compact-v1` de `lib/coach-transport.ts`, con campos nombrados y sin enums de catálogo. El contrato JSON se incorpora al prompt; no se solicita `response_format` al proveedor porque su compilador rechazó también el contrato nombrado simplificado. La app analiza JSON y aplica esquemas estrictos, seguridad y validación semántica antes de mostrar o guardar datos. No se persiste el marcador de transporte. Gemini y OpenAI conservan su esquema estricto en el proveedor. La reducción previa a una sola unión no bastó: producción registró otro `schema_complexity` con Opus el 12 de octubre a las 22:15 UTC.
 
 Los planes completos usan formato 2; los recuperados, formato 3; el formato 1 antiguo sigue siendo legible. `meta.partial.invalid` distingue rechazo de ausencia deliberada; el motivo `optional` no significa que haya fallado la consulta. La presentación de planes antiguos proyecta consejos del mismo registro, sin inventarlos ni consultar otra IA.
 
@@ -66,13 +68,21 @@ Después de la comparación se compactó el prompt del coach: objetos deduplicad
 
 La reserva incierta de USD 0.454 de la prueba anterior de Sonnet sigue sin cambios.
 
+### Continuación: formato Claude y Haiku max
+
+El coach de Claude envía el contrato JSON en el prompt y lo valida en el servidor, sin solicitar la gramática estricta que rechazaba el proveedor. Haiku usa Messages con esfuerzo `max` y presupuesto de tarea de 40 000 tokens; sin esa señal agotó hasta 46 000 tokens sólo pensando. El presupuesto de 20 000 produjo estructura completa pero consejos pobres, por lo que se amplió. No equivale al límite duro: se conservan 46 000 tokens máximos y 240 segundos de timeout; la ruta reserva 300 segundos para todo el flujo. La reserva de consumo sin búsqueda es USD 0.187. Consulta [cuentas y consumo](accounts-and-usage.md).
+
+La respuesta bruta puede superar el tamaño del plan por metadatos: se observó un cuerpo de 177 014 bytes. El lector permite hasta 512 000 bytes, respeta cancelación después de headers y no espera una limpieza de stream bloqueada. Los límites de texto del plan se mantienen; no se guardan pensamientos ni metadatos descartados. Capturas, modelo predeterminado y presupuestos persistidos siguen iguales.
+
+La validación de estructura no valida la calidad táctica. Revisar por separado habilidades realmente aprendidas, interacción de kits, umbrales de ejecución, condiciones de pelea y builds sin estadísticas supuestas. La evidencia final de esta ronda está en [la revisión de interfaz y generación](uiux-plan-review.md).
+
 ## Archivos que conviene leer
 
 | Área                                      | Archivos                                                                                                                                         |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Pantalla, estados y navegación            | `app/page.tsx`, `components/coaching-result.tsx`, `components/coaching-result.css`, `components/coach-brief.tsx`, `components/coach-failure.tsx` |
 | Proyección sin otra llamada               | `lib/coach-presentation.ts`, `lib/types.ts`                                                                                                      |
-| Proveedor, prompt y esquema de transporte | `lib/openrouter.ts`, `lib/provider-diagnostics.ts`                                                                                               |
+| Proveedor, prompt y esquema de transporte | `lib/openrouter.ts`, `lib/coach-transport.ts`, `lib/provider-diagnostics.ts`                                                                     |
 | Esquemas, seguridad y recuperación        | `lib/validation.ts`, `lib/coach-safety.ts`, `lib/coach-recovery.ts`                                                                              |
 | Autorización, gasto e idempotencia        | `app/api/coach/route.ts`, `lib/generation.ts`, `lib/usage.ts`, `lib/generation-admission.ts`, `lib/reconciliation.ts`                            |
 | Persistencia y planes                     | `prisma/schema.prisma`, `prisma/migrations/`, `scripts/seed-plans.ts`, `lib/history.ts`                                                          |

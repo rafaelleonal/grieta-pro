@@ -33,7 +33,7 @@ export function CoachScreen({
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex flex-col gap-3 px-4 pt-4 empty:hidden md:px-7">
-        <AccessNotice session={ws.session} />
+        <AccessNotice session={ws.session} recoveryVisible={Boolean(failure)} />
         {ws.catalogError || (ws.error && !ws.coachFailure) ? (
           <Alert
             tone="danger"
