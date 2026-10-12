@@ -1,4 +1,4 @@
-# Recursos oficiales de GrietaPro
+# Recursos oficiales de Elociencia
 
 Referencias para la [guía de configuración de proveedores](provider-setup.md), consultadas el 10 de octubre de 2026. Los paneles de cuenta requieren iniciar sesión; revisa la documentación del proveedor si cambian sus opciones.
 
@@ -19,4 +19,4 @@ Referencias para la [guía de configuración de proveedores](provider-setup.md),
 - [Restricción de resend.dev](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain): pruebas sólo hacia el correo de tu cuenta de Resend.
 - [Domains](https://resend.com/domains) y [API Keys](https://resend.com/api-keys): configuración privada del proveedor.
 
-Las [verificaciones locales históricas](quality-checks.md) usan proveedores simulados. Esta lista de fuentes no prueba credenciales, envío real, consumo de IA ni un despliegue de GrietaPro.
+Las [verificaciones locales históricas](quality-checks.md) usan proveedores simulados. Esta lista de fuentes no prueba credenciales, envío real, consumo de IA ni un despliegue de Elociencia.

@@ -1,6 +1,6 @@
 # Documentos legales y solicitud de Riot
 
-GrietaPro incluye dos páginas públicas, accesibles sin cuenta:
+Elociencia incluye dos páginas públicas, accesibles sin cuenta:
 
 - `/terminos`: términos de uso y límites del coach.
 - `/privacidad`: política de privacidad y aviso de privacidad integral, con datos de cuenta, contexto de juego, capturas, proveedores, conservación y derechos.

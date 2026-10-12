@@ -54,6 +54,9 @@ export interface CoachInput extends Credentials {
   rank: string;
   allies: string[];
   enemies: string[];
+  /** Bot 2v2 (ADC o Support): tu pareja de línea y la pareja de tu rival, opcionales. */
+  allyDuo?: string;
+  enemyDuo?: string;
   notes: string;
   webSearch: boolean;
 }

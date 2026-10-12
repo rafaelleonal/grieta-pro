@@ -53,7 +53,7 @@ async function matchingInvitation(email: unknown, code: unknown) {
 function createConfiguredAuth(config: AuthConfig) {
   const db = getDb();
   return betterAuth({
-    appName: "GrietaPro",
+    appName: "Elociencia",
     baseURL: config.baseUrl,
     secret: config.secret,
     trustedOrigins: config.trustedOrigins,

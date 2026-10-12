@@ -1,6 +1,6 @@
-# Desplegar GrietaPro con Docker en un VPS
+# Desplegar Elociencia con Docker en un VPS
 
-GrietaPro utiliza Next.js, PostgreSQL, Better Auth y OpenRouter sin requerir servicios exclusivos de Vercel. Puedes alojar la aplicación en un VPS y seguir usando la base de tu propia cuenta de Prisma. Cambiar el servidor de la app no requiere trasladar cuentas, historial o planes. Consulta [Prisma Postgres y migraciones](database-deployment.md) si también quieres cambiar el proveedor de la base.
+Elociencia utiliza Next.js, PostgreSQL, Better Auth y OpenRouter sin requerir servicios exclusivos de Vercel. Puedes alojar la aplicación en un VPS y seguir usando la base de tu propia cuenta de Prisma. Cambiar el servidor de la app no requiere trasladar cuentas, historial o planes. Consulta [Prisma Postgres y migraciones](database-deployment.md) si también quieres cambiar el proveedor de la base.
 
 ## 1. Preparar el servidor y sus variables
 
@@ -15,7 +15,7 @@ fi
 chmod 600 .env.production
 ```
 
-Edita ese archivo en el servidor y configura los valores sin comillas alrededor: Compose utiliza `env_file` con `format: raw` para conservar caracteres como `$` sin interpolarlos. Por ejemplo, escribe `AUTH_EMAIL_FROM=GrietaPro <coach@tu-dominio.com>`. Configura:
+Edita ese archivo en el servidor y configura los valores sin comillas alrededor: Compose utiliza `env_file` con `format: raw` para conservar caracteres como `$` sin interpolarlos. Por ejemplo, escribe `AUTH_EMAIL_FROM=Elociencia <coach@tu-dominio.com>`. Configura:
 
 - `DATABASE_URL`: conexión PostgreSQL **pooled** de producción con verificación TLS; en Prisma Postgres usa `sslmode=verify-full`.
 - `DIRECT_URL`: conexión **direct** para Prisma CLI; en Prisma Postgres usa `sslmode=require&sslaccept=strict`. La CLI utiliza `DATABASE_URL` si `DIRECT_URL` está ausente.
@@ -109,4 +109,4 @@ Un temporizador del VPS puede ejecutarla periódicamente, por ejemplo cada minut
 
 [Netlify admite App Router y rutas API mediante OpenNext](https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/). Puedes importar el repositorio con Node.js 24, `pnpm install --frozen-lockfile` y `pnpm build`, configurar las mismas variables privadas y mantener las migraciones fuera de la compilación.
 
-Su [documentación de Functions](https://docs.netlify.com/build/functions/configuration/) indica 60 segundos para funciones síncronas y 6 MB de cuerpo buffered, con menos capacidad útil para binarios. El timeout actual de OpenRouter es de 90 segundos: antes de adoptar Netlify hay que ajustar o rediseñar esa espera y probar el adaptador con CSP, cookies, capturas y cuotas. `maxDuration = 120` no aumenta el límite de Netlify. No se ha desplegado ni validado GrietaPro allí.
+Su [documentación de Functions](https://docs.netlify.com/build/functions/configuration/) indica 60 segundos para funciones síncronas y 6 MB de cuerpo buffered, con menos capacidad útil para binarios. El timeout actual de OpenRouter es de 90 segundos: antes de adoptar Netlify hay que ajustar o rediseñar esa espera y probar el adaptador con CSP, cookies, capturas y cuotas. `maxDuration = 120` no aumenta el límite de Netlify. No se ha desplegado ni validado Elociencia allí.

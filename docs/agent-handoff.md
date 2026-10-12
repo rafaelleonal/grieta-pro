@@ -1,10 +1,10 @@
-# Contexto para retomar GrietaPro
+# Contexto para retomar Elociencia
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
 ## Punto de entrada
 
-1. Lee [AGENTS.md](../AGENTS.md), [README](../README.md) y la [skill de revisión](../.agents/skills/grieta-pro-review/SKILL.md) cuando el cambio afecte IA, cuentas, privacidad o gasto.
+1. Lee [AGENTS.md](../AGENTS.md), [README](../README.md) y la [skill de revisión](../.agents/skills/elociencia-review/SKILL.md) cuando el cambio afecte IA, cuentas, privacidad o gasto.
 2. Revisa `git status`, `package.json` y los últimos commits. Usa TypeScript estricto, Node.js 24 y pnpm 10.33.2.
 3. Usa las pruebas simuladas para reproducir problemas. No necesitan servicios ni claves reales. Un build correcto no confirma coaching real ni entrega de correo.
 4. No imprimas secretos ni leas archivos de credenciales para incorporarlos a documentación. `.env*`, `.local/`, `artifacts/` y `generated/prisma/` están excluidos de Git.
@@ -129,7 +129,7 @@ Para cambios de documentación basta comprobar formato y enlaces. Para cambios d
 
 ## Otros pendientes
 
-- `brand/` contiene recursos de **No Era el Jungla**, todavía sin integrar. La app, PWA y correos siguen usando GrietaPro. No considerar comprobadas disponibilidad de marca o dominio. La futura integración debe actualizar nombres, metadatos, iconos, manifiesto, correo y textos legales de forma coherente.
+- La marca es **Elociencia** (`brand/elociencia/`, dirección A «El»). El rediseño sigue `brand/elociencia/HANDOFF.md`; los recursos públicos se generan con `scripts/generate-brand-assets.ts`. Dominio, redes y registro de marca no están comprobados.
 - Páginas legales en preparación; revisar contacto, domicilio completo, proveedores, regiones, retención y operación de solicitudes de privacidad. No tratar el texto publicado como aprobación jurídica.
 - Riot: se implementan Account-V1 y Spectator-V5 para composición de partida activa. OAuth/RSO, maestría, historial Match-V5, asignación automática de rol y champion select no están implementados. Aprobación de producto público y monetización siguen siendo pasos separados.
 - Docker/VPS están preparados en [su guía](vps-deployment.md); Netlify es una alternativa documentada, aún sin despliegue validado y con una espera que debe revisarse.

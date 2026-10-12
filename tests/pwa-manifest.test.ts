@@ -53,7 +53,9 @@ test("the maskable icon is opaque and its foreground stays within the safe circl
     for (let x = 0; x < info.width; x++) {
       const pixel = (y * info.width + x) * 4;
       assert.equal(data[pixel + 3], 255, "Maskable icons need an opaque edge-to-edge background");
-      const isForeground = data[pixel] !== 73 || data[pixel + 1] !== 117 || data[pixel + 2] !== 255;
+      // Brand lime background (#c6f36b); anything else is the mark.
+      const isForeground =
+        data[pixel] !== 198 || data[pixel + 1] !== 243 || data[pixel + 2] !== 107;
       if (!isForeground) continue;
       foregroundPixels++;
       assert.ok(

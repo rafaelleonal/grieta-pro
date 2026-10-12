@@ -8,7 +8,7 @@ const configuration = {
   DATABASE_URL: "postgresql://fixture:fixture@127.0.0.1:5432/fixture",
   BETTER_AUTH_SECRET: "a-secure-test-secret-with-more-than-32-characters",
   BETTER_AUTH_URL: "http://127.0.0.1:3000",
-  AUTH_EMAIL_FROM: "GrietaPro <coach@example.test>",
+  AUTH_EMAIL_FROM: "Elociencia <coach@example.test>",
   AUTH_MAILPIT_URL: "http://127.0.0.1:55441",
 };
 const privateRecipient = "private-recipient@example.test";

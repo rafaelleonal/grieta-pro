@@ -43,7 +43,7 @@ function localAppOrigin(value: string): string {
     url.search ||
     url.hash
   )
-    throw new Error("El buzón requiere un origen local de GrietaPro.");
+    throw new Error("El buzón requiere un origen local de Elociencia.");
   return url.origin;
 }
 
@@ -75,7 +75,7 @@ function mailboxHtml(messages: LocalMail[]): string {
         ${mail.urls
           .map(
             (url) =>
-              `<a class="action" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir enlace de GrietaPro</a>`,
+              `<a class="action" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Abrir enlace de Elociencia</a>`,
           )
           .join("")}
       </article>`,
@@ -83,7 +83,7 @@ function mailboxHtml(messages: LocalMail[]): string {
     .join("");
   return `<!doctype html><html lang="es"><head>
     <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta http-equiv="refresh" content="5"><title>Buzón local · GrietaPro</title>
+    <meta http-equiv="refresh" content="5"><title>Buzón local · Elociencia</title>
     <style>
       :root{color-scheme:dark;font-family:system-ui,sans-serif;background:#10151b;color:#edf2f6}
       *{box-sizing:border-box}body{max-width:760px;margin:0 auto;padding:28px 20px}
@@ -94,11 +94,11 @@ function mailboxHtml(messages: LocalMail[]): string {
       a{color:#78dcdb}a:focus-visible{outline:3px solid #fff;outline-offset:4px}
       .action{display:inline-block;padding:12px 16px;border-radius:10px;background:#70d4cc;color:#10151b;font-weight:700;text-decoration:none;margin:8px 8px 0 0}
     </style></head><body>
-    <h1>Buzón local de GrietaPro</h1>
+    <h1>Buzón local de Elociencia</h1>
     <p>Los correos de prueba llegan aquí. No se envían a una cuenta real.</p>
     <p class="muted">Se actualiza cada 5 segundos. Guarda hasta 50 mensajes en memoria; al detenerlo se eliminan.</p>
     <a href="/">Actualizar ahora</a>
-    ${cards || "<article><p>Aún no hay correos. Crea tu cuenta en GrietaPro para recibir el enlace de verificación.</p></article>"}
+    ${cards || "<article><p>Aún no hay correos. Crea tu cuenta en Elociencia para recibir el enlace de verificación.</p></article>"}
     </body></html>`;
 }
 

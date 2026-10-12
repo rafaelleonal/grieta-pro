@@ -1,0 +1,88 @@
+"use client";
+
+import Image from "next/image";
+import { AlertCircle, Pencil } from "lucide-react";
+import { CoachingResult } from "@/components/coaching-result";
+import { Button } from "@/components/ui/button";
+import { Alert } from "@/components/ui/feedback";
+import { Tag } from "@/components/ui/tag";
+import { roleName } from "@/lib/coach-draft";
+import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
+
+/** Plan generado o recuperado, con el resumen del matchup y la opción de editarlo. */
+export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
+  const { result, resultInput, catalog, input } = ws;
+  if (!result || !resultInput || !catalog) return null;
+  const champion = catalog.champions.find((entry) => entry.id === resultInput.champion);
+  const enemy = catalog.champions.find((entry) => entry.id === resultInput.enemy);
+  const changed = JSON.stringify(resultInput) !== JSON.stringify(input);
+
+  function followup(message: string) {
+    if (ws.busy || ws.capture.preparingImage) return false;
+    const notes = `${input.notes}${input.notes ? "\n" : ""}${message}`;
+    if (notes.length > 1500) {
+      ws.setError(
+        "Tu contexto supera 1500 caracteres. Acorta las notas de la composición antes de agregar esta pregunta.",
+      );
+      ws.setEditing(true);
+      return false;
+    }
+    if (!ws.safeContext(notes) || !ws.ensureCredentials()) return false;
+    void ws.generate(message);
+    return true;
+  }
+
+  return (
+    <div className="flex flex-1 flex-col gap-4 px-4 py-5 md:px-7 md:py-6">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-2">
+          {[champion, enemy].map((entry, index) =>
+            entry ? (
+              <Image
+                key={entry.id}
+                src={entry.image}
+                alt={index === 0 ? `Tú: ${entry.name}` : `Rival: ${entry.name}`}
+                width={36}
+                height={36}
+                unoptimized
+                className="rounded-md ring-1 ring-neutral-700"
+              />
+            ) : null,
+          )}
+          <span className="text-sm">
+            <strong className="font-medium">{champion?.name || resultInput.champion}</strong>{" "}
+            <span className="text-neutral-400">vs.</span>{" "}
+            <strong className="font-medium">{enemy?.name || resultInput.enemy}</strong>
+          </span>
+          <span className="text-xs text-neutral-400">
+            {roleName(resultInput.role)} · {resultInput.rank}
+          </span>
+          {ws.sample ? <Tag tone="warning">Ejemplo</Tag> : null}
+        </div>
+        <Button className="ml-auto" onClick={() => ws.setEditing(true)}>
+          <Pencil size={15} aria-hidden="true" />
+          Editar partida
+        </Button>
+      </div>
+      {changed && !ws.busy ? (
+        <Alert tone="warning" icon={<AlertCircle size={18} />}>
+          La selección cambió. El plan visible corresponde a{" "}
+          {champion?.name || resultInput.champion} vs. {enemy?.name || resultInput.enemy}; genera
+          uno nuevo para actualizarlo.
+        </Alert>
+      ) : null}
+      <CoachingResult
+        key={`${result.meta.generatedAt}-${ws.sample}`}
+        result={result}
+        catalog={catalog}
+        input={resultInput}
+        formOpen={false}
+        ownerId={ws.session.owner || undefined}
+        followupError={ws.error}
+        sample={ws.sample}
+        busy={Boolean(ws.busy) || ws.capture.preparingImage}
+        onFollowup={followup}
+      />
+    </div>
+  );
+}

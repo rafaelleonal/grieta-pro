@@ -1,6 +1,6 @@
-# Cuentas, planes y control del gasto de GrietaPro
+# Cuentas, planes y control del gasto de Elociencia
 
-GrietaPro tiene cuentas con Better Auth, datos persistentes en PostgreSQL mediante Prisma y autorización en el backend de Next.js. El historial es privado. Cada generación reserva cuota y presupuesto antes de llamar a OpenRouter, para limitar el consumo individual y el gasto total.
+Elociencia tiene cuentas con Better Auth, datos persistentes en PostgreSQL mediante Prisma y autorización en el backend de Next.js. El historial es privado. Cada generación reserva cuota y presupuesto antes de llamar a OpenRouter, para limitar el consumo individual y el gasto total.
 
 La implementación incluye las cuentas, historial privado, planes, invitaciones y cuotas descritos aquí. La migración inicial está versionada en `prisma/migrations` y se aplica con `pnpm db:setup`. Requiere configurar PostgreSQL, Better Auth y Resend; sin configuración las llamadas privadas se rechazan. Los pagos y el acompañante de escritorio siguen siendo ampliaciones futuras.
 
@@ -154,7 +154,7 @@ La migración inicial, autenticación, historial privado, limpieza al salir, inv
 
 Antes de publicar falta configurar los servicios del entorno, probar la entrega real de Resend y una consulta de OpenRouter con presupuesto acotado. Las builds y pruebas locales no confirman el comportamiento de esos proveedores en producción. Las migraciones posteriores deben ser archivos versionados.
 
-Los pasos están en la [guía de OpenRouter y Resend](provider-setup.md) y la [guía de Prisma Postgres y migraciones](database-deployment.md), con [referencias oficiales](resources.md). La configuración local conserva los nombres históricos de la base y su usuario; cambiar la marca no requiere migrar esos datos. Los planes Free/Pro de GrietaPro controlan acceso y consumo de IA; son independientes del plan contratado para alojar PostgreSQL en Prisma.
+Los pasos están en la [guía de OpenRouter y Resend](provider-setup.md) y la [guía de Prisma Postgres y migraciones](database-deployment.md), con [referencias oficiales](resources.md). La configuración local conserva los nombres históricos de la base y su usuario; cambiar la marca no requiere migrar esos datos. Los planes Free/Pro de Elociencia controlan acceso y consumo de IA; son independientes del plan contratado para alojar PostgreSQL en Prisma.
 
 Los pagos y el acompañante de escritorio son ampliaciones futuras. No hace falta un backend separado de Next.js para esta etapa.
 

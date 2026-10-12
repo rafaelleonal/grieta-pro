@@ -6,8 +6,8 @@ Conserva las credenciales en tu gestor privado de secretos. No las pegues en cha
 
 ## 1. Crear la base en tu cuenta
 
-1. Entra en Prisma Console y selecciona tu workspace. Crea un proyecto para GrietaPro y una base para producción, con un nombre que identifique ese entorno.
-2. Elige el plan gratuito si está disponible y revisa los límites y controles de gasto actuales del panel. El plan de alojamiento de Prisma es independiente de los planes Free/Pro de los usuarios de GrietaPro; no son cuotas ni pagos intercambiables.
+1. Entra en Prisma Console y selecciona tu workspace. Crea un proyecto para Elociencia y una base para producción, con un nombre que identifique ese entorno.
+2. Elige el plan gratuito si está disponible y revisa los límites y controles de gasto actuales del panel. El plan de alojamiento de Prisma es independiente de los planes Free/Pro de los usuarios de Elociencia; no son cuotas ni pagos intercambiables.
 3. Elige una región cercana al servidor de la app. Por ejemplo, `us-east-1` es razonable si las funciones de Vercel están en Washington (`iad1`); confirma las opciones de región que ofrece tu cuenta.
 4. Abre **Connect to your database**, genera las conexiones y conserva los valores **pooled** y **direct** en tu gestor privado. Ambas corresponden a la misma base.
 
@@ -37,25 +37,25 @@ Confirma en la consola el proyecto, la base y el entorno antes de ejecutar coman
 En una terminal Bash, introduce ambas variantes de la conexión **direct** de forma privada. La entrada no se muestra ni se escribe como literal en el historial; no uses trazado de comandos (`set -x`) ni compartas registros que contengan credenciales.
 
 ```bash
-read -r -s -p "Conexión directa para pg (sslmode=verify-full): " GRIETAPRO_PG_DIRECT_URL
+read -r -s -p "Conexión directa para pg (sslmode=verify-full): " ELOCIENCIA_PG_DIRECT_URL
 printf '\n'
-read -r -s -p "Conexión directa para CLI (sslmode=require&sslaccept=strict): " GRIETAPRO_CLI_DIRECT_URL
+read -r -s -p "Conexión directa para CLI (sslmode=require&sslaccept=strict): " ELOCIENCIA_CLI_DIRECT_URL
 printf '\n'
 pnpm db:generate
-DATABASE_URL="$GRIETAPRO_PG_DIRECT_URL" DIRECT_URL="$GRIETAPRO_CLI_DIRECT_URL" pnpm db:migrate
-DATABASE_URL="$GRIETAPRO_PG_DIRECT_URL" DIRECT_URL="$GRIETAPRO_CLI_DIRECT_URL" pnpm db:seed
-DATABASE_URL="$GRIETAPRO_PG_DIRECT_URL" DIRECT_URL="$GRIETAPRO_CLI_DIRECT_URL" pnpm exec prisma migrate status
-unset GRIETAPRO_PG_DIRECT_URL GRIETAPRO_CLI_DIRECT_URL
+DATABASE_URL="$ELOCIENCIA_PG_DIRECT_URL" DIRECT_URL="$ELOCIENCIA_CLI_DIRECT_URL" pnpm db:migrate
+DATABASE_URL="$ELOCIENCIA_PG_DIRECT_URL" DIRECT_URL="$ELOCIENCIA_CLI_DIRECT_URL" pnpm db:seed
+DATABASE_URL="$ELOCIENCIA_PG_DIRECT_URL" DIRECT_URL="$ELOCIENCIA_CLI_DIRECT_URL" pnpm exec prisma migrate status
+unset ELOCIENCIA_PG_DIRECT_URL ELOCIENCIA_CLI_DIRECT_URL
 ```
 
 Los valores se aplican sólo a esos procesos, sin cambiar `.env.local`. `db:migrate` ejecuta `prisma migrate deploy` con los archivos versionados. No uses `db push`, `migrate reset` ni el inicio de una petición API para desplegar cambios del esquema. Las migraciones y semillas son un paso administrativo separado de `pnpm build`; una compilación sólo genera el cliente y construye Next.js.
 
 La semilla crea estas políticas iniciales:
 
-| Plan de GrietaPro | Análisis/mes | Capturas/mes | Búsquedas/mes | Presupuesto por usuario | Solicitudes/minuto | Generaciones simultáneas |
-| ----------------- | -----------: | -----------: | ------------: | ----------------------- | -----------------: | -----------------------: |
-| Free              |           10 |            5 |             0 | USD 1/mes y 1/día       |                  2 |                        1 |
-| Pro               |           50 |           20 |            10 | USD 5/mes y 2/día       |                  5 |                        1 |
+| Plan de Elociencia | Análisis/mes | Capturas/mes | Búsquedas/mes | Presupuesto por usuario | Solicitudes/minuto | Generaciones simultáneas |
+| ------------------ | -----------: | -----------: | ------------: | ----------------------- | -----------------: | -----------------------: |
+| Free               |           10 |            5 |             0 | USD 1/mes y 1/día       |                  2 |                        1 |
+| Pro                |           50 |           20 |            10 | USD 5/mes y 2/día       |                  5 |                        1 |
 
 La semilla conserva las políticas que ya existan si vuelves a ejecutarla. La cuota monetaria, las consultas y los fondos globales se aplican conjuntamente: ninguno promete IA ilimitada. Los registros nuevos sin invitación reciben Free. El primer administrador verificado puede conceder Pro de cortesía desde la app; no necesitas cambiar el rol a administrador para dar Pro a tus amigos. La facturación de suscripciones sigue pendiente. [Cuentas y consumo](accounts-and-usage.md).
 

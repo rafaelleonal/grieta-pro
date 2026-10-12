@@ -68,8 +68,20 @@ model User {
   invitesIssued       Invitation[]         @relation("InviteAdmin")
   invitesUsed         Invitation[]         @relation("InviteUser")
   championPreferences ChampionPreference[]
+  gameProfile         GameProfile?
 
   @@map("user")
+}
+
+/// Perfil de juego elegido por el jugador. No guarda su Riot ID ni datos de Riot.
+model GameProfile {
+  userId      String             @id
+  user        User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rank        String?
+  positions   ChampionPosition[]
+  onboardedAt DateTime?
+  version     Int                @default(1)
+  updatedAt   DateTime           @updatedAt
 }
 
 model ChampionPreference {

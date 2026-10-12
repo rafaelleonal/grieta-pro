@@ -36,7 +36,7 @@ function AuthLayout({
           <span>
             <Swords size={24} />
           </span>
-          Grieta<strong>Pro</strong>
+          elo<strong>ciencia</strong>
         </Link>
         <h1>{title}</h1>
         <p className="account-intro">{description}</p>
@@ -87,8 +87,9 @@ export function AccountAuthForm() {
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    const requested = params.get("mode");
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Read the browser URL only after hydration to select the requested form.
-    if (params.get("mode") === "signup") setMode("signup");
+    if (requested === "signup" || requested === "forgot") setMode(requested);
     const abort = new AbortController();
     readAccount(abort.signal)
       .then(setAccount)

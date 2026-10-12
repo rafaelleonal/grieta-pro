@@ -4,13 +4,13 @@ import { LegalContact } from "@/components/legal-contact";
 import { LegalPage } from "@/components/legal-page";
 
 export const metadata: Metadata = {
-  title: "Términos de uso | GrietaPro",
+  title: "Términos de uso | Elociencia",
   description:
-    "Condiciones para usar GrietaPro, sus planes educativos y las integraciones de juego e IA.",
+    "Condiciones para usar Elociencia, sus planes educativos y las integraciones de juego e IA.",
 };
 
 const sections = [
-  { id: "servicio", title: "Qué ofrece GrietaPro" },
+  { id: "servicio", title: "Qué ofrece Elociencia" },
   { id: "cuenta", title: "Tu cuenta y acceso" },
   { id: "cuotas", title: "Planes, cuotas y claves" },
   { id: "contenido", title: "Lo que compartes" },
@@ -24,13 +24,13 @@ export default function TermsPage() {
   return (
     <LegalPage
       title="Términos de uso"
-      intro="Estas condiciones explican el alcance de GrietaPro y las responsabilidades al usarlo. Consulta también la política de privacidad antes de crear una cuenta o enviar información."
+      intro="Estas condiciones explican el alcance de Elociencia y las responsabilidades al usarlo. Consulta también la política de privacidad antes de crear una cuenta o enviar información."
       sections={sections}
     >
       <section id="servicio">
-        <h2>1. Qué ofrece GrietaPro</h2>
+        <h2>1. Qué ofrece Elociencia</h2>
         <p>
-          GrietaPro es una herramienta educativa en español para preparar partidas de League of
+          Elociencia es una herramienta educativa en español para preparar partidas de League of
           Legends. Puedes introducir campeones y contexto de juego, revisar los datos extraídos de
           una captura y obtener un plan con ideas sobre matchup, niveles 1–6, mecánicas, compras y
           mapa.
@@ -43,7 +43,7 @@ export default function TermsPage() {
           aplicarla. El ejemplo de demostración no es un análisis de tu partida.
         </p>
         <p>
-          GrietaPro no controla el cliente del juego, no ejecuta acciones por ti ni proporciona
+          Elociencia no controla el cliente del juego, no ejecuta acciones por ti ni proporciona
           acceso a información oculta del rival. Su integración opcional con Riot importa datos
           disponibles de una partida activa; la línea y el rival requieren tu revisión.
         </p>
@@ -59,7 +59,7 @@ export default function TermsPage() {
         </p>
         <p>
           Si eres menor de edad, utiliza el servicio con la autorización y supervisión de tu madre,
-          padre o tutor conforme a la legislación aplicable. GrietaPro no solicita tu contraseña de
+          padre o tutor conforme a la legislación aplicable. Elociencia no solicita tu contraseña de
           Riot ni sustituye las condiciones de acceso a League of Legends.
         </p>
         <p>
@@ -74,7 +74,7 @@ export default function TermsPage() {
         <p>
           El acceso Free y Pro determina las funciones disponibles, modelos, consultas, lecturas de
           capturas, búsquedas y límites de consumo. Consulta tus límites vigentes en la cuenta. El
-          acceso Pro puede concederse de cortesía; actualmente GrietaPro no tiene una contratación
+          acceso Pro puede concederse de cortesía; actualmente Elociencia no tiene una contratación
           ni un cobro de suscripción implementados. Un rol de administrador no equivale a un plan
           Pro.
         </p>
@@ -87,8 +87,8 @@ export default function TermsPage() {
         <p>
           Si eliges usar tu propia clave de OpenRouter, su proveedor puede cobrar las solicitudes a
           tu cuenta según sus condiciones. La clave no evita la autenticación ni los controles de
-          cuota y concurrencia de GrietaPro. No compartas la clave con otras personas ni la incluyas
-          en notas o capturas.
+          cuota y concurrencia de Elociencia. No compartas la clave con otras personas ni la
+          incluyas en notas o capturas.
         </p>
         <p>
           Antes de ofrecer una suscripción de pago publicaremos sus precios, condiciones de
@@ -108,7 +108,7 @@ export default function TermsPage() {
         <p>
           Autorizas el tratamiento de tus entradas para prestar las funciones que solicitas,
           conforme a la <Link href="/privacidad">política de privacidad</Link>. No transfieres la
-          propiedad de tu contenido por usar GrietaPro. Los proveedores de IA reciben los datos
+          propiedad de tu contenido por usar Elociencia. Los proveedores de IA reciben los datos
           necesarios para responder; revisa sus condiciones antes de enviarlos.
         </p>
       </section>
@@ -116,7 +116,7 @@ export default function TermsPage() {
       <section id="uso">
         <h2>5. Uso permitido</h2>
         <p>
-          Usa GrietaPro para aprender y preparar partidas respetando las reglas de Riot y los
+          Usa Elociencia para aprender y preparar partidas respetando las reglas de Riot y los
           derechos de otras personas. No está permitido:
         </p>
         <ul>
@@ -128,18 +128,18 @@ export default function TermsPage() {
             Crear trampas, automatizar acciones del juego o solicitar ayuda para vulnerar los
             sistemas de Riot.
           </li>
-          <li>Presentar GrietaPro como un producto oficial, afiliado o avalado por Riot Games.</li>
+          <li>Presentar Elociencia como un producto oficial, afiliado o avalado por Riot Games.</li>
         </ul>
       </section>
 
       <section id="terceros">
         <h2>6. Disponibilidad y servicios externos</h2>
         <p>
-          Las funciones de GrietaPro dependen de servicios de alojamiento, autenticación, correo, IA
-          y datos de juego. Pueden producirse interrupciones, cambios de API o errores ajenos a
-          GrietaPro. No prometemos disponibilidad continua ni una fecha de recuperación determinada.
-          Las condiciones y políticas de los proveedores también se aplican a los servicios que
-          prestan.
+          Las funciones de Elociencia dependen de servicios de alojamiento, autenticación, correo,
+          IA y datos de juego. Pueden producirse interrupciones, cambios de API o errores ajenos a
+          Elociencia. No prometemos disponibilidad continua ni una fecha de recuperación
+          determinada. Las condiciones y políticas de los proveedores también se aplican a los
+          servicios que prestan.
         </p>
         <p>
           La información puede cambiar entre parches. Comprueba las fuentes y el estado actual del
@@ -152,7 +152,7 @@ export default function TermsPage() {
         <h2>7. Propiedad intelectual y marcas</h2>
         <p>
           League of Legends, los nombres de campeones, sus imágenes y otros elementos del juego
-          pertenecen a Riot Games o a sus respectivos titulares. Su presencia en GrietaPro no
+          pertenecen a Riot Games o a sus respectivos titulares. Su presencia en Elociencia no
           implica afiliación, patrocinio ni aprobación. Respeta sus derechos y las condiciones
           aplicables al reutilizar contenido. Consulta el aviso completo de Riot al pie de esta
           página.

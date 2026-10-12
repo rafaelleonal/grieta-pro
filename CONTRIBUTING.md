@@ -1,6 +1,6 @@
-# Contribuir a GrietaPro
+# Contribuir a Elociencia
 
-GrietaPro ayuda a preparar partidas de League of Legends. Son bienvenidas las mejoras de accesibilidad, experiencia móvil, recomendaciones, pruebas, documentación y seguridad. Para cambios grandes, abre primero una propuesta que explique el problema y el resultado esperado. Para vulnerabilidades, sigue [SECURITY.md](SECURITY.md) y utiliza un canal privado.
+Elociencia ayuda a preparar partidas de League of Legends. Son bienvenidas las mejoras de accesibilidad, experiencia móvil, recomendaciones, pruebas, documentación y seguridad. Para cambios grandes, abre primero una propuesta que explique el problema y el resultado esperado. Para vulnerabilidades, sigue [SECURITY.md](SECURITY.md) y utiliza un canal privado.
 
 ## Preparar el entorno
 
@@ -23,6 +23,16 @@ Lee [AGENTS.md](AGENTS.md) y [el contexto de continuidad](docs/agent-handoff.md)
 
 - Escribe la lógica y los componentes en TypeScript y conserva el modo `strict`. Valida también los datos externos en tiempo de ejecución; un tipo no convierte un dato recibido en confiable.
 - Mantén los mensajes de la interfaz en español, claros y accionables. Comprueba escritorio y móvil cuando cambies la interfaz, incluyendo el uso con teclado.
+
+### Interfaz
+
+Las decisiones de interfaz están registradas como ADR en [`docs/adr/`](docs/adr) y resumidas en [AGENTS.md](AGENTS.md#interfaz-decisiones-obligatorias). Una propuesta que no las siga se devolverá para ajustarla.
+
+- **Estilos con Tailwind CSS v4** ([ADR 0001](docs/adr/0001-tailwind-v4.md)). Usa las utilidades con los tokens de `@theme` en `app/globals.css`. No añadas CSS a las hojas heredadas ni valores sueltos de color, sombra o radio; si falta un token, propónlo en `@theme`. Al tocar una pantalla, migra sus estilos y borra las reglas que dejen de usarse.
+- **Componentes React por pantalla** ([ADR 0002](docs/adr/0002-componentes-react.md)). Una pantalla por archivo, componentes pequeños (unas 300 líneas como máximo), props tipadas y estado y llamadas a la API en hooks. Calcula el estado derivado en el render y usa `useEffect` sólo para sistemas externos, con limpieza. Reutiliza `components/ui/` y `components/brand.tsx` antes de crear piezas nuevas.
+- **Marca Elociencia** ([ADR 0003](docs/adr/0003-marca-elociencia.md)). Sigue [`brand/elociencia/HANDOFF.md`](brand/elociencia/HANDOFF.md) y su lienzo. Los iconos, favicons, imagen social y mascota públicos se regeneran con `pnpm exec tsx scripts/generate-brand-assets.ts`.
+- **Accesibilidad:** comprueba 390, 834 y 1440 px sin desbordamiento horizontal, áreas táctiles de 44 px o más, foco visible y `prefers-reduced-motion` (sólo cambios de opacidad).
+- Para cambiar una de estas decisiones, abre primero una propuesta con una ADR nueva.
 - Añade pruebas cuando cambies permisos, validaciones, cuotas, contabilidad, persistencia o comportamiento importante. Usa datos sintéticos y proveedores simulados.
 - Conserva `pnpm-lock.yaml`. No introduzcas otro gestor de paquetes ni modifiques dependencias sin explicar su necesidad.
 - Si modificas la base de datos, incluye una migración versionada y explica su efecto sobre los datos existentes. No pruebes migraciones contra producción.

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revisión de Elociencia"
+  short_description: "Seguridad, privacidad y gasto de IA del coach"
+  default_prompt: "Usa $elociencia-review para revisar los cambios de Elociencia y comprobar seguridad, privacidad y límites de gasto."

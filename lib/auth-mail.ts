@@ -93,12 +93,12 @@ async function deliverAuthEmail(
 ) {
   const subject =
     purpose === "verify"
-      ? "Confirma tu correo · GrietaPro"
-      : "Restablece tu contraseña · GrietaPro";
+      ? "Confirma tu correo · Elociencia"
+      : "Restablece tu contraseña · Elociencia";
   const message =
     purpose === "verify"
-      ? "Confirma tu correo para comenzar a usar GrietaPro."
-      : "Solicitaste restablecer tu contraseña de GrietaPro.";
+      ? "Confirma tu correo para comenzar a usar Elociencia."
+      : "Solicitaste restablecer tu contraseña de Elociencia.";
   const action = purpose === "verify" ? "Confirmar mi correo" : "Restablecer contraseña";
   const html = `<p>${message}</p><p><a href="${escapeHtml(link.href)}">${action}</a></p><p>Si no solicitaste este correo, puedes ignorarlo.</p>`;
   const text = `${message}\n\n${link.href}\n\nSi no solicitaste este correo, puedes ignorarlo.`;
@@ -122,7 +122,7 @@ async function deliverAuthEmail(
         ? { from: config.emailFrom, to: [recipient], subject, html, text }
         : {
             From: {
-              Name: fromMatch?.[1].trim() || "GrietaPro",
+              Name: fromMatch?.[1].trim() || "Elociencia",
               Email: fromMatch?.[2] || config.emailFrom,
             },
             To: [{ Email: recipient }],

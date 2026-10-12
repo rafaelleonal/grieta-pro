@@ -96,7 +96,7 @@ function fingerprint(value: string) {
 
 /** Only screen and phase preferences are persisted, never private inputs or plan content. */
 function createViewStore(owner: string, identity: string) {
-  const key = `grietapro-coach-view-v1:${fingerprint(owner)}`;
+  const key = `elociencia-coach-view-v1:${fingerprint(owner)}`;
   let value = INITIAL_VIEW;
   let loaded = false;
   const listeners = new Set<() => void>();

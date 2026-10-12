@@ -3,10 +3,10 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "GrietaPro — Tu coach de League of Legends",
-    short_name: "GrietaPro",
+    name: "Elociencia — Tu coach de League of Legends",
+    short_name: "Elociencia",
     description:
-      "Consejos directos para tu matchup, tus primeros niveles y tu partida de League of Legends.",
+      "La ciencia de subir de elo: consejos directos para tu matchup, tus primeros niveles y tu partida de League of Legends.",
     lang: "es-MX",
     start_url: "/",
     scope: "/",
@@ -16,6 +16,7 @@ export default function manifest(): MetadataRoute.Manifest {
     icons: [
       { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/maskable-192.png", sizes: "192x192", type: "image/png", purpose: "maskable" },
       { src: "/icons/maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
   };

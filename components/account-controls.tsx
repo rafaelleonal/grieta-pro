@@ -310,7 +310,7 @@ async function adminRequest<T>(path: string, body: unknown): Promise<T> {
   return data as T;
 }
 
-function AdminControls() {
+export function AdminControls() {
   const [tab, setTab] = useState<"grant" | "invite">("grant");
   const [email, setEmail] = useState("");
   const [plan, setPlan] = useState<"FREE" | "PRO">("PRO");

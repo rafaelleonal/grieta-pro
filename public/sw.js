@@ -1,14 +1,16 @@
 "use strict";
 
 const CACHE_PREFIX = "cholo-coach-public-";
-const CACHE_NAME = `${CACHE_PREFIX}v2`;
+const CACHE_NAME = `${CACHE_PREFIX}v3`;
 const OFFLINE_URL = "/offline.html";
 const PUBLIC_ASSETS = [
   OFFLINE_URL,
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/icons/maskable-192.png",
   "/icons/maskable-512.png",
   "/icons/apple-touch-icon.png",
+  "/brand/mascota-lima-256.png",
 ];
 
 self.addEventListener("install", (event) => {
@@ -63,7 +65,7 @@ self.addEventListener("fetch", (event) => {
           const cache = await caches.open(CACHE_NAME);
           return (
             (await cache.match(OFFLINE_URL)) ||
-            new Response("Sin conexión. Conéctate a internet y vuelve a abrir GrietaPro.", {
+            new Response("Sin conexión. Conéctate a internet y vuelve a abrir Elociencia.", {
               status: 503,
               headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "no-store" },
             })

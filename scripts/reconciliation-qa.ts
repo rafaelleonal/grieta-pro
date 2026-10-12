@@ -119,17 +119,17 @@ export async function runReconciliationQa(args: {
       throw new Error("Unexpected provider lookup");
     });
     const emptyLeaseBefore = await db.rateLimit.findUnique({
-      where: { key: "grietapro-reconcile-lease:global" },
+      where: { key: "elociencia-reconcile-lease:global" },
     });
     await reconcileUserUsage(other.user.id, { fetcher: noNetwork });
     assert.deepEqual(
-      await db.rateLimit.findUnique({ where: { key: "grietapro-reconcile-lease:global" } }),
+      await db.rateLimit.findUnique({ where: { key: "elociencia-reconcile-lease:global" } }),
       emptyLeaseBefore,
       "An account without pending work cannot consume provider lookup capacity",
     );
     await reconcileUserUsage(user.user.id, { fetcher: noNetwork });
     assert.deepEqual(
-      await db.rateLimit.findUnique({ where: { key: "grietapro-reconcile-lease:global" } }),
+      await db.rateLimit.findUnique({ where: { key: "elociencia-reconcile-lease:global" } }),
       emptyLeaseBefore,
       "A request without a provider ID cannot consume provider lookup capacity",
     );
@@ -330,7 +330,7 @@ export async function runReconciliationQa(args: {
     const knownCharge = await unknown(undefined, other.user.id);
     await usage.observeUsage(knownCharge.id, { cost: "0.001" });
     const knownChargeAt = new Date(secondBatchAt.getTime() + RECONCILIATION_COOLDOWN_MS);
-    const globalKey = "grietapro-reconcile-lease:global";
+    const globalKey = "elociencia-reconcile-lease:global";
     const fullLookupWindow = BigInt(Math.floor(knownChargeAt.getTime() / 60_000) * 60_000);
     await db.rateLimit.upsert({
       where: { key: globalKey },

@@ -21,6 +21,9 @@ export interface AccountStatus {
     coachRemaining: number;
     draftRemaining: number;
     webRemaining: number;
+    coachLimit: number;
+    draftLimit: number;
+    webLimit: number;
     resetsAt: string;
     pending: number;
     uncertain: number;

@@ -46,7 +46,7 @@ async function main() {
   process.env.BETTER_AUTH_SECRET = randomBytes(32).toString("hex");
   process.env.BETTER_AUTH_URL = origin;
   process.env.AUTH_MAILPIT_URL = mailbox.url;
-  process.env.AUTH_EMAIL_FROM = "GrietaPro QA <coach@example.test>";
+  process.env.AUTH_EMAIL_FROM = "Elociencia QA <coach@example.test>";
   process.env.APP_REGISTRATION_MODE = "open";
   // This suite can never use an existing paid key or contact real recipients.
   delete process.env.OPENROUTER_API_KEY;
@@ -918,7 +918,7 @@ async function main() {
         await db.aiRequest.findMany({ orderBy: { id: "asc" } }),
         aiBeforePreferences,
       );
-      const limiterKey = `grietapro-champion-preferences:user:${alice.user.id}`;
+      const limiterKey = `elociencia-champion-preferences:user:${alice.user.id}`;
       const currentPreferenceMinute = BigInt(Math.floor(Date.now() / 60_000) * 60_000);
       await db.rateLimit.update({
         where: { key: limiterKey },
@@ -934,7 +934,7 @@ async function main() {
       });
       const globalCount = (
         await db.rateLimit.findUniqueOrThrow({
-          where: { key: "grietapro-champion-preferences:global" },
+          where: { key: "elociencia-champion-preferences:global" },
         })
       ).count;
       assert.equal((await preferenceRoute.PUT(limited)).status, 429);
@@ -942,7 +942,7 @@ async function main() {
       assert.equal(
         (
           await db.rateLimit.findUniqueOrThrow({
-            where: { key: "grietapro-champion-preferences:global" },
+            where: { key: "elociencia-champion-preferences:global" },
           })
         ).count,
         globalCount,
@@ -965,7 +965,7 @@ async function main() {
         "Only one concurrent write can take the final preference slot",
       );
       const preferenceRateRows = await db.rateLimit.count({
-        where: { key: { startsWith: "grietapro-champion-preferences:" } },
+        where: { key: { startsWith: "elociencia-champion-preferences:" } },
       });
       for (let offset = 1; offset <= 6; offset++)
         await preferences.limitChampionPreferenceWrites(
@@ -974,7 +974,7 @@ async function main() {
         );
       assert.equal(
         await db.rateLimit.count({
-          where: { key: { startsWith: "grietapro-champion-preferences:" } },
+          where: { key: { startsWith: "elociencia-champion-preferences:" } },
         }),
         preferenceRateRows,
         "Preference admission uses fixed rows rather than a new row for every minute",
@@ -1014,6 +1014,78 @@ async function main() {
     console.info(
       "PASS · favoritos por rol aislados, límite independiente, IDs válidos y conflictos de edición sin gastar cuota IA",
     );
+
+    const profileRoute = await import("../app/api/profile/route");
+    const putProfile = (cookie: string, body: unknown) =>
+      profileRoute.PUT(privateRequest("/api/profile", cookie, "PUT", body));
+    const readProfile = async (cookie: string) => {
+      const response = await profileRoute.GET(privateRequest("/api/profile", cookie));
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get("cache-control"), "private, no-store");
+      return response.json();
+    };
+    assert.deepEqual(await readProfile(alice.cookie), {
+      rank: null,
+      positions: [],
+      onboarded: false,
+      version: 0,
+    });
+    for (const invalid of [
+      { rank: "Bronze", positions: [], onboarded: true, version: 0 },
+      { rank: null, positions: ["TOP", "TOP"], onboarded: false, version: 0 },
+      { rank: null, positions: [], onboarded: false, version: 0, userId: bob.user.id },
+      { rank: null, positions: [], onboarded: false, version: 0, riotId: "Nombre#TAG" },
+    ])
+      assert.equal((await putProfile(alice.cookie, invalid)).status, 400);
+    assert.equal(await db.gameProfile.count(), 0, "Invalid profiles persist nothing");
+    const aliceProfile = await (
+      await putProfile(alice.cookie, {
+        rank: "Oro",
+        positions: ["TOP", "JUNGLE"],
+        onboarded: true,
+        version: 0,
+      })
+    ).json();
+    assert.deepEqual(aliceProfile, {
+      rank: "Oro",
+      positions: ["TOP", "JUNGLE"],
+      onboarded: true,
+      version: 1,
+    });
+    assert.deepEqual(
+      (await readProfile(bob.cookie)).positions,
+      [],
+      "Another account never sees Alice's profile",
+    );
+    assert.equal(
+      (
+        await putProfile(alice.cookie, {
+          rank: "Plata",
+          positions: [],
+          onboarded: false,
+          version: 0,
+        })
+      ).status,
+      409,
+      "A stale tab cannot overwrite a newer profile",
+    );
+    const edited = await (
+      await putProfile(alice.cookie, {
+        rank: "Plata",
+        positions: ["MID"],
+        onboarded: false,
+        version: 1,
+      })
+    ).json();
+    assert.equal(edited.rank, "Plata");
+    assert.equal(edited.onboarded, true, "Finished onboarding stays finished after edits");
+    const unverifiedProfile = await profileRoute.GET(
+      new Request("http://127.0.0.1:3000/api/profile", {
+        headers: { origin: "http://127.0.0.1:3000" },
+      }),
+    );
+    assert.equal(unverifiedProfile.status, 401, "Anonymous profile reads are rejected");
+    console.info("PASS · perfil de juego privado, validado, con versión y sin guardar el Riot ID");
 
     const bobHistory = await historyList.GET(privateRequest("/api/history", bob.cookie));
     assert.equal(bobHistory.status, 200);

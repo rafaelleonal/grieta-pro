@@ -11,3 +11,4 @@ data/catalog-snapshot.json
 prisma/migrations/
 design_handoff_coach_pantallas/
 .env*
+brand/elociencia/source/

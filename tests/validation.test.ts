@@ -605,7 +605,7 @@ test("omits orphan phase highlights without creating purchases and keeps warning
     purchases,
   );
   assert.deepEqual(actual.warnings, [
-    "Se omitieron objetos que no existen o no se pueden comprar en la Grieta en este catálogo.",
+    "Se omitieron objetos que no existen o no se pueden comprar en la Grieta del Invocador en este catálogo.",
     "Se omitieron compras por fase que no coincidían con la build sugerida.",
   ]);
   const revalidated = sanitizeCoachPlan(actual.plan, fixtureCatalog, input);

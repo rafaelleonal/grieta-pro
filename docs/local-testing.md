@@ -19,7 +19,7 @@ BETTER_AUTH_TRUSTED_ORIGINS=http://127.0.0.1:3000
 # Genera un secreto privado de al menos 32 caracteres; conserva el que ya tengas.
 BETTER_AUTH_SECRET=tu-secreto-local-de-al-menos-32-caracteres
 APP_REGISTRATION_MODE=open
-AUTH_EMAIL_FROM=GrietaPro local <no-reply@grietapro.test>
+AUTH_EMAIL_FROM=Elociencia local <no-reply@elociencia.test>
 AUTH_MAILPIT_URL=http://127.0.0.1:55441
 RESEND_API_KEY=
 ```
@@ -50,9 +50,9 @@ pnpm dev
 
 Conserva las tres terminales abiertas. Si cambias `.env.local`, reinicia la app para que use la nueva configuración.
 
-1. Abre [GrietaPro local](http://127.0.0.1:3000/login?mode=signup) y crea tu cuenta. Puedes usar un correo ficticio como `prueba@grietapro.test`. El código de invitación es opcional.
+1. Abre [Elociencia local](http://127.0.0.1:3000/login?mode=signup) y crea tu cuenta. Puedes usar un correo ficticio como `prueba@elociencia.test`. El código de invitación es opcional.
 2. Abre el [buzón local](http://127.0.0.1:55441/). Se actualiza cada cinco segundos y muestra el mensaje de confirmación.
-3. Pulsa **Abrir enlace de GrietaPro**. Después inicia sesión si la app lo solicita.
+3. Pulsa **Abrir enlace de Elociencia**. Después inicia sesión si la app lo solicita.
 4. Elige campeón, línea y rival y pide el plan. Una consulta real consume créditos de OpenRouter y cuenta para las cuotas de la app.
 5. Revisa el historial, sal de tu cuenta y vuelve a entrar para comprobar que tus registros permanecen asociados a esa cuenta.
 
@@ -88,9 +88,9 @@ Por ejemplo, este evento ficticio señala un rechazo de campos obligatorios del 
 
 `http_error` significa que el proveedor respondió con un fallo HTTP. `embedded_error` significa que devolvió un error dentro de una respuesta HTTP 200. `connection`, `timeout`, `body_invalid`, `invalid_json` e `incomplete` distinguen red, cancelación, respuesta ilegible, JSON inesperado y respuesta inconclusa. El código tipado de OpenRouter, cuando es uno de los valores permitidos, tiene prioridad sobre la clasificación por texto.
 
-`output_rejected` con `category=output_validation` indica que llegó una respuesta que GrietaPro rechazó. `validationCategory`, cuando está disponible, identifica una regla fija, por ejemplo `alternative_runes` para un par de árbol y runa principal inválido, `skill_order` para niveles de habilidades o `phase_items` para compras por fase. Nunca incluye la respuesta, valores propuestos ni detalles crudos de validación. Un HTTP 200 del proveedor puede tener coste aunque la app rechace su contenido.
+`output_rejected` con `category=output_validation` indica que llegó una respuesta que Elociencia rechazó. `validationCategory`, cuando está disponible, identifica una regla fija, por ejemplo `alternative_runes` para un par de árbol y runa principal inválido, `skill_order` para niveles de habilidades o `phase_items` para compras por fase. Nunca incluye la respuesta, valores propuestos ni detalles crudos de validación. Un HTTP 200 del proveedor puede tener coste aunque la app rechace su contenido.
 
-Un HTTP 429 de GrietaPro con el mensaje de consulta pendiente se produce antes de enviar al proveedor: no genera un nuevo `openrouter_failure`. Revisa **Mi cuenta** para distinguir ese bloqueo de un límite de OpenRouter. Conserva las reservas inciertas hasta conciliarlas; no las elimines para desbloquear pruebas.
+Un HTTP 429 de Elociencia con el mensaje de consulta pendiente se produce antes de enviar al proveedor: no genera un nuevo `openrouter_failure`. Revisa **Mi cuenta** para distinguir ese bloqueo de un límite de OpenRouter. Conserva las reservas inciertas hasta conciliarlas; no las elimines para desbloquear pruebas.
 
 Para revisar tus llamadas y su consumo, abre [Activity de OpenRouter](https://openrouter.ai/activity) en tu cuenta y filtra por modelo y hora. La comprobación de la clave mediante [GET /api/v1/key](https://openrouter.ai/docs/api/api-reference/api-keys/get-current-api-key) es de lectura y no genera tokens; informa límites y consumo de la clave, no el saldo total comprado. No actives `debug.echo_upstream_body` ni publiques el cuerpo de una petición para depurar, porque puede incluir el prompt y datos privados.
 

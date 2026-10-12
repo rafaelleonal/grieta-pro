@@ -5,13 +5,15 @@ import vm from "node:vm";
 
 const origin = "https://coach.example";
 const source = readFileSync(new URL("../public/sw.js", import.meta.url), "utf8");
-const cacheName = "cholo-coach-public-v2";
+const cacheName = "cholo-coach-public-v3";
 const publicPaths = [
   "/offline.html",
   "/icons/icon-192.png",
   "/icons/icon-512.png",
+  "/icons/maskable-192.png",
   "/icons/maskable-512.png",
   "/icons/apple-touch-icon.png",
+  "/brand/mascota-lima-256.png",
 ];
 
 type WorkerRequest = { url: string; method: string; mode: string };

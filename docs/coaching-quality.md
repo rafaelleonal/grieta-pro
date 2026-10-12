@@ -1,4 +1,4 @@
-# Cómo evaluar el coaching de GrietaPro
+# Cómo evaluar el coaching de Elociencia
 
 Esta guía define una comparación futura; no contiene un benchmark ejecutado ni demuestra que un modelo sea el mejor coach. El 11 de octubre de 2026 se revisaron el prompt, la validación y las pruebas actuales. No se realizaron consultas de pago para preparar este documento.
 
@@ -26,7 +26,7 @@ Data Dragon es una fuente de datos estáticos; puede actualizarse después del p
 
 Gemini 3.1 Pro Preview es el predeterminado por la preferencia del usuario, con razonamiento medio. Su configuración se contrastó el 11 de octubre de 2026 con metadatos públicos y documentación oficial. El 12 de octubre se confirmó una respuesta real para Darius contra Yorick con consejo central disponible y orden de habilidades rechazado por `skill_order`. No se conserva ese campo descartado, por lo que no puede identificarse retrospectivamente si falló su prioridad o su progresión legal. Esto no demuestra que el consejo sea tácticamente correcto o superior. [Modelo en OpenRouter](https://openrouter.ai/google/gemini-3.1-pro-preview) y [niveles de razonamiento de Google](https://ai.google.dev/gemini-api/docs/thinking).
 
-GPT 5.6 Luna conserva su política y permanece disponible como comparación explícita. Su orientación a cargas sensibles al coste no acredita conocimiento especializado de LoL. [GPT 5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna). Hay que comparar el conjunto modelo, contexto, búsqueda, esfuerzo y formato: una respuesta de la aplicación de Gemini con herramientas distintas no aísla la calidad del modelo usado por GrietaPro.
+GPT 5.6 Luna conserva su política y permanece disponible como comparación explícita. Su orientación a cargas sensibles al coste no acredita conocimiento especializado de LoL. [GPT 5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna). Hay que comparar el conjunto modelo, contexto, búsqueda, esfuerzo y formato: una respuesta de la aplicación de Gemini con herramientas distintas no aísla la calidad del modelo usado por Elociencia.
 
 Sonnet y Opus son candidatos para comparar. No hay aquí evidencia de que superen a Luna en estos matchups. La elección debe considerar utilidad, tasa de planes válidos, latencia y coste por plan útil. La guía de Anthropic también plantea evaluar capacidades, velocidad, coste y esfuerzo en el caso de uso concreto. [Selección de modelos Claude](https://platform.claude.com/docs/en/about-claude/models/choosing-a-model).
 

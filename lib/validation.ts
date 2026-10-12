@@ -48,6 +48,8 @@ export const coachInputSchema = z
     rank: ranks,
     allies: z.array(championId).max(5),
     enemies: z.array(championId).max(5),
+    allyDuo: championId.optional(),
+    enemyDuo: championId.optional(),
     notes: z.string().trim().max(1500),
     webSearch: z.boolean(),
   })
@@ -252,7 +254,18 @@ export function validateCoachInputStructure(input: unknown): CoachInput {
     "Revisa tu campeón, rival, línea y contexto. Puedes agregar hasta 5 campeones por equipo y 1500 caracteres de notas.",
   );
   assertSafeInputText(parsed.notes);
-  if (!coherentTeams(parsed.champion, parsed.enemy, parsed.allies, parsed.enemies)) {
+  if ((parsed.allyDuo || parsed.enemyDuo) && parsed.role !== "ADC" && parsed.role !== "SUPPORT")
+    throw new ApiError(400, "Las parejas de línea sólo se usan en bot (ADC o Support).");
+  if (
+    !coherentTeams(
+      parsed.champion,
+      parsed.enemy,
+      [...parsed.allies, ...(parsed.allyDuo ? [parsed.allyDuo] : [])],
+      [...parsed.enemies, ...(parsed.enemyDuo ? [parsed.enemyDuo] : [])],
+    ) ||
+    parsed.allyDuo === parsed.champion ||
+    parsed.enemyDuo === parsed.enemy
+  ) {
     throw new ApiError(
       400,
       "Revisa los equipos: cada campeón debe estar en un solo lado y cada equipo admite hasta 5 jugadores.",
@@ -264,8 +277,11 @@ export function validateCoachInputStructure(input: unknown): CoachInput {
 export function validateCoachInput(input: unknown, catalog: Catalog): CoachInput {
   const parsed = validateCoachInputStructure(input);
   const ids = new Set(catalog.champions.map((champion) => champion.id));
+  const duo = [parsed.allyDuo, parsed.enemyDuo].filter((id): id is string => Boolean(id));
   if (
-    [parsed.champion, parsed.enemy, ...parsed.allies, ...parsed.enemies].some((id) => !ids.has(id))
+    [parsed.champion, parsed.enemy, ...parsed.allies, ...parsed.enemies, ...duo].some(
+      (id) => !ids.has(id),
+    )
   ) {
     throw new ApiError(
       400,
@@ -274,8 +290,13 @@ export function validateCoachInput(input: unknown, catalog: Catalog): CoachInput
   }
   return {
     ...parsed,
-    allies: [...new Set(parsed.allies)].filter((id) => id !== parsed.champion),
-    enemies: [...new Set(parsed.enemies)].filter((id) => id !== parsed.enemy),
+    // The duo partner is its own field; never repeat it in the rest of the team.
+    allies: [...new Set(parsed.allies)].filter(
+      (id) => id !== parsed.champion && id !== parsed.allyDuo,
+    ),
+    enemies: [...new Set(parsed.enemies)].filter(
+      (id) => id !== parsed.enemy && id !== parsed.enemyDuo,
+    ),
   };
 }
 
@@ -515,7 +536,7 @@ export function sanitizeCoachPlan(
     if (itemIds.has(id)) return true;
     if (!warnings.length)
       warnings.push(
-        "Se omitieron objetos que no existen o no se pueden comprar en la Grieta en este catálogo.",
+        "Se omitieron objetos que no existen o no se pueden comprar en la Grieta del Invocador en este catálogo.",
       );
     return false;
   };

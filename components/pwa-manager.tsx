@@ -36,7 +36,7 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
     const completed = () => {
       setInstalled(true);
       setPrompt(null);
-      setMessage("Ya puedes abrir GrietaPro desde tu pantalla de inicio.");
+      setMessage("Ya puedes abrir Elociencia desde tu pantalla de inicio.");
     };
     standalone.addEventListener("change", displayChanged);
     window.addEventListener("beforeinstallprompt", available);
@@ -102,14 +102,14 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
       {open
         ? createPortal(
             <Modal
-              title={installed ? "GrietaPro en tu celular" : "Tu coach, a un toque"}
+              title={installed ? "Elociencia en tu celular" : "Tu coach, a un toque"}
               onClose={() => setOpen(false)}
             >
               <div className="pwa-app-preview">
                 <Image src="/icons/icon-192.png" alt="" width={58} height={58} unoptimized />
                 <div>
-                  <strong>GrietaPro</strong>
-                  <span>Tu plan para la Grieta</span>
+                  <strong>Elociencia</strong>
+                  <span>La ciencia de subir de elo</span>
                 </div>
                 <Smartphone size={23} />
               </div>
@@ -174,7 +174,7 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
                     disabled={installing}
                   >
                     <Download size={14} />
-                    {installing ? "Abriendo instalación…" : "Instalar GrietaPro"}
+                    {installing ? "Abriendo instalación…" : "Instalar Elociencia"}
                   </button>
                 ) : installed ? (
                   <span className="pwa-installed">

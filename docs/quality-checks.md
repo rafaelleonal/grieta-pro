@@ -1,4 +1,4 @@
-# Verificación local de calidad y seguridad de GrietaPro
+# Verificación local de calidad y seguridad de Elociencia
 
 Revisión del 10 de octubre de 2026, en macOS con Node.js 24.12.0 y pnpm 10.33.2.
 
@@ -107,7 +107,7 @@ Los informes seguros de lectura y payload están en `artifacts/qa/openrouter-dia
 
 ## Tres consultas reales con Luna: 11 de octubre de 2026
 
-Con autorización para tres consultas y una reserva total máxima de USD 0.15, se creó una cuenta sintética Free mediante la interfaz, se confirmó el correo en el buzón local y se inició sesión. Las tres consultas fueron manuales, Ahri contra Yasuo en Mid/Oro, sin imagen ni búsqueda. OpenRouter respondió HTTP 200 en las tres; GrietaPro rechazó sus planes y no creó sesiones en el historial.
+Con autorización para tres consultas y una reserva total máxima de USD 0.15, se creó una cuenta sintética Free mediante la interfaz, se confirmó el correo en el buzón local y se inició sesión. Las tres consultas fueron manuales, Ahri contra Yasuo en Mid/Oro, sin imagen ni búsqueda. OpenRouter respondió HTTP 200 en las tres; Elociencia rechazó sus planes y no creó sesiones en el historial.
 
 | Consulta | Resultado observado en el servidor                            | Coste informado por OpenRouter (USD) |
 | -------- | ------------------------------------------------------------- | ------------------------------------ |
@@ -143,7 +143,7 @@ En esta comprobación sólo cambiaron documentación y evidencia local: se revis
 
 ## Resend local preparado: 11 de octubre de 2026
 
-Se retiró `.env.local` por petición del usuario. Next.js arranca usando `.env`, con PostgreSQL local, registro abierto y Resend como transporte de correo. El remitente de esta prueba es `GrietaPro <onboarding@resend.dev>`. La comprobación local de `/api/account` responde 200 con cuentas y correo configurados.
+Se retiró `.env.local` por petición del usuario. Next.js arranca usando `.env`, con PostgreSQL local, registro abierto y Resend como transporte de correo. El remitente de esta prueba es `Elociencia <onboarding@resend.dev>`. La comprobación local de `/api/account` responde 200 con cuentas y correo configurados.
 
 Se reforzó el límite de errores de `lib/auth-mail.ts`: los fallos de URL, origen, HTTP, red, cancelación y timeout producen un error nuevo con texto fijo y sin causa privada. El envío exitoso conserva destinatario, enlace, un intento y ausencia de reintentos o fallback.
 

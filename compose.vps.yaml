@@ -1,7 +1,7 @@
 # Requires Docker Compose >= 2.30 for raw env_file values.
 # Keep .env.production private, outside the image, with no surrounding quotes.
 x-operations: &operations
-  image: grieta-pro-tools:local
+  image: elociencia-tools:local
   build:
     context: .
     target: tooling
@@ -17,7 +17,7 @@ x-operations: &operations
 
 services:
   web:
-    image: grieta-pro:local
+    image: elociencia:local
     build:
       context: .
       target: runner

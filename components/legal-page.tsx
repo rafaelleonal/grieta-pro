@@ -22,11 +22,11 @@ export function LegalPage({
     <main className="legal-page">
       <div className="legal-shell">
         <Link href="/" className="legal-back" prefetch={false}>
-          ← Volver a GrietaPro
+          ← Volver a Elociencia
         </Link>
         <article className="legal-document">
           <header className="legal-heading">
-            <p className="legal-eyebrow">GrietaPro · Información legal</p>
+            <p className="legal-eyebrow">Elociencia · Información legal</p>
             <h1>{title}</h1>
             <p className="legal-intro">{intro}</p>
             <p className="legal-date">

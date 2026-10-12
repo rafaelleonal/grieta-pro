@@ -1,7 +1,7 @@
-import { randomUUID } from "node:crypto";
 import { z } from "zod";
 import { getDb } from "./db";
 import { ApiError } from "./errors";
+import { limitUserWrites } from "./write-limit";
 import type { Catalog, Role } from "./types";
 import type { Prisma } from "../generated/prisma/client";
 
@@ -100,44 +100,16 @@ export async function limitChampionPreferenceWrites(
   userId: string,
   now = new Date(),
 ): Promise<void> {
-  if (!userId || userId.length > 128 || !Number.isFinite(now.getTime()))
-    throw new ApiError(400, "No pudimos validar tu cuenta para guardar favoritos.");
-  const minuteStart = BigInt(Math.floor(now.getTime() / 60_000) * 60_000);
-  const rows = [
-    { key: "grietapro-champion-preferences:global", maximum: 300 },
-    { key: `grietapro-champion-preferences:user:${userId}`, maximum: 30 },
-  ];
-  for (let attempt = 0; attempt < 10; attempt++) {
-    try {
-      await getDb().$transaction(
-        async (transaction) => {
-          for (const row of rows) {
-            await transaction.rateLimit.upsert({
-              where: { key: row.key },
-              create: { id: randomUUID(), key: row.key, count: 0, lastRequest: minuteStart },
-              update: {},
-            });
-            await transaction.rateLimit.updateMany({
-              where: { key: row.key, lastRequest: { lt: minuteStart } },
-              data: { count: 0, lastRequest: minuteStart },
-            });
-            const changed = await transaction.rateLimit.updateMany({
-              where: { key: row.key, lastRequest: minuteStart, count: { lt: row.maximum } },
-              data: { count: { increment: 1 } },
-            });
-            if (changed.count !== 1)
-              throw new ApiError(429, "Espera un minuto antes de volver a guardar favoritos.");
-          }
-        },
-        { isolationLevel: "Serializable", timeout: 5_000 },
-      );
-      return;
-    } catch (error) {
-      const code = error && typeof error === "object" && "code" in error ? error.code : null;
-      if (code !== "P2034" && code !== "P2002") throw error;
-      if (attempt === 9)
-        throw new ApiError(503, "No pudimos guardar tus favoritos. Inténtalo en unos momentos.");
-      await new Promise((resolve) => setTimeout(resolve, 15 + attempt * 20 + Math.random() * 30));
-    }
-  }
+  await limitUserWrites(
+    {
+      prefix: "elociencia-champion-preferences",
+      userId,
+      globalMaximum: 300,
+      userMaximum: 30,
+      limitedMessage: "Espera un minuto antes de volver a guardar favoritos.",
+      unavailableMessage: "No pudimos guardar tus favoritos. Inténtalo en unos momentos.",
+      invalidMessage: "No pudimos validar tu cuenta para guardar favoritos.",
+    },
+    now,
+  );
 }

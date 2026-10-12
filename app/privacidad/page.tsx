@@ -3,9 +3,9 @@ import { LegalContact } from "@/components/legal-contact";
 import { LegalPage } from "@/components/legal-page";
 
 export const metadata: Metadata = {
-  title: "Política de privacidad | GrietaPro",
+  title: "Política de privacidad | Elociencia",
   description:
-    "Qué datos utiliza GrietaPro, con quién los comparte y cómo ejercer tus derechos de privacidad.",
+    "Qué datos utiliza Elociencia, con quién los comparte y cómo ejercer tus derechos de privacidad.",
 };
 
 const sections = [
@@ -24,13 +24,13 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Política de privacidad"
-      intro="Este aviso explica cómo GrietaPro trata la información de tu cuenta y de las consultas que decides enviar. La entrada manual está disponible si prefieres no utilizar capturas o importar datos de Riot."
+      intro="Este aviso explica cómo Elociencia trata la información de tu cuenta y de las consultas que decides enviar. La entrada manual está disponible si prefieres no utilizar capturas o importar datos de Riot."
       sections={sections}
     >
       <section id="responsable">
         <h2>1. Responsable y contacto</h2>
         <p>
-          El responsable de los datos personales tratados por GrietaPro se identifica a
+          El responsable de los datos personales tratados por Elociencia se identifica a
           continuación. Este contacto también recibe solicitudes de privacidad y ejercicio de
           derechos.
         </p>
@@ -65,7 +65,7 @@ export default function PrivacyPage() {
           </li>
         </ul>
         <p>
-          GrietaPro no solicita datos personales sensibles, información de pago ni tu contraseña de
+          Elociencia no solicita datos personales sensibles, información de pago ni tu contraseña de
           Riot. Evita incluirlos en notas o imágenes. El filtrado del contexto reduce información
           innecesaria, pero no garantiza que todo texto o captura quede anonimizado.
         </p>
@@ -105,7 +105,7 @@ export default function PrivacyPage() {
           instrucciones necesarias a OpenRouter, que los transmite al proveedor del modelo. Para
           leer una captura, la imagen se envía a nuestro servidor, se valida y recodifica antes de
           enviarla al servicio de IA. No guardamos las capturas originales ni una copia del mensaje
-          completo enviado al modelo en la base de datos de GrietaPro.
+          completo enviado al modelo en la base de datos de Elociencia.
         </p>
         <p>
           Esto no significa que los proveedores tengan retención cero. La conservación de entradas y
@@ -126,7 +126,7 @@ export default function PrivacyPage() {
         <p>
           Cuando solicitas importar una partida, nuestro servidor envía a Riot el Riot ID y la
           región indicados, obtiene el identificador de jugador y consulta la composición disponible
-          de la partida activa. GrietaPro no utiliza Riot Sign On ni solicita credenciales de tu
+          de la partida activa. Elociencia no utiliza Riot Sign On ni solicita credenciales de tu
           cuenta de Riot. Los recursos de juego, como imágenes de campeones de Data Dragon, pueden
           cargarse directamente desde los servidores de Riot; esa conexión comparte datos técnicos
           como tu IP. Consulta el{" "}
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
         </p>
         <p>
           Los servicios de alojamiento y base de datos procesan los datos necesarios para operar
-          GrietaPro. La identificación del alojamiento, de la base de datos y de su ubicación de
+          Elociencia. La identificación del alojamiento, de la base de datos y de su ubicación de
           producción debe completarse antes de abrir el servicio público. Algunos proveedores pueden
           procesar información fuera de tu país; no se promete que todos los datos permanezcan en
           México. Si una transferencia adicional requiere tu consentimiento, se solicitará antes de
@@ -237,7 +237,7 @@ export default function PrivacyPage() {
       <section id="seguridad">
         <h2>8. Seguridad y menores</h2>
         <p>
-          GrietaPro aplica controles de sesión, propiedad del historial, validación de entradas y
+          Elociencia aplica controles de sesión, propiedad del historial, validación de entradas y
           restricciones de acceso. Estos controles reducen riesgos, pero ningún servicio puede
           garantizar seguridad absoluta. Mantén tu contraseña privada y utiliza sólo capturas de
           juego que puedas compartir legítimamente.

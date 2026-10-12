@@ -1,4 +1,4 @@
-# Configurar OpenRouter y Resend en GrietaPro
+# Configurar OpenRouter y Resend en Elociencia
 
 OpenRouter genera los consejos y reconoce capturas. Resend entrega los enlaces de verificación y recuperación de cuenta. Las pruebas automatizadas utilizan proveedores simulados; configurar estas cuentas habilita llamadas reales, que pueden consumir saldo o cupo de correo.
 
@@ -25,7 +25,7 @@ Las claves de esta guía son variables del servidor. No añadas `NEXT_PUBLIC_` n
 
 1. Crea tu cuenta o inicia sesión en [OpenRouter](https://openrouter.ai/).
 2. Abre [Settings → Credits](https://openrouter.ai/settings/credits) y revisa el saldo. Para utilizar modelos de pago, añade sólo el saldo que quieras destinar a la prueba. Revisa el total mostrado por el panel antes de pagar; deja la recarga automática desactivada durante las primeras pruebas. OpenRouter descuenta las consultas del saldo de créditos. [Créditos y facturación](https://openrouter.ai/docs/faq).
-3. Abre [Settings → API keys](https://openrouter.ai/settings/keys), crea una clave normal para inferencia y ponle un nombre, por ejemplo `GrietaPro desarrollo`. Configura un límite de crédito pequeño y explícito; si eliges reinicio diario, semanal o mensual, revisa esa ventana. Una clave de administración de claves no sirve para las consultas del coach. Copia la clave al crearla y guárdala en tu entorno privado. [Autenticación y límites por clave](https://openrouter.ai/docs/api_reference/authentication).
+3. Abre [Settings → API keys](https://openrouter.ai/settings/keys), crea una clave normal para inferencia y ponle un nombre, por ejemplo `Elociencia desarrollo`. Configura un límite de crédito pequeño y explícito; si eliges reinicio diario, semanal o mensual, revisa esa ventana. Una clave de administración de claves no sirve para las consultas del coach. Copia la clave al crearla y guárdala en tu entorno privado. [Autenticación y límites por clave](https://openrouter.ai/docs/api_reference/authentication).
 4. Completa estas variables en tu archivo de configuración privado:
 
 ```dotenv
@@ -62,19 +62,19 @@ Sólo añade `anthropic/claude-opus-5.5` a Pro si falta e incrementa la versión
 
 Para incorporar otro modelo hace falta revisar `lib/usage.ts`, las políticas de los planes y las pruebas de imágenes, salida y gasto. No sustituyas el ID por un alias o una variante `:free` esperando que evite esos controles.
 
-Conserva además los presupuestos `AI_*` de `.env.example`, ajustados al gasto que quieras permitir. El límite de OpenRouter y los límites de GrietaPro se complementan. Una clave personal introducida en **Conexión** sigue necesitando cuenta verificada y conserva las cuotas; no es un acceso anónimo.
+Conserva además los presupuestos `AI_*` de `.env.example`, ajustados al gasto que quieras permitir. El límite de OpenRouter y los límites de Elociencia se complementan. Una clave personal introducida en **Conexión** sigue necesitando cuenta verificada y conserva las cuotas; no es un acceso anónimo.
 
 ## 3. Preparar el correo con Resend
 
 1. Crea tu cuenta o inicia sesión en [Resend](https://resend.com/).
 2. En [Domains](https://resend.com/domains), añade un dominio que controles. Puedes dedicar un subdominio al correo de cuentas, por ejemplo `cuentas.tu-dominio.com`. No uses `gmail.com`, `outlook.com` ni un dominio público que no sea tuyo. Resend recomienda subdominios para separar la reputación de envío. [Dominios verificados](https://resend.com/docs/dashboard/domains/introduction).
 3. Abre los registros DNS del dominio en Resend. En el proveedor que administra tu DNS, copia exactamente los tipos, nombres y valores que muestra el panel para SPF y DKIM. El panel puede mostrar TXT/MX o CNAME; no copies registros genéricos de otra guía ni reemplaces los MX de tu correo existente. Vuelve a Resend, pulsa **Verify DNS Records** y espera a que el envío figure verificado. [Registros y estados de dominio](https://resend.com/docs/dashboard/domains/manage-domains).
-4. En [API Keys](https://resend.com/api-keys), crea una clave para `GrietaPro desarrollo`, con permiso **Sending access** y restringida al dominio verificado que usarás. Copia su valor cuando se cree; el panel no lo vuelve a mostrar. [Gestión de claves](https://resend.com/docs/dashboard/api-keys/introduction) y [permisos de envío](https://resend.com/docs/api-reference/api-keys/create-api-key).
+4. En [API Keys](https://resend.com/api-keys), crea una clave para `Elociencia desarrollo`, con permiso **Sending access** y restringida al dominio verificado que usarás. Copia su valor cuando se cree; el panel no lo vuelve a mostrar. [Gestión de claves](https://resend.com/docs/dashboard/api-keys/introduction) y [permisos de envío](https://resend.com/docs/api-reference/api-keys/create-api-key).
 5. Completa estas variables:
 
 ```dotenv
 RESEND_API_KEY=
-AUTH_EMAIL_FROM="GrietaPro <coach@cuentas.tu-dominio.com>"
+AUTH_EMAIL_FROM="Elociencia <coach@cuentas.tu-dominio.com>"
 AUTH_MAILPIT_URL=
 ```
 
@@ -84,7 +84,7 @@ Sustituye el remitente por una dirección del dominio o subdominio que hayas ver
 
 Puedes explorar la demostración y ejecutar `pnpm check` y `pnpm test:accounts` sin dominio ni claves reales. Las pruebas de cuentas crean PostgreSQL temporal y simulan los correos y la IA.
 
-Para una prueba personal de entrega, Resend permite `onboarding@resend.dev` únicamente hacia el correo asociado a tu propia cuenta de Resend. En ese caso usa `AUTH_EMAIL_FROM="GrietaPro <onboarding@resend.dev>"` y registra GrietaPro con ese mismo correo. No sirve para verificar a tus amigos: necesitarás tu dominio para otros destinatarios. [Restricción de resend.dev](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain).
+Para una prueba personal de entrega, Resend permite `onboarding@resend.dev` únicamente hacia el correo asociado a tu propia cuenta de Resend. En ese caso usa `AUTH_EMAIL_FROM="Elociencia <onboarding@resend.dev>"` y registra Elociencia con ese mismo correo. No sirve para verificar a tus amigos: necesitarás tu dominio para otros destinatarios. [Restricción de resend.dev](https://resend.com/docs/knowledge-base/403-error-resend-dev-domain).
 
 Utiliza una clave exclusiva de pruebas con **Sending access** que permita ese remitente; una clave restringida a otro dominio no corresponde a este modo. Cuando verifiques tu dominio, cambia al remitente propio y a una clave restringida a él.
 

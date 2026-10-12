@@ -123,7 +123,16 @@ function coachSchemaForCatalog(catalog: Catalog, input: CoachInput) {
   const situational = b.situational.element.shape;
   const runes = b.runes.shape;
   const champion = z.enum([
-    ...new Set([input.champion, input.enemy, ...input.allies, ...input.enemies]),
+    ...new Set(
+      [
+        input.champion,
+        input.enemy,
+        ...input.allies,
+        ...input.enemies,
+        input.allyDuo,
+        input.enemyDuo,
+      ].filter((id): id is string => Boolean(id)),
+    ),
   ] as [string, ...string[]]);
   const champions = z.array(champion).max(5);
   const item = uniqueEnum(
@@ -729,7 +738,7 @@ async function structuredCompletion(
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
-        "X-OpenRouter-Title": "GrietaPro",
+        "X-OpenRouter-Title": "Elociencia",
       },
       signal,
       cache: "no-store",
@@ -955,6 +964,16 @@ export async function generateCoach(
     rank: input.rank,
     allies: input.allies.map((id) => ({ id, name: name(id) })),
     enemies: input.enemies.map((id) => ({ id, name: name(id) })),
+    ...(input.allyDuo || input.enemyDuo
+      ? {
+          botLane: {
+            yourPartner: input.allyDuo ? { id: input.allyDuo, name: name(input.allyDuo) } : null,
+            enemyPartner: input.enemyDuo
+              ? { id: input.enemyDuo, name: name(input.enemyDuo) }
+              : null,
+          },
+        }
+      : {}),
     playerNotes: input.notes,
     riotVersion: catalog.version,
     catalogSource: catalog.source,
@@ -996,6 +1015,7 @@ export async function generateCoach(
             "Fundamenta cada consejo en el matchup concreto: usa champion.abilities y enemy.abilities del contexto, nombra las habilidades por tecla y nombre, y explica la interacción (qué habilidad rival esquivar o castigar, qué ventana abre su enfriamiento, qué hace tu kit contra el suyo). Evita frases genéricas que servirían para cualquier enfrentamiento y no repitas el mismo consejo entre secciones. No inventes estadísticas, winrates ni cooldowns numéricos que no estén en el contexto.",
             "brief: priority es tu principal plan de juego en este matchup; window.trigger es una señal observable del rival y window.response la acción mecánica concreta; avoid es el error más caro contra este rival. Límites estrictos: window.trigger y reactions.trigger hasta 110 caracteres; cue hasta 60; cualquier otro texto hasta 220. Un texto más largo se descarta.",
             "levels: exactamente 6 pasos, niveles 1 a 6 en orden. Cada paso: level, cue breve, text de una frase con la acción de ese nivel, edge=tu (ventaja tuya)/par (parejo)/ojo (ventaja rival), skill = la habilidad que aprendes o mejoras en ese nivel (igual a skillOrder.first6 en esa posición; Aphelios usa la habilidad clave) y champions con los campeones implicados (lista vacía si no aplica).",
+            "Si el contexto incluye botLane, la línea de bot es 2 contra 2: tu plan considera la sinergia con yourPartner y la amenaza combinada de tu rival y enemyPartner (nivel 2, enganches, all-in, ventanas de su support). Puedes referir a ambas parejas en champions. Una pareja null no es conocida: no la inventes.",
             "reactions.linea: 2 o 3 señales observables del rival en línea (animación, habilidad usada, posición, estado de la oleada) con la respuesta exacta. macro: 2 o 3 decisiones de mapa para este rol considerando los equipos conocidos. Todas las referencias champions pertenecen al campeón, rival o equipos enviados.",
             "build (orientativa, nunca «óptima» sin estadísticas): starting 1-3 objetos iniciales; core 2-3 objetos completos en orden de compra; situational 1-3 con reason ligada al rival o la composición. Usa sólo IDs de purchasableRiftItems; cada entrada es [id, nombre, oro] y los objetos completos añaden un resumen de efectos.",
             "runes: primary style con keystone de slot0 de ESE style (runeStyleKeystones) y una minor de cada slot1/2/3 de ese style; secondary style diferente con 2 minors de slots distintos de ese style; 3 shards con etiquetas exactas, uno de cada fila de statShardRows en orden (ofensiva, flexible, defensa), y why. Usa keys exactas del catálogo. summoners.pick: exactamente 2 IDs distintos de summonerSpells con why.",

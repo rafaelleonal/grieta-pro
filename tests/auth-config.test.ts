@@ -7,7 +7,7 @@ const config = {
   DATABASE_URL: "postgresql://local:local@127.0.0.1:5432/cholo",
   BETTER_AUTH_SECRET: "a-secure-local-fixture-secret-of-more-than-32-characters",
   BETTER_AUTH_URL: "http://localhost:3000",
-  AUTH_EMAIL_FROM: "GrietaPro <coach@example.test>",
+  AUTH_EMAIL_FROM: "Elociencia <coach@example.test>",
   AUTH_MAILPIT_URL: "http://127.0.0.1:55441",
 };
 

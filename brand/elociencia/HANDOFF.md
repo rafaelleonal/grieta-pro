@@ -11,7 +11,7 @@
   - Páginas **Escritorio / Tablet / Móvil:** todas las pantallas.
   - Página **Marca → «Elociencia · 3 direcciones»**: se usa la **dirección A, el elemento «El»**.
 - **Handoff anterior del plan de partida:** `design_handoff_coach_pantallas/README.md` (tokens Nocturne y pantallas de selección y en partida).
-- **Mascota:** `elociencia.png` (original) y `brand/elociencia/mascota/mascota-{1024,512,256}.png` (recortadas, cuadradas, fondo transparente).
+- **Mascota:** `elociencia.png` (original), `brand/elociencia/mascota/mascota-{1024,512,256}.png` (recortadas, cuadradas, fondo transparente) y `mascota-sticker-{lima,crema}.png` (con contorno para fondo oscuro). Reglas de uso en el lienzo, página **Marca → «Elociencia · marca final con mascota»**.
 - **SVG de marca:** `brand/elociencia/svg/`. Se usan los `a-*`:
   - `a-lockup.svg`: logotipo horizontal.
   - `a-tile.svg`: casilla «1 · El · elociencia».
@@ -27,10 +27,14 @@
    - Metadatos de `app/layout.tsx`, textos de UI y correos de `lib/auth-mail.ts`.
    - Documentos legales (`lib/legal-*.ts`, `app/privacidad`, `app/terminos`) y README.
    - Busca «GrietaPro» y «Grieta» con grep para no dejar ninguno.
-2. **Iconos:**
-   - Genera PNG 192/512 (`any`), maskable 192/512 (símbolo en el 80 % central, fondo `#c6f36b` o `#161826`), apple-touch 180 y favicon 16/32/48, a partir de `a-icon-lime.svg` y `a-icon-48.svg`. Puedes usar sharp, que ya está en el proyecto.
-   - Reemplaza `public/icons/*` y `app/icon.svg`.
-3. **Imagen social OG de 1200 × 630** con la mascota a la izquierda, «**elo**ciencia» (con «elo» en lima) y el lema «La ciencia de subir de elo». Incluye «No avalado por Riot Games».
+2. **Iconos (ya generados, solo copiar):**
+   - `brand/elociencia/png/icon-192.png` e `icon-512.png` → `public/icons/` (manifest `purpose: "any"`; mapache sobre lima).
+   - `maskable-192.png` y `maskable-512.png` → `public/icons/` (`purpose: "maskable"`).
+   - `apple-touch-icon.png` (180) → `app/apple-icon.png`.
+   - `brand/elociencia/svg/favicon.svg` («El» sobre lima) → sustituye `app/icon.svg`; `brand/elociencia/favicon.ico` → `app/favicon.ico`.
+   - Comprueba que `public/sw.js` sigue cacheando solo los archivos públicos permitidos.
+3. **Imagen social (ya generada):** `brand/elociencia/png/og-image.png` (1200 × 630). Úsala como `app/opengraph-image.png` y `app/twitter-image.png`. Para regenerarla, la fuente está en `brand/elociencia/source/og.html`.
+   - Logotipo con mascota: `png/logo-mascota.png` (fondo oscuro) y `png/logo-mascota-claro.png` (fondo claro). En la barra lateral usa el mapache sobre disco lima de 32 px más `svg/word.svg`.
 4. **Mascota (mapache con monóculo):**
    - Es casi negra: nunca la pongas directamente sobre `#161826`. Colócala sobre un disco lima `#c6f36b` o crema `#f6efe2`, o añádele un contorno tipo sticker (lima o crema, unos 14 px a 1024).
    - Úsala en el onboarding (panel izquierdo), en estados vacíos (sin sesiones), en la carga del plan y en la imagen OG.

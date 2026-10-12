@@ -107,6 +107,9 @@ export function safeCoachInput(input: CoachInput) {
     rank: input.rank,
     allies: input.allies,
     enemies: input.enemies,
+    // Only present for bot 2v2, so earlier fingerprints and records stay identical.
+    ...(input.allyDuo ? { allyDuo: input.allyDuo } : {}),
+    ...(input.enemyDuo ? { enemyDuo: input.enemyDuo } : {}),
     notes: safeNotesForStorage(input.notes),
     webSearch: input.webSearch,
   };
@@ -587,6 +590,10 @@ export async function getAccountUsage(userId: string) {
           plan.monthlySearchLimit - (bucket?.searchUsed || 0) - (bucket?.searchReserved || 0),
         )
       : 0,
+    // Read-only plan limits for the consumption bars; quotas are enforced elsewhere.
+    coachLimit: plan.monthlyCoachLimit,
+    draftLimit: plan.monthlyDraftLimit,
+    webLimit: plan.webSearchAllowed ? plan.monthlySearchLimit : 0,
     resetsAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString(),
     pending,
     uncertain,

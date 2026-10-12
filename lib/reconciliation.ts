@@ -40,8 +40,8 @@ export async function limitReconciliationInput(userId: string, now = new Date())
   const minuteStart = BigInt(Math.floor(now.getTime() / 60_000) * 60_000);
   await withUsageTransaction(async (tx) => {
     for (const { key, maximum } of [
-      { key: "grietapro-reconcile-input:global", maximum: 60 },
-      { key: `grietapro-reconcile-input:user:${userId}`, maximum: 6 },
+      { key: "elociencia-reconcile-input:global", maximum: 60 },
+      { key: `elociencia-reconcile-input:user:${userId}`, maximum: 6 },
     ]) {
       await tx.rateLimit.upsert({
         where: { key },
@@ -63,7 +63,7 @@ export async function limitReconciliationInput(userId: string, now = new Date())
 }
 
 function ownerLeaseKey(userId: string) {
-  return `grietapro-reconcile-lease:user:${userId}`;
+  return `elociencia-reconcile-lease:user:${userId}`;
 }
 
 /** Atomic, persistent across processes/tabs; covers the entire bounded lookup batch. */
@@ -100,7 +100,7 @@ async function claimGlobalLookupBatch(now: Date) {
   const time = BigInt(now.getTime());
   const minuteStart = BigInt(Math.floor(now.getTime() / 60_000) * 60_000);
   return withUsageTransaction(async (tx) => {
-    const key = "grietapro-reconcile-lease:global";
+    const key = "elociencia-reconcile-lease:global";
     await tx.rateLimit.upsert({
       where: { key },
       create: { id: randomUUID(), key, count: 0, lastRequest: minuteStart },

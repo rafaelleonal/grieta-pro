@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Elociencia · logotipo con mascota</title>
+<style>
+@font-face{font-family:Inter;src:url("../../../app/fonts/InterVariable.woff2") format("woff2");font-weight:100 900}
+html,body{margin:0;width:1180px;height:340px;overflow:hidden;background:transparent}
+body{display:flex;align-items:center;gap:44px;padding:0 20px;box-sizing:border-box;font-family:Inter,sans-serif}
+.m{position:relative;width:280px;height:300px;flex:none}
+.m span{position:absolute;left:10px;bottom:10px;width:260px;height:260px;border-radius:50%;background:#c6f36b}
+.m img{position:absolute;left:-4px;bottom:6px;width:296px;height:296px}
+.w{display:flex;flex-direction:column;gap:14px}
+.w p{margin:0 0 0 6px;font-size:30px;font-weight:500;letter-spacing:-.01em;color:var(--tag,#b2b6ca)}
+</style>
+</head>
+<body>
+<div class="m"><span></span><img src="../mascota/mascota-1024.png" alt=""></div>
+<div class="w"><img id="word" src="../svg/word.svg" alt="elociencia" style="width:760px"><p>La ciencia de subir de elo.</p></div>
+<script>
+if (location.hash === "#light") { document.getElementById("word").src = "../svg/word-light.svg"; document.body.style.setProperty("--tag", "#595d6c"); }
+</script>
+</body>
+</html>

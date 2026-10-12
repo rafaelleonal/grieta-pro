@@ -62,7 +62,16 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
       mark(section, error.category);
     }
   };
-  const known = new Set([context.champion, context.enemy, ...context.allies, ...context.enemies]);
+  const known = new Set(
+    [
+      context.champion,
+      context.enemy,
+      ...context.allies,
+      ...context.enemies,
+      context.allyDuo,
+      context.enemyDuo,
+    ].filter((id): id is string => Boolean(id)),
+  );
   const references = (entry: { champions?: string[] }) => {
     if (
       entry.champions &&

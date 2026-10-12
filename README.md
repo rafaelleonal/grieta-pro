@@ -1,4 +1,4 @@
-# GrietaPro
+# Elociencia
 
 Coach de League of Legends en español construido con Next.js y OpenRouter. Recibe tu campeón, línea y rival; genera un plan breve de niveles 1 a 6, respuestas mecánicas, build situacional y objetivos de partida. Puedes añadir las composiciones completas, interpretar texto o una captura y, opcionalmente, importar una partida activa con Riot ID.
 
@@ -67,7 +67,7 @@ La navegación del plan se guarda en esta pestaña, separada por cuenta y análi
 
 ### Instalar como app (PWA)
 
-Abre **Instalar app** desde el menú. En iPhone/iPad, abre la dirección en Safari y elige **Compartir → Añadir a pantalla de inicio → Añadir**. En Android o computadora, Chrome/Edge ofrecen **Instalar app** o **Añadir a pantalla de inicio**; el botón de instalación de GrietaPro aparece cuando el navegador permite mostrar su diálogo. La app tiene iconos propios y se abre en una ventana independiente.
+Abre **Instalar app** desde el menú. En iPhone/iPad, abre la dirección en Safari y elige **Compartir → Añadir a pantalla de inicio → Añadir**. En Android o computadora, Chrome/Edge ofrecen **Instalar app** o **Añadir a pantalla de inicio**; el botón de instalación de Elociencia aparece cuando el navegador permite mostrar su diálogo. La app tiene iconos propios y se abre en una ventana independiente.
 
 La instalación completa y el service worker necesitan **HTTPS** en el alojamiento. `localhost` y `127.0.0.1` son excepciones para desarrollo en esa computadora; una IP de la red local con HTTP permite usar la web en el celular, pero no verificar la PWA completa. No requiere nuevas variables de entorno. Referencia: [requisitos de instalación de una PWA](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Guides/Making_PWAs_installable).
 
@@ -205,4 +205,4 @@ La aplicación utiliza Next.js con servicios externos independientes del alojami
 
 [Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) detecta Next.js. Netlify ofrece OpenNext, pero sus funciones síncronas tienen un [límite de 60 segundos](https://docs.netlify.com/build/functions/configuration/): hay que adaptar y probar la espera actual de OpenRouter de 90 segundos antes de usarlo. La [guía portable](docs/vps-deployment.md) explica estas condiciones. Preparar Docker o publicar una compilación no demuestra el flujo completo de cuentas y proveedores; verifica cada entorno antes de darlo por listo.
 
-GrietaPro no está afiliado ni respaldado por Riot Games. League of Legends y las marcas asociadas pertenecen a Riot Games.
+Elociencia no está afiliado ni respaldado por Riot Games. League of Legends y las marcas asociadas pertenecen a Riot Games.

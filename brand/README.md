@@ -1,50 +1,25 @@
-# No Era el Jungla — marca
+# Elociencia — marca
 
-El símbolo es la hoja del rol de jungla con un tachón encima: «no fue el jungla». Usa el violeta de Nocturne, así que encaja con el resto de la interfaz.
+«Elo» + «ciencia»: la ciencia de subir de elo. El símbolo es la casilla «1 · El · elociencia» de una tabla periódica; los rangos de League se muestran como elementos (Fe, Cu, Ag, Au, Pt, C).
 
-## Archivos
+El detalle de uso, colores y fases del rediseño está en [elociencia/HANDOFF.md](elociencia/HANDOFF.md).
 
-| Archivo                                           | Uso                                                              |
-| ------------------------------------------------- | ---------------------------------------------------------------- |
-| `svg/logo-mark.svg`                               | Símbolo a color, fondo transparente                              |
-| `svg/logo-mark-mono.svg`                          | Símbolo a una tinta (`currentColor`)                             |
-| `svg/logo-horizontal.svg`                         | Símbolo + nombre, para fondo oscuro                              |
-| `svg/logo-horizontal-light.svg`                   | Símbolo + nombre, para fondo claro                               |
-| `svg/logo-stacked.svg`                            | Versión apilada («NO ERA EL / Jungla»)                           |
-| `svg/app-icon.svg`                                | Icono de app con esquinas redondeadas                            |
-| `svg/app-icon-maskable.svg`                       | Icono PWA _maskable_ (símbolo dentro de la zona segura del 80 %) |
-| `svg/favicon.svg`                                 | Favicon simplificado (sin nervio, tachón más grueso)             |
-| `favicon.ico`                                     | 16, 32 y 48 px                                                   |
-| `png/icon-192.png`, `png/icon-512.png`            | Manifest PWA, `purpose: "any"`                                   |
-| `png/maskable-192.png`, `png/maskable-512.png`    | Manifest PWA, `purpose: "maskable"`                              |
-| `png/apple-touch-icon.png`                        | iOS, 180 px                                                      |
-| `png/favicon-16/32/48.png`                        | Favicons sueltos                                                 |
-| `png/logo-mark-512.png`, `png/logo-mark-1024.png` | Símbolo en mapa de bits                                          |
-| `png/logo-horizontal.png`                         | Logotipo horizontal transparente (render con Inter)              |
-| `png/social-avatar-400.png`                       | Avatar para redes                                                |
-| `png/og-image.png`                                | Imagen social 1200 × 630 (Open Graph / X)                        |
-| `source/og.html`, `source/wordmark.html`          | Fuentes para volver a generar los PNG con texto                  |
+| Archivo                                   | Uso                                                       |
+| ----------------------------------------- | --------------------------------------------------------- |
+| `elociencia/svg/a-lockup.svg`             | Logotipo horizontal sobre fondo oscuro                    |
+| `elociencia/svg/a-tile.svg`               | Casilla «1 · El · elociencia»                             |
+| `elociencia/svg/a-icon-lime.svg`, `-dark` | Iconos de app grandes                                     |
+| `elociencia/svg/a-icon-48.svg`, `-24`     | Favicon e iconos pequeños (solo «El» sobre lima)          |
+| `elociencia/svg/word.svg`, `word-light`   | Palabra «elociencia» para fondo oscuro o claro            |
+| `elociencia/mascota/`                     | Mapache con monóculo; siempre sobre lima, crema o sticker |
+| `elociencia/png/og-image.png`             | Imagen social 1200 × 630                                  |
 
-## Colores
+Los `b-*` y `c-*` son direcciones descartadas. Los recursos públicos de la app se generan con:
 
-| Token                       | Valor                  | Dónde                       |
-| --------------------------- | ---------------------- | --------------------------- |
-| Hoja                        | `#9184d9` (acento)     | Símbolo sobre oscuro        |
-| Tachón                      | `#e7e5fe` (acento 200) | Símbolo sobre oscuro        |
-| Fondo                       | `#161826`              | Iconos de app, OG           |
-| «Jungla»                    | `#b5abfc` (acento 400) | Logotipo sobre oscuro       |
-| Hoja y «Jungla» sobre claro | `#5d5294` (acento 700) | `logo-horizontal-light.svg` |
+```sh
+pnpm exec tsx scripts/generate-brand-assets.ts
+```
 
-## Reglas
+Colores: lima `#c6f36b` (acento de marca), tinta `#ecebf5`, violeta Nocturne `#9184d9` (interfaz), fondo `#161826`. Sobre fondo claro no uses lima para texto: usa violeta 700 `#5d5294`. La mascota es casi negra: nunca directamente sobre `#161826`.
 
-- Tipografía del nombre: Inter 600, tracking −0,02 em. Los SVG con texto usan la fuente instalada (Inter si existe, si no Helvetica o Arial). Para piezas finales usa los PNG o convierte el texto a trazos.
-- Área de respeto: la mitad del ancho del símbolo por cada lado.
-- Tamaño mínimo: 16 px con `favicon.svg`; 24 px con `logo-mark.svg`.
-- No rotes el símbolo, no cambies la dirección del tachón y no lo pongas sobre arte de campeones sin una capa oscura.
-- Mantén siempre visible el aviso «No avalado por Riot Games» en piezas públicas.
-
-## Integración pendiente
-
-Estos archivos todavía no reemplazan los de la app. Para usarlos haría falta:
-copiar los PNG a `public/icons/`, sustituir `app/icon.svg` por `svg/favicon.svg`,
-cambiar `name` y `short_name` en `app/manifest.ts`, y actualizar los textos «GrietaPro».
+Elociencia no está avalado por Riot Games.

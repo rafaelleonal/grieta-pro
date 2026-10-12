@@ -1,4 +1,4 @@
-# Seguridad de GrietaPro
+# Seguridad de Elociencia
 
 La autenticación, los permisos, el historial privado, las cuotas y los límites de gasto se controlan en el servidor. Las entradas y respuestas del coach se validan como datos no confiables. Estos controles reducen riesgos; no garantizan inmunidad a ataques, filtraciones ni errores del modelo.
 
@@ -22,7 +22,7 @@ No adjuntes claves, contraseñas, cookies, tokens, correos de usuarios, fotos pr
 
 Prueba únicamente tu instalación local o sistemas para los que tengas autorización explícita. Usa proveedores de IA y correo simulados. No intentes acceder a cuentas ajenas, extraer información, agotar saldo, enviar correos reales ni explorar infraestructura de Riot, OpenRouter, Resend o terceros para demostrar un fallo.
 
-Los problemas del código de GrietaPro pueden reportarse aquí. Los incidentes propios de un proveedor deben comunicarse mediante el canal de seguridad de ese proveedor.
+Los problemas del código de Elociencia pueden reportarse aquí. Los incidentes propios de un proveedor deben comunicarse mediante el canal de seguridad de ese proveedor.
 
 ## Dependencias y comprobaciones
 

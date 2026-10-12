@@ -16,7 +16,7 @@ async function main() {
     throw new Error("Database configuration is required");
   const maxUsers = limitArg ? Number(limitArg.slice("--max-users=".length)) : 10;
   const result = await reconcileOutstandingUsage({ maxUsers });
-  console.info(JSON.stringify({ event: "grietapro_usage_reconciliation", ...result }));
+  console.info(JSON.stringify({ event: "elociencia_usage_reconciliation", ...result }));
 }
 
 void main()
