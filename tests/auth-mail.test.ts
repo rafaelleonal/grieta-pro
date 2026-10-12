@@ -28,6 +28,44 @@ function safeMailError(error: unknown, original?: unknown): boolean {
   return true;
 }
 
+async function captureMailDiagnostics(work: () => Promise<void>) {
+  const previousInfo = console.info;
+  const previousError = console.error;
+  const logs: { level: "info" | "error"; line: string }[] = [];
+  const capture = (level: "info" | "error", args: unknown[]) => {
+    assert.equal(args.length, 1);
+    assert.equal(typeof args[0], "string");
+    logs.push({ level, line: args[0] as string });
+  };
+  console.info = (...args: unknown[]) => capture("info", args);
+  console.error = (...args: unknown[]) => capture("error", args);
+  try {
+    await work();
+    for (const { line } of logs) {
+      for (const value of [
+        privateRecipient,
+        privateKey,
+        privateToken,
+        "synthetic-private-email-id",
+      ])
+        assert.ok(!line.includes(value));
+      assert.deepEqual(Object.keys(JSON.parse(line)), [
+        "event",
+        "version",
+        "provider",
+        "purpose",
+        "outcome",
+        "category",
+        "httpStatus",
+      ]);
+    }
+    return logs.map(({ level, line }) => ({ level, diagnostic: JSON.parse(line) }));
+  } finally {
+    console.info = previousInfo;
+    console.error = previousError;
+  }
+}
+
 test("local verification email is delivered only to loopback mail and the requested recipient", async () => {
   const config = readAuthConfig(configuration)!;
   const previousFetch = globalThis.fetch;
@@ -178,5 +216,216 @@ test("successful Resend mail keeps a single request, recipient and signing link 
     assert.equal(bodyReads, 0);
   } finally {
     globalThis.fetch = previousFetch;
+  }
+});
+
+test("mail acceptance is logged only after the one awaited request resolves", async () => {
+  const config = readAuthConfig({ ...configuration, RESEND_API_KEY: privateKey })!;
+  const previousFetch = globalThis.fetch;
+  let sends = 0;
+  let complete = false;
+  let accept!: (response: Response) => void;
+  try {
+    globalThis.fetch = () => {
+      sends++;
+      return new Promise<Response>((resolve) => {
+        accept = resolve;
+      });
+    };
+    const logs = await captureMailDiagnostics(async () => {
+      const sending = sendAuthEmail(
+        config,
+        privateRecipient,
+        `http://127.0.0.1:3000/api/auth/verify-email?token=${privateToken}`,
+        "verify",
+      ).then(() => {
+        complete = true;
+      });
+      assert.equal(sends, 1);
+      assert.equal(complete, false);
+      accept(Response.json({ id: "synthetic-private-email-id" }, { status: 201 }));
+      await sending;
+      assert.equal(complete, true);
+      assert.equal(sends, 1);
+    });
+    assert.deepEqual(logs, [
+      {
+        level: "info",
+        diagnostic: {
+          event: "auth_mail_delivery",
+          version: 1,
+          provider: "resend",
+          purpose: "verify",
+          outcome: "accepted",
+          category: "provider_accepted",
+          httpStatus: 201,
+        },
+      },
+    ]);
+    assert.ok(!JSON.stringify(logs).includes("delivered"));
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
+test("mail failure diagnostics classify faults without private values or response body reads", async () => {
+  const config = readAuthConfig({ ...configuration, RESEND_API_KEY: privateKey })!;
+  const previousFetch = globalThis.fetch;
+  const privateFailure = new Error(privateText, { cause: new Error(privateText) });
+  const throwingName = new Error(privateText);
+  Object.defineProperty(throwingName, "name", {
+    get() {
+      throw privateFailure;
+    },
+  });
+  let sends = 0;
+  let bodyReads = 0;
+  try {
+    const logs = await captureMailDiagnostics(async () => {
+      globalThis.fetch = async () => {
+        sends++;
+        throw privateFailure;
+      };
+      await assert.rejects(
+        sendAuthEmail(config, privateRecipient, `malformed-${privateToken}`, "verify"),
+        safeMailError,
+      );
+      assert.equal(sends, 0);
+      for (const status of [400, 401, 403, 429, 500]) {
+        globalThis.fetch = async () => {
+          sends++;
+          const response = new Response(privateText, { status });
+          response.json = response.text = async () => {
+            bodyReads++;
+            throw privateFailure;
+          };
+          return response;
+        };
+        await assert.rejects(
+          sendAuthEmail(
+            config,
+            privateRecipient,
+            `${configuration.BETTER_AUTH_URL}/reset`,
+            "reset",
+          ),
+          safeMailError,
+        );
+      }
+      for (const failure of [
+        privateFailure,
+        new DOMException(privateText, "TimeoutError"),
+        new DOMException(privateText, "AbortError"),
+        throwingName,
+        { message: privateText, recipient: privateRecipient },
+      ]) {
+        globalThis.fetch = async () => {
+          sends++;
+          throw failure;
+        };
+        await assert.rejects(
+          sendAuthEmail(
+            config,
+            privateRecipient,
+            `${configuration.BETTER_AUTH_URL}/verify`,
+            "verify",
+          ),
+          safeMailError,
+        );
+      }
+    });
+    assert.equal(sends, 10);
+    assert.equal(bodyReads, 0);
+    assert.ok(
+      logs.every(({ level, diagnostic }) => level === "error" && diagnostic.outcome === "failed"),
+    );
+    assert.deepEqual(
+      logs.map(({ diagnostic }) => [diagnostic.category, diagnostic.httpStatus]),
+      [
+        ["invalid_link", null],
+        ...[400, 401, 403, 429, 500].map((status) => ["http_error", status]),
+        ["transport_error", null],
+        ["timeout", null],
+        ["cancelled", null],
+        ["transport_error", null],
+        ["transport_error", null],
+      ],
+    );
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
+test("HTTP diagnostic status is bounded and acceptance requires a valid 2xx status", async () => {
+  const config = readAuthConfig({ ...configuration, RESEND_API_KEY: privateKey })!;
+  const previousFetch = globalThis.fetch;
+  const statuses = [100, 599, 0, -1, 600, 200.5, NaN, Infinity, "403", undefined];
+  let sends = 0;
+  try {
+    const logs = await captureMailDiagnostics(async () => {
+      for (const status of statuses) {
+        globalThis.fetch = async () => {
+          sends++;
+          const response = new Response(privateText, { status: 201 });
+          Object.defineProperty(response, "status", { value: status });
+          return response;
+        };
+        await assert.rejects(
+          sendAuthEmail(
+            config,
+            privateRecipient,
+            `${configuration.BETTER_AUTH_URL}/verify`,
+            "verify",
+          ),
+          safeMailError,
+        );
+      }
+    });
+    assert.equal(sends, statuses.length);
+    assert.deepEqual(
+      logs.map(({ diagnostic }) => diagnostic.httpStatus),
+      [100, 599, ...Array<null>(8).fill(null)],
+    );
+    assert.ok(logs.every(({ diagnostic }) => diagnostic.category === "http_error"));
+  } finally {
+    globalThis.fetch = previousFetch;
+  }
+});
+
+test("diagnostic logger failures preserve acceptance and fresh safe errors without another send", async () => {
+  const config = readAuthConfig({ ...configuration, RESEND_API_KEY: privateKey })!;
+  const previousFetch = globalThis.fetch;
+  const previousInfo = console.info;
+  const previousError = console.error;
+  let logs = 0;
+  let sends = 0;
+  console.info = console.error = () => {
+    logs++;
+    throw new Error(privateText);
+  };
+  try {
+    globalThis.fetch = async () => {
+      sends++;
+      return new Response(privateText, { status: 202 });
+    };
+    await sendAuthEmail(
+      config,
+      privateRecipient,
+      `${configuration.BETTER_AUTH_URL}/verify`,
+      "verify",
+    );
+    globalThis.fetch = async () => {
+      sends++;
+      return new Response(privateText, { status: 403 });
+    };
+    await assert.rejects(
+      sendAuthEmail(config, privateRecipient, `${configuration.BETTER_AUTH_URL}/verify`, "verify"),
+      safeMailError,
+    );
+    assert.equal(sends, 2);
+    assert.equal(logs, 2);
+  } finally {
+    globalThis.fetch = previousFetch;
+    console.info = previousInfo;
+    console.error = previousError;
   }
 });
