@@ -307,7 +307,7 @@ export function validateDraftInput(input: unknown): DraftInput {
 }
 
 /** Validate every displayable string before discarding unknown IDs or rendering any result. */
-function assertSafeOutput(value: unknown): void {
+export function assertSafeOutput(value: unknown): void {
   if (typeof value === "string") assertSafeOutputText(value);
   else if (Array.isArray(value)) value.forEach(assertSafeOutput);
   else if (value && typeof value === "object") Object.values(value).forEach(assertSafeOutput);
@@ -353,6 +353,95 @@ export class CoachPlanValidationError extends ApiError {
     );
     this.name = "CoachPlanValidationError";
     this.category = COACH_PLAN_VALIDATION_CATEGORIES.includes(category) ? category : "schema";
+  }
+}
+
+const invalid = (category: CoachPlanValidationCategory) => new CoachPlanValidationError(category);
+
+export function validateCoachRunes(
+  runesValue: CoachPlan["build"]["runes"],
+  catalog: Catalog,
+): void {
+  const styles = new Map(catalog.runeStyles.map((style) => [style.key, style]));
+  const runes = new Map(catalog.runes.map((rune) => [rune.key, rune]));
+  const inSlot = (key: string, style: string, slot: number) =>
+    runes.get(key)?.style === style &&
+    runes.get(key)?.slot === slot &&
+    Boolean(styles.get(style)?.slots[slot]?.includes(key));
+  const { primary, secondary, alternative } = runesValue;
+  if (
+    !styles.has(primary.style) ||
+    !styles.has(secondary.style) ||
+    primary.style === secondary.style ||
+    !inSlot(primary.keystone, primary.style, 0) ||
+    primary.minors.some((key, index) => !inSlot(key, primary.style, index + 1))
+  )
+    throw invalid(
+      styles.has(primary.style) &&
+        (!styles.has(secondary.style) || primary.style === secondary.style)
+        ? "secondary_runes"
+        : "primary_runes",
+    );
+  const secondarySlots = secondary.minors.map((key) => runes.get(key)?.slot);
+  if (
+    new Set(secondarySlots).size !== 2 ||
+    secondary.minors.some((key, index) => {
+      const slot = secondarySlots[index];
+      return (
+        typeof slot !== "number" || slot < 1 || slot > 3 || !inSlot(key, secondary.style, slot)
+      );
+    })
+  )
+    throw invalid("secondary_runes");
+  if (alternative && !inSlot(alternative.keystone, alternative.style, 0))
+    throw invalid("alternative_runes");
+}
+
+export function validateCoachSummoners(
+  summonersValue: CoachPlan["build"]["summoners"],
+  catalog: Catalog,
+): void {
+  const spells = new Set(catalog.summoners.map((spell) => spell.id));
+  for (const pick of [summonersValue.pick, summonersValue.alternative?.pick]) {
+    if (pick && (new Set(pick).size !== 2 || pick.some((id) => !spells.has(id))))
+      throw invalid("summoner_spells");
+  }
+}
+
+export function validateCoachSkillOrder(
+  skillOrderValue: CoachPlan["build"]["skillOrder"],
+  context?: Pick<CoachInput, "champion">,
+): void {
+  const { first6, max } = skillOrderValue;
+  if (context?.champion === "Aphelios") {
+    const attributes = max.split(/\s*(?:→|>)\s*/);
+    if (
+      !first6.every((rank) => rank === null) ||
+      attributes.length !== 3 ||
+      new Set(attributes).size !== 3 ||
+      attributes.some((attribute) => !["AD", "AS", "Letalidad"].includes(attribute))
+    )
+      throw invalid("skill_order");
+  } else {
+    const priority = max.split(/\s*(?:→|>)\s*/);
+    const basicSkills = context?.champion === "Udyr" ? ["Q", "W", "E", "R"] : ["Q", "W", "E"];
+    if (
+      first6.some((rank) => rank === null) ||
+      priority.length !== 3 ||
+      new Set(priority).size !== 3 ||
+      priority.some((rank) => !basicSkills.includes(rank))
+    )
+      throw invalid("skill_order");
+    const ranks = { Q: 0, W: 0, E: 0, R: 0 };
+    first6.forEach((rank, index) => {
+      if (!rank) throw invalid("skill_order");
+      ranks[rank]++;
+      const level = index + 1;
+      if (rank === "R" && context?.champion !== "Udyr") {
+        // Jayce transforms automatically; Nidalee and Elise can upgrade R at level 6.
+        if (context?.champion === "Jayce" || level < 6 || ranks.R > 1) throw invalid("skill_order");
+      } else if (ranks[rank] > Math.ceil(level / 2)) throw invalid("skill_order");
+    });
   }
 }
 
@@ -407,75 +496,9 @@ export function sanitizeCoachPlan(
   });
   if (new Set(plan.enemyKeys.map((entry) => entry.key)).size !== plan.enemyKeys.length)
     throw invalid("enemy_keys");
-  const styles = new Map(catalog.runeStyles.map((style) => [style.key, style]));
-  const runes = new Map(catalog.runes.map((rune) => [rune.key, rune]));
-  const inSlot = (key: string, style: string, slot: number) =>
-    runes.get(key)?.style === style &&
-    runes.get(key)?.slot === slot &&
-    Boolean(styles.get(style)?.slots[slot]?.includes(key));
-  const { primary, secondary, alternative } = plan.build.runes;
-  if (
-    !styles.has(primary.style) ||
-    !styles.has(secondary.style) ||
-    primary.style === secondary.style ||
-    !inSlot(primary.keystone, primary.style, 0) ||
-    primary.minors.some((key, index) => !inSlot(key, primary.style, index + 1))
-  )
-    throw invalid(
-      styles.has(primary.style) &&
-        (!styles.has(secondary.style) || primary.style === secondary.style)
-        ? "secondary_runes"
-        : "primary_runes",
-    );
-  const secondarySlots = secondary.minors.map((key) => runes.get(key)?.slot);
-  if (
-    new Set(secondarySlots).size !== 2 ||
-    secondary.minors.some((key, index) => {
-      const slot = secondarySlots[index];
-      return (
-        typeof slot !== "number" || slot < 1 || slot > 3 || !inSlot(key, secondary.style, slot)
-      );
-    })
-  )
-    throw invalid("secondary_runes");
-  if (alternative && !inSlot(alternative.keystone, alternative.style, 0))
-    throw invalid("alternative_runes");
-  const spells = new Set(catalog.summoners.map((spell) => spell.id));
-  for (const pick of [plan.build.summoners.pick, plan.build.summoners.alternative?.pick]) {
-    if (pick && (new Set(pick).size !== 2 || pick.some((id) => !spells.has(id))))
-      throw invalid("summoner_spells");
-  }
-  const { first6, max } = plan.build.skillOrder;
-  if (context?.champion === "Aphelios") {
-    const attributes = max.split(/\s*(?:→|>)\s*/);
-    if (
-      !first6.every((rank) => rank === null) ||
-      attributes.length !== 3 ||
-      new Set(attributes).size !== 3 ||
-      attributes.some((attribute) => !["AD", "AS", "Letalidad"].includes(attribute))
-    )
-      throw invalid("skill_order");
-  } else {
-    const priority = max.split(/\s*(?:→|>)\s*/);
-    const basicSkills = context?.champion === "Udyr" ? ["Q", "W", "E", "R"] : ["Q", "W", "E"];
-    if (
-      first6.some((rank) => rank === null) ||
-      priority.length !== 3 ||
-      new Set(priority).size !== 3 ||
-      priority.some((rank) => !basicSkills.includes(rank))
-    )
-      throw invalid("skill_order");
-    const ranks = { Q: 0, W: 0, E: 0, R: 0 };
-    first6.forEach((rank, index) => {
-      if (!rank) throw invalid("skill_order");
-      ranks[rank]++;
-      const level = index + 1;
-      if (rank === "R" && context?.champion !== "Udyr") {
-        // Jayce transforms automatically; Nidalee and Elise can upgrade R at level 6.
-        if (context?.champion === "Jayce" || level < 6 || ranks.R > 1) throw invalid("skill_order");
-      } else if (ranks[rank] > Math.ceil(level / 2)) throw invalid("skill_order");
-    });
-  }
+  validateCoachRunes(plan.build.runes, catalog);
+  validateCoachSummoners(plan.build.summoners, catalog);
+  validateCoachSkillOrder(plan.build.skillOrder, context);
   const itemIds = new Set(catalog.items.map((item) => item.id));
   const warnings: string[] = [];
   const keep = (id: string) => {

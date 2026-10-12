@@ -158,9 +158,41 @@ export interface LegacyCoachResult extends Omit<CoachResult, "plan" | "meta"> {
   plan: LegacyCoachPlan;
   meta: Omit<CoachResult["meta"], "formatVersion"> & { formatVersion: 1 };
 }
-export type SavedCoachResult = CoachResult | LegacyCoachResult;
+export type CoachSection =
+  | "summary"
+  | "levels"
+  | "mid"
+  | "late"
+  | "reactions"
+  | "avoid"
+  | "enemyKeys"
+  | "composition"
+  | "compNotes"
+  | "items"
+  | "runes"
+  | "summoners"
+  | "skillOrder"
+  | "macro";
+/** Only validated advice is present. Missing fields never stand in for generated advice. */
+export interface PartialCoachPlan extends Omit<CoachPlan, "build" | "avoid"> {
+  avoid: Partial<Record<GamePhase, string>>;
+  build: Omit<CoachPlan["build"], "runes" | "summoners" | "skillOrder"> &
+    Partial<Pick<CoachPlan["build"], "runes" | "summoners" | "skillOrder">>;
+}
+export interface PartialCoachResult extends Omit<CoachResult, "plan" | "meta"> {
+  plan: PartialCoachPlan;
+  meta: Omit<CoachResult["meta"], "formatVersion"> & {
+    formatVersion: 3;
+    partial: { missing: CoachSection[]; reason: "validation" | "truncated"; categories: string[] };
+  };
+}
+export type GeneratedCoachResult = CoachResult | PartialCoachResult;
+export type SavedCoachResult = GeneratedCoachResult | LegacyCoachResult;
+export function isPartialCoachResult(result: SavedCoachResult): result is PartialCoachResult {
+  return result.meta.formatVersion === 3;
+}
 export function isCurrentCoachResult(result: SavedCoachResult): result is CoachResult {
-  return "phases" in result.plan;
+  return result.meta.formatVersion !== 3 && "phases" in result.plan;
 }
 export interface DraftInput extends Credentials {
   text?: string;

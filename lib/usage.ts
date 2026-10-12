@@ -9,7 +9,7 @@ import {
 import { getDb } from "./db";
 import { ApiError } from "./http";
 import { safeNotesForStorage } from "./coach-safety";
-import type { CoachInput, CoachResult, DraftResult } from "./types";
+import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
 export const DEFAULT_MODEL = GEMINI_PRO_MODEL;
@@ -381,14 +381,14 @@ export async function observeUsage(id: string, usage: ProviderUsage) {
   });
 }
 type GenerationOutcome = {
-  response?: CoachResult | DraftResult;
+  response?: GeneratedCoachResult | DraftResult;
   error?: { status: number; message: string };
   recordInput?: ReturnType<typeof safeCoachInput>;
 };
 
 async function saveCoachRecord(tx: Tx, row: AiRequest, outcome: GenerationOutcome) {
   if (outcome.recordInput && outcome.response && "plan" in outcome.response) {
-    const result = outcome.response as CoachResult;
+    const result = outcome.response as GeneratedCoachResult;
     await tx.coachRecord.upsert({
       where: { requestId: row.id },
       update: {},
@@ -398,6 +398,7 @@ async function saveCoachRecord(tx: Tx, row: AiRequest, outcome: GenerationOutcom
         input: outcome.recordInput,
         plan: result.plan as unknown as Prisma.InputJsonValue,
         meta: result.meta as unknown as Prisma.InputJsonValue,
+        formatVersion: result.meta.formatVersion || 2,
       },
     });
   }
@@ -519,8 +520,8 @@ export async function recoverAbandonedGenerations(userId: string, now = new Date
     return { voided, uncertain };
   });
 }
-export function replayResponse(row: AiRequest): CoachResult | DraftResult {
-  if (row.response) return row.response as unknown as CoachResult | DraftResult;
+export function replayResponse(row: AiRequest): GeneratedCoachResult | DraftResult {
+  if (row.response) return row.response as unknown as GeneratedCoachResult | DraftResult;
   if (row.failureStatus && row.failureMessage)
     throw new ApiError(row.failureStatus, row.failureMessage);
   throw new ApiError(

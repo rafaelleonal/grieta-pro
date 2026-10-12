@@ -164,26 +164,35 @@ test("Gemini transport hints never weaken strict application validation or expos
   assert.ok(!JSON.stringify(actual).includes("synthetic-private-reasoning"));
   const invalidChampion = structuredClone(fixturePlan);
   invalidChampion.composition[0].champion = "Ahri-invalid";
-  for (const invalid of [
-    invalidChampion,
-    { ...fixturePlan, modelInstructions: null },
-    { ...fixturePlan, headline: "a".repeat(101) },
-  ]) {
+  for (const invalid of [invalidChampion, { ...fixturePlan, headline: "a".repeat(101) }]) {
     let sends = 0;
-    await assert.rejects(
-      generateCoach(
-        input,
-        fixtureCatalog,
-        undefined,
-        async () => {
-          sends++;
-          return response(invalid);
-        },
-        undefined,
-        execution(),
-      ),
-      isRejected,
+    const recovered = await generateCoach(
+      input,
+      fixtureCatalog,
+      undefined,
+      async () => {
+        sends++;
+        return response(invalid);
+      },
+      undefined,
+      execution(),
     );
+    assert.equal(recovered.meta.formatVersion, 3);
+    assert.equal(recovered.plan.levels.length, 6);
+    assert.ok(!JSON.stringify(recovered).includes("Ahri-invalid"));
+    assert.ok(!JSON.stringify(recovered).includes("synthetic-private-reasoning"));
+    assert.ok(recovered.plan.headline.length <= 100);
     assert.equal(sends, 1);
   }
+  await assert.rejects(
+    generateCoach(
+      input,
+      fixtureCatalog,
+      undefined,
+      async () => response({ ...fixturePlan, modelInstructions: null }),
+      undefined,
+      execution(),
+    ),
+    isRejected,
+  );
 });

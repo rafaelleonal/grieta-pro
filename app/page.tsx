@@ -64,7 +64,7 @@ import type {
   AppStatus,
   Catalog,
   CoachInput,
-  CoachResult,
+  GeneratedCoachResult,
   Credentials,
   DraftResult,
   RiotResult,
@@ -777,7 +777,7 @@ export default function Home() {
         return;
       }
       if (!ensureCredentials("coach", Boolean(intent.attempt?.hasResponse))) return;
-      const next = await api<CoachResult>("/api/coach", body, abort.signal, key);
+      const next = await api<GeneratedCoachResult>("/api/coach", body, abort.signal, key);
       if (abort.signal.aborted) return;
       generationIntents.current.complete(key);
       setResult(next);

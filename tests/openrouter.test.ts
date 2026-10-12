@@ -156,7 +156,7 @@ test("builds one bounded structured request with current context and credentials
   assert.ok(!JSON.stringify(actual).includes("private-personal-key"));
 });
 
-test("rune alternatives use the current catalog pair map and invalid pairs remain rejected", async () => {
+test("invalid rune alternatives are omitted while valid tactical advice survives", async () => {
   const valid = structuredClone(plan);
   valid.build.runes.alternative = {
     style: "Sorcery",
@@ -175,14 +175,14 @@ test("rune alternatives use the current catalog pair map and invalid pairs remai
     assertCompatibleTransportSchema(body.response_format.json_schema.schema);
     return provider(valid);
   });
-  assert.equal(actual.plan.build.runes.alternative?.keystone, "SummonAery");
+  assert.equal(actual.plan.build.runes?.alternative?.keystone, "SummonAery");
   for (const keystone of ["Aery", "Electrocute"]) {
     const invalid = structuredClone(valid);
     invalid.build.runes.alternative!.keystone = keystone;
-    await assert.rejects(
-      generateCoach(input, catalog, undefined, async () => provider(invalid)),
-      isStatus(502),
-    );
+    const recovered = await generateCoach(input, catalog, undefined, async () => provider(invalid));
+    assert.equal(recovered.meta.formatVersion, 3);
+    assert.equal(recovered.plan.build.runes, undefined);
+    assert.deepEqual(recovered.plan.levels, valid.levels);
   }
 });
 
@@ -322,10 +322,12 @@ test("both summoner pairs are constrained to current IDs and repeated IDs still 
   ] as const) {
     const invalid = structuredClone(valid);
     invalid.build.summoners.pick = [...pick];
-    await assert.rejects(
-      generateCoach(input, currentCatalog, undefined, async () => provider(invalid)),
-      isStatus(502),
+    const recovered = await generateCoach(input, currentCatalog, undefined, async () =>
+      provider(invalid),
     );
+    assert.equal(recovered.meta.formatVersion, 3);
+    assert.equal(recovered.plan.build.summoners, undefined);
+    assert.deepEqual(recovered.plan.levels, valid.levels);
   }
   let calls = 0;
   await assert.rejects(
@@ -915,12 +917,14 @@ test("provider schema preserves strict objects, nullable fields and bounded arra
     return provider(nullable);
   });
   assert.equal(result.plan.levels[0].skill, undefined);
-  assert.equal(result.plan.build.runes.alternative, undefined);
+  assert.equal(result.plan.build.runes?.alternative, undefined);
   assert.equal(result.plan.composition[0].mark, undefined);
-  await assert.rejects(
-    generateCoach(input, catalog, undefined, async () => provider({ ...nullable, phases: null })),
-    isStatus(502),
+  const missingPhases = await generateCoach(input, catalog, undefined, async () =>
+    provider({ ...nullable, phases: null }),
   );
+  assert.equal(missingPhases.meta.formatVersion, 3);
+  assert.deepEqual(missingPhases.plan.phases, { mid: [], late: [] });
+  assert.equal(missingPhases.plan.levels.length, 6);
   await assert.rejects(
     generateCoach(input, catalog, undefined, async () =>
       provider({ ...nullable, unknownInstruction: null }),
@@ -951,11 +955,24 @@ test("transport guidance never replaces final string and array validation", asyn
       },
     },
   ];
-  for (const invalidPlan of invalidPlans)
-    await assert.rejects(
-      generateCoach(input, catalog, undefined, async () => provider(invalidPlan)),
-      isStatus(502),
+  for (const invalidPlan of invalidPlans) {
+    const recovered = await generateCoach(input, catalog, undefined, async () =>
+      provider(invalidPlan),
     );
+    assert.equal(recovered.meta.formatVersion, 3);
+    assert.ok(recovered.plan.headline.length <= 100);
+    assert.ok(recovered.plan.winCondition.length <= 240);
+    assert.ok(recovered.plan.levels.length <= 6);
+    assert.equal(
+      new Set(recovered.plan.levels.map((row) => row.level)).size,
+      recovered.plan.levels.length,
+    );
+    assert.ok(
+      recovered.plan.build.summoners === undefined ||
+        recovered.plan.build.summoners.pick.length === 2,
+    );
+    assert.deepEqual(recovered.plan.reactions, plan.reactions);
+  }
 });
 
 test("draft transport is compatible while oversized output and excessive warnings remain rejected", async () => {

@@ -5,6 +5,7 @@ import type {
   Catalog,
   CoachInput,
   CoachResult,
+  GeneratedCoachResult,
   Credentials,
   DraftInput,
   DraftResult,
@@ -20,7 +21,10 @@ import {
   validateCoachInput,
   validateDraftInput,
   CoachPlanValidationError,
+  assertSafeOutput,
 } from "./validation";
+import { recoverCoachPlan } from "./coach-recovery";
+import { COACH_SECTION_LABELS } from "./coach-sections";
 import {
   DEFAULT_MODEL,
   GEMINI_PRO_MODEL,
@@ -55,6 +59,9 @@ const SOURCE_DOMAINS = ["u.gg", "lolalytics.com", "leagueoflegends.com", "op.gg"
 const MAX_PROVIDER_BYTES = 128_000;
 const coachCompletionSchema = z
   .object({ decision: z.enum(["coach", "refuse"]), plan: coachPlanSchema.nullable() })
+  .strict();
+const coachEnvelopeSchema = z
+  .object({ decision: z.enum(["coach", "refuse"]), plan: z.unknown() })
   .strict();
 /** Constrain resource IDs before decoding; semantic checks still validate every completed plan. */
 function coachSchemaForCatalog(catalog: Catalog) {
@@ -473,6 +480,7 @@ async function structuredCompletion(
   model: string;
   sources: Source[];
   diagnoseResult: (category: "refusal" | "output_validation", validationCategory?: string) => void;
+  truncated: boolean;
 }> {
   const { apiKey, model } = options.execution || resolveCredentials(options.credentials);
   const policy: ModelPolicy | undefined =
@@ -676,7 +684,8 @@ async function structuredCompletion(
   const toolCalls = choice?.message?.tool_calls;
   const hasToolCall = toolCalls != null && (!Array.isArray(toolCalls) || toolCalls.length > 0);
   if (
-    choice?.finish_reason !== "stop" ||
+    (choice?.finish_reason !== "stop" &&
+      !(choice?.finish_reason === "length" && options.schemaName === "league_coach_plan")) ||
     typeof choice?.message?.content !== "string" ||
     hasToolCall ||
     choice?.message?.function_call != null
@@ -696,6 +705,8 @@ async function structuredCompletion(
     );
   }
   let json: unknown;
+  if (choice.finish_reason === "length")
+    diagnose("incomplete", "max_tokens_exceeded", response.status);
   try {
     json = JSON.parse(choice.message.content);
   } catch {
@@ -722,6 +733,7 @@ async function structuredCompletion(
     json: omitOptionalNulls(json, applicationSchema),
     model,
     sources,
+    truncated: choice.finish_reason === "length",
     diagnoseResult: (category, validationCategory) =>
       diagnose(
         category === "refusal" ? "refusal" : "output_rejected",
@@ -743,7 +755,7 @@ export async function generateCoach(
   fetcher: Fetcher = fetch,
   signal?: AbortSignal,
   execution?: ProviderExecution,
-): Promise<CoachResult> {
+): Promise<GeneratedCoachResult> {
   input = validateCoachInput(input, catalog);
   const name = (id: string) => catalog.champions.find((champion) => champion.id === id)?.name || id;
   const context = {
@@ -808,11 +820,11 @@ export async function generateCoach(
     },
     fetcher,
   );
-  const evaluated = coachCompletionSchema.safeParse(completion.json);
+  const evaluated = coachEnvelopeSchema.safeParse(completion.json);
   if (
     !evaluated.success ||
     (evaluated.data.decision === "refuse" && evaluated.data.plan !== null) ||
-    (evaluated.data.decision === "coach" && evaluated.data.plan === null)
+    (evaluated.data.decision === "coach" && !evaluated.data.plan)
   ) {
     completion.diagnoseResult("output_validation");
     throw new ApiError(
@@ -824,7 +836,8 @@ export async function generateCoach(
     completion.diagnoseResult("refusal");
     throw new ApiError(400, SCOPE_ERROR);
   }
-  let sanitized: ReturnType<typeof sanitizeCoachPlan>;
+  let sanitized: { plan: GeneratedCoachResult["plan"]; warnings: string[] };
+  let partial: ReturnType<typeof recoverCoachPlan> | undefined;
   try {
     sanitized = sanitizeCoachPlan(evaluated.data.plan, catalog, input);
   } catch (error) {
@@ -832,7 +845,9 @@ export async function generateCoach(
       "output_validation",
       error instanceof CoachPlanValidationError ? error.category : undefined,
     );
-    throw error;
+    if (!(error instanceof CoachPlanValidationError)) throw error;
+    partial = recoverCoachPlan(evaluated.data.plan, catalog, input);
+    sanitized = { plan: partial.plan, warnings: [] };
   }
   // Exact names and base rank-one cooldowns come from Riot, never model prose.
   // Passive and Q3 timings depend on conditions, so they remain explicit uncertainty.
@@ -856,7 +871,8 @@ export async function generateCoach(
   });
   // Riot content is external data too; validate after enriching display fields.
   try {
-    sanitized.plan = sanitizeCoachPlan(sanitized.plan, catalog, input).plan;
+    if (partial) assertSafeOutput(sanitized.plan);
+    else sanitized.plan = sanitizeCoachPlan(sanitized.plan, catalog, input).plan;
   } catch (error) {
     completion.diagnoseResult(
       "output_validation",
@@ -865,6 +881,14 @@ export async function generateCoach(
     throw error;
   }
   const warnings = [...sanitized.warnings];
+  if (partial)
+    warnings.unshift(
+      `Plan parcial: se omitieron datos que no pudimos validar en ${partial.missing.map((section) => COACH_SECTION_LABELS[section]).join(", ")}. Las secciones visibles sí pasaron los controles de formato, catálogo y contexto; su calidad táctica aún puede variar.`,
+    );
+  if (completion.truncated)
+    warnings.unshift(
+      "La respuesta alcanzó el límite de salida. Se conservaron únicamente datos completos y validados, sin otra consulta a la IA.",
+    );
   if (catalog.source === "snapshot")
     warnings.push(
       `Riot no respondió: se usó el catálogo guardado Data Dragon ${catalog.version}. Puede haber cambios posteriores.`,
@@ -883,19 +907,29 @@ export async function generateCoach(
     warnings.push(
       "Las fuentes sirven para contrastar el consejo; no se verificaron winrates, muestra y parche de una build óptima.",
     );
-  return {
-    plan: sanitized.plan,
-    meta: {
-      formatVersion: 2,
-      version: catalog.version,
-      catalogSource: catalog.source,
-      model: completion.model,
-      webSearchRequested: input.webSearch,
-      sources: completion.sources,
-      generatedAt: new Date().toISOString(),
-      warnings,
-    },
+  const meta = {
+    version: catalog.version,
+    catalogSource: catalog.source,
+    model: completion.model,
+    webSearchRequested: input.webSearch,
+    sources: completion.sources,
+    generatedAt: new Date().toISOString(),
+    warnings,
   };
+  if (partial || completion.truncated)
+    return {
+      plan: sanitized.plan,
+      meta: {
+        ...meta,
+        formatVersion: 3,
+        partial: {
+          missing: partial?.missing || [],
+          categories: partial?.categories || [],
+          reason: completion.truncated ? "truncated" : "validation",
+        },
+      },
+    };
+  return { plan: sanitized.plan as CoachResult["plan"], meta: { ...meta, formatVersion: 2 } };
 }
 
 export async function extractDraft(

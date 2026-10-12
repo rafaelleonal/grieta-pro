@@ -6,6 +6,10 @@ El coaching combina hechos comprobables y decisiones contextuales. Una habilidad
 
 ## Qué acredita hoy la aplicación
 
+La disponibilidad del resultado se evalúa por separado de su calidad táctica. Un campo mal formado o una página de runas inválida no debe borrar consejos independientes que sí pasan sus controles. Desde el 12 de octubre, la recuperación por secciones conserva exclusivamente campos completos con esquemas estrictos, referencias al contexto y recursos válidos. Un resultado parcial usa `formatVersion: 3`, identifica las secciones omitidas y conserva códigos de diagnóstico finitos en sus metadatos e historial. No rellena consejos ausentes ni hace otra llamada de IA.
+
+El análisis de seguridad abarca la respuesta completa antes de omitir campos: filtraciones, contenido fuera de LoL, instrucciones inseguras, negativas y llamadas a herramientas inesperadas impiden mostrar el plan. Una respuesta con límite de salida sólo se conserva si todavía es JSON íntegro y validable; un JSON cortado, una respuesta vacía o un fallo de red no permiten inventar el contenido perdido. Los costes conocidos y las reservas inciertas mantienen su tratamiento habitual.
+
 [`sanitizeCoachPlan`](../lib/validation.ts) comprueba estructura, niveles 1–6, composición y referencias, runas, hechizos y rangos legales, con excepciones para campeones como Aphelios, Udyr y Jayce. Los objetos desconocidos se omiten con advertencia. Eso evita varias incoherencias; no demuestra que una build sea óptima ni que una reacción mecánica sea correcta.
 
 [`generateCoach`](../lib/openrouter.ts) proporciona catálogo, habilidades disponibles, rol, rango, composición y contexto permitido. El servidor sustituye los nombres y tiempos de `enemyKeys` por los datos de Riot cuando existen; los tiempos no confirmados o condicionales se identifican como tales. El texto libre todavía requiere revisión: una mecánica equivocada puede aparecer en un consejo aunque los IDs y el JSON sean válidos.

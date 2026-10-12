@@ -402,19 +402,23 @@ test("schema and catalog output rejection each emit one fixed validation diagnos
     { ...fixturePlan, build: { ...fixturePlan.build, starting: ["99999999"] } },
   ]) {
     const events = await captureDiagnostics(async () => {
-      await assert.rejects(
-        generateCoach(input, fixtureCatalog, undefined, async () =>
-          Response.json({
-            choices: [
-              {
-                finish_reason: "stop",
-                message: { content: JSON.stringify({ decision: "coach", plan }) },
-              },
-            ],
-          }),
-        ),
-        ApiError,
+      const work = generateCoach(input, fixtureCatalog, undefined, async () =>
+        Response.json({
+          choices: [
+            {
+              finish_reason: "stop",
+              message: { content: JSON.stringify({ decision: "coach", plan }) },
+            },
+          ],
+        }),
       );
+      if ("unknownField" in plan) await assert.rejects(work, ApiError);
+      else {
+        const recovered = await work;
+        assert.equal(recovered.meta.formatVersion, 3);
+        assert.deepEqual(recovered.plan.build.starting, []);
+        assert.deepEqual(recovered.plan.levels, fixturePlan.levels);
+      }
     });
     assert.equal(events.length, 1);
     assertFixedEvent(events[0]);
@@ -471,38 +475,38 @@ test("semantic plan rejection logs its finite rule once while preserving observe
   const plan = structuredClone(fixturePlan);
   plan.build.skillOrder.first6 = ["Q", "R", "E", "W", "Q", "R"];
   const events = await captureDiagnostics(async () => {
-    await assert.rejects(
-      generateCoach(
-        input,
-        fixtureCatalog,
-        undefined,
-        async () => {
-          calls++;
-          return Response.json({
-            choices: [
-              {
-                finish_reason: "stop",
-                message: {
-                  content: JSON.stringify({ decision: "coach", plan }),
-                },
+    const recovered = await generateCoach(
+      input,
+      fixtureCatalog,
+      undefined,
+      async () => {
+        calls++;
+        return Response.json({
+          choices: [
+            {
+              finish_reason: "stop",
+              message: {
+                content: JSON.stringify({ decision: "coach", plan }),
               },
-            ],
-            usage: { prompt_tokens: 500, completion_tokens: 300, cost: 0.001 },
-          });
+            },
+          ],
+          usage: { prompt_tokens: 500, completion_tokens: 300, cost: 0.001 },
+        });
+      },
+      undefined,
+      {
+        apiKey: key,
+        model: DEFAULT_MODEL,
+        policy: { prompt: 0.2, completion: 1.2, reasoning: false },
+        onDispatch: async () => {},
+        onUsage: async () => {
+          observed++;
         },
-        undefined,
-        {
-          apiKey: key,
-          model: DEFAULT_MODEL,
-          policy: { prompt: 0.2, completion: 1.2, reasoning: false },
-          onDispatch: async () => {},
-          onUsage: async () => {
-            observed++;
-          },
-        },
-      ),
-      ApiError,
+      },
     );
+    assert.equal(recovered.meta.formatVersion, 3);
+    assert.equal(recovered.plan.build.skillOrder, undefined);
+    assert.deepEqual(recovered.plan.levels, fixturePlan.levels);
   });
   assert.equal(calls, 1);
   assert.equal(observed, 1);

@@ -28,7 +28,8 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { isCurrentCoachResult } from "@/lib/types";
+import { isCurrentCoachResult, isPartialCoachResult } from "@/lib/types";
+import { COACH_SECTION_LABELS } from "@/lib/coach-sections";
 import type {
   Catalog,
   Champion,
@@ -38,6 +39,7 @@ import type {
   GamePhase,
   GameRune,
   LegacyCoachPlan,
+  PartialCoachResult,
   RuneStyle,
   SavedCoachResult,
   Step,
@@ -718,6 +720,214 @@ function LegacyScreen({ plan, maps }: { plan: LegacyCoachPlan; maps: Maps }) {
   );
 }
 
+function PartialScreen({ result, maps }: { result: PartialCoachResult; maps: Maps }) {
+  const { plan } = result;
+  const itemName = (id: string) => maps.items.get(id)?.name || id;
+  const runeName = (id: string) => maps.runes.get(id)?.name || id;
+  return (
+    <>
+      <div className="cp-partial-notice" role="status">
+        <AlertTriangle size={20} />
+        <div>
+          <strong>Conservamos las partes útiles del plan</strong>
+          <p>
+            {result.meta.partial.reason === "truncated"
+              ? "La respuesta se cortó."
+              : "Algunos datos no pasaron la validación."}{" "}
+            Puedes consultar las secciones disponibles; este resultado se guarda en tu historial.
+          </p>
+          {result.meta.partial.missing.length ? (
+            <p>
+              Falta confirmar:{" "}
+              {result.meta.partial.missing.map((s) => COACH_SECTION_LABELS[s]).join(", ")}.
+            </p>
+          ) : null}
+        </div>
+      </div>
+      <div className="cp-partial-grid">
+        {plan.levels.length ? (
+          <section className="cp-card">
+            <h3>
+              <Layers size={20} />
+              Niveles 1–6
+            </h3>
+            <ol className="cp-steps">
+              {plan.levels.map((step) => (
+                <li className={`edge-${step.edge}`} key={step.level}>
+                  <span className="cp-step-number">{step.level}</span>
+                  <div>
+                    <strong>{step.cue}</strong>
+                    <p>{step.text}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ) : null}
+        {Object.values(plan.reactions).some((rows) => rows.length) ? (
+          <section className="cp-card">
+            <h3>
+              <Crosshair size={20} />
+              Cómo reaccionar
+            </h3>
+            {PHASES.map((phase) =>
+              plan.reactions[phase.id].length ? (
+                <div className="cp-partial-group" key={phase.id}>
+                  <h4>{phase.label}</h4>
+                  {plan.reactions[phase.id].map((r, i) => (
+                    <div className="cp-reaction" key={i}>
+                      <div>
+                        <strong>{r.trigger}</strong>
+                        <p>{r.response}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : null,
+            )}
+          </section>
+        ) : null}
+        {plan.phases.mid.length || plan.phases.late.length || plan.macro.length ? (
+          <section className="cp-card">
+            <h3>
+              <Flag size={20} />
+              Plan de mapa
+            </h3>
+            {(["mid", "late"] as const).map((phase) =>
+              plan.phases[phase].length ? (
+                <div className="cp-partial-group" key={phase}>
+                  <h4>{phase === "mid" ? "Mid game" : "Late game"}</h4>
+                  {plan.phases[phase].map((s, i) => (
+                    <p key={i}>
+                      <strong>{s.cue}: </strong>
+                      {s.text}
+                    </p>
+                  ))}
+                </div>
+              ) : null,
+            )}
+            {plan.macro.map((s, i) => (
+              <p key={i}>{s}</p>
+            ))}
+          </section>
+        ) : null}
+        {plan.build.starting.length || plan.build.core.length || plan.build.situational.length ? (
+          <section className="cp-card">
+            <h3>
+              <ShoppingBag size={20} />
+              Compras orientativas
+            </h3>
+            {plan.build.starting.length ? (
+              <p>
+                <strong>Inicio: </strong>
+                {plan.build.starting.map(itemName).join(", ")}
+              </p>
+            ) : null}
+            {plan.build.core.length ? (
+              <p>
+                <strong>Prioridad: </strong>
+                {plan.build.core.map(itemName).join(" → ")}
+              </p>
+            ) : null}
+            {plan.build.situational.map((item) => (
+              <p key={item.item}>
+                <strong>{itemName(item.item)}: </strong>
+                {item.reason}
+              </p>
+            ))}
+          </section>
+        ) : null}
+        {plan.build.runes ? (
+          <section className="cp-card">
+            <h3>
+              <Sparkles size={20} />
+              Runas
+            </h3>
+            <p>
+              {[plan.build.runes.primary.keystone, ...plan.build.runes.primary.minors]
+                .map(runeName)
+                .join(" · ")}
+            </p>
+            <p>{plan.build.runes.secondary.minors.map(runeName).join(" · ")}</p>
+            <p>{plan.build.runes.shards.join(" · ")}</p>
+            <p>{plan.build.runes.why}</p>
+          </section>
+        ) : null}
+        {plan.build.summoners || plan.build.skillOrder ? (
+          <section className="cp-card">
+            <h3>
+              <Zap size={20} />
+              Preparación
+            </h3>
+            {plan.build.summoners ? (
+              <>
+                <p>
+                  <strong>
+                    {plan.build.summoners.pick
+                      .map((id) => maps.summoners.get(id)?.name || id)
+                      .join(" + ")}
+                  </strong>
+                </p>
+                <p>{plan.build.summoners.why}</p>
+              </>
+            ) : null}
+            {plan.build.skillOrder ? (
+              <>
+                <p>
+                  <strong>Niveles 1–6: </strong>
+                  {plan.build.skillOrder.first6.map((s) => s || "—").join(" → ")}
+                </p>
+                <p>
+                  <strong>Prioridad: </strong>
+                  {plan.build.skillOrder.max}
+                </p>
+              </>
+            ) : null}
+          </section>
+        ) : null}
+        {plan.enemyKeys.length ? (
+          <section className="cp-card">
+            <h3>
+              <Timer size={20} />
+              Habilidades del rival
+            </h3>
+            {plan.enemyKeys.map((k) => (
+              <p key={k.key}>
+                <strong>
+                  {k.key} · {k.name} · {k.cooldown}:{" "}
+                </strong>
+                {k.note}
+              </p>
+            ))}
+          </section>
+        ) : null}
+        {Object.values(plan.avoid).length || plan.compNotes.length ? (
+          <section className="cp-card">
+            <h3>
+              <ShieldAlert size={20} />
+              Decisiones clave
+            </h3>
+            {PHASES.map((p) =>
+              plan.avoid[p.id] ? (
+                <p key={p.id}>
+                  <strong>{p.label}: </strong>
+                  {plan.avoid[p.id]}
+                </p>
+              ) : null,
+            )}
+            {plan.compNotes.map((n, i) => (
+              <p key={i}>
+                <strong>{n.title}: </strong>
+                {n.action}
+              </p>
+            ))}
+          </section>
+        ) : null}
+      </div>
+    </>
+  );
+}
+
 function planText(result: SavedCoachResult, maps: Maps, sample: boolean, input: CoachInput) {
   const names = (ids: string[]) => ids.map((id) => maps.items.get(id)?.name || id).join(", ");
   const plan = result.plan;
@@ -732,7 +942,36 @@ function planText(result: SavedCoachResult, maps: Maps, sample: boolean, input: 
     `Orden: ${names(plan.build.core)}`,
     ...plan.build.situational.map((item) => `${names([item.item])}: ${item.reason}`),
   ];
-  if (isCurrentCoachResult(result)) {
+  if (isPartialCoachResult(result)) {
+    const partial = result.plan;
+    text.unshift("PLAN PARCIAL · SÓLO SECCIONES VALIDADAS");
+    text.push(...partial.levels.map((s) => `Nivel ${s.level} · ${s.cue}: ${s.text}`));
+    for (const phase of PHASES)
+      text.push(
+        phase.label,
+        ...(phase.id === "linea" ? [] : partial.phases[phase.id].map((s) => `${s.cue}: ${s.text}`)),
+        ...partial.reactions[phase.id].map((r) => `${r.trigger}: ${r.response}`),
+        ...(partial.avoid[phase.id] ? [`Evita: ${partial.avoid[phase.id]}`] : []),
+      );
+    text.push(
+      ...partial.enemyKeys.map((k) => `${k.key} · ${k.name} · ${k.cooldown}: ${k.note}`),
+      ...partial.compNotes.map((n) => `${n.title}: ${n.action}`),
+    );
+    if (partial.build.runes)
+      text.push(
+        `Runas: ${[partial.build.runes.primary.keystone, ...partial.build.runes.primary.minors, ...partial.build.runes.secondary.minors].map((id) => maps.runes.get(id)?.name || id).join(", ")}`,
+        partial.build.runes.why,
+      );
+    if (partial.build.summoners)
+      text.push(
+        `Hechizos: ${partial.build.summoners.pick.map((id) => maps.summoners.get(id)?.name || id).join(" + ")}`,
+        partial.build.summoners.why,
+      );
+    if (partial.build.skillOrder)
+      text.push(
+        `Habilidades: ${partial.build.skillOrder.first6.map((s) => s || "—").join(" → ")} · ${partial.build.skillOrder.max}`,
+      );
+  } else if (isCurrentCoachResult(result)) {
     const current = result.plan;
     const runeName = (id: string) => maps.runes.get(id)?.name || id;
     const spellNames = (ids: string[]) =>
@@ -861,6 +1100,7 @@ function CoachView({
     [catalog],
   );
   const current = isCurrentCoachResult(result);
+  const partial = isPartialCoachResult(result);
   const champion = maps.champions.get(input.champion);
   const enemy = maps.champions.get(input.enemy);
   const sources = result.meta.sources.filter((source) => safeUrl(source.url));
@@ -967,7 +1207,7 @@ function CoachView({
               ))}
             </div>
           ) : (
-            <span className="cp-legacy-label">Plan guardado</span>
+            <span className="cp-legacy-label">{partial ? "Plan parcial" : "Plan guardado"}</span>
           )}
           <div className="cp-matchup">
             <Portrait champion={champion} size={30} />
@@ -1076,7 +1316,9 @@ function CoachView({
           <Composition input={input} plan={current ? result.plan : undefined} maps={maps} />
         </div>
       </header>
-      {current ? (
+      {isPartialCoachResult(result) ? (
+        <PartialScreen result={result} maps={maps} />
+      ) : current ? (
         <>
           <div
             className="cp-screen-body"

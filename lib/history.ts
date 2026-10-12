@@ -8,7 +8,13 @@ function publicRecord(row: CoachRecord) {
   return {
     id: row.id,
     input: row.input,
-    result: { plan: row.plan, meta: { ...meta, formatVersion: current ? 2 : 1 } },
+    result: {
+      plan: row.plan,
+      meta: {
+        ...meta,
+        formatVersion: "formatVersion" in meta && meta.formatVersion === 3 ? 3 : current ? 2 : 1,
+      },
+    },
     createdAt: row.createdAt.toISOString(),
   };
 }

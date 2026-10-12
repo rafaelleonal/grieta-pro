@@ -1,4 +1,4 @@
-import type { CoachInput, CoachResult, DraftResult } from "./types";
+import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 import { ApiError } from "./http";
 import { requireVerifiedUser } from "./auth-session";
 import type { ProviderExecution } from "./openrouter";
@@ -16,7 +16,7 @@ import {
   safeCoachInput,
 } from "./usage";
 
-export async function runGeneration<T extends CoachResult | DraftResult>(
+export async function runGeneration<T extends GeneratedCoachResult | DraftResult>(
   request: Request,
   args: {
     operation: "COACH" | "DRAFT";
