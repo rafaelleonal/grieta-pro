@@ -253,3 +253,43 @@ test("champion ability context requires four finite, bounded cooldown lists", as
 test("tooltips lose tags before being sent as context", () => {
   assert.equal(stripMarkup("<b>Daño</b>   <br> mágico"), "Daño mágico");
 });
+
+test("champion details expose validated ability icons without dropping odd ones", async () => {
+  const ability = (name: string, full: string) => ({
+    name,
+    description: `<b>${name}</b> daño`,
+    image: { full },
+    cooldown: [8, 7],
+  });
+  globalThis.fetch = async () =>
+    Response.json({
+      data: {
+        Darius: {
+          name: "Darius",
+          passive: {
+            name: "Hemorragia",
+            description: "Sangra",
+            image: { full: "Darius_Icon.png" },
+          },
+          spells: [
+            ability("Diezmar", "DariusCleave.png"),
+            ability("Golpe", "DariusW.png"),
+            ability("Aprehender", "../../evil.png"),
+            ability("Guillotina", "DariusExecute.png"),
+          ],
+        },
+      },
+    });
+  const details = await getChampionDetails("Darius", {
+    ...(snapshot as Parameters<typeof getChampionDetails>[1]),
+    source: "live",
+  });
+  assert.ok(details);
+  const base = `https://ddragon.leagueoflegends.com/cdn/${snapshot.version}/img`;
+  assert.equal(details.passive.image, `${base}/passive/Darius_Icon.png`);
+  assert.equal(details.spells[0].image, `${base}/spell/DariusCleave.png`);
+  // An unexpected file name only drops the icon; the ability data survives.
+  assert.equal(details.spells[2].image, undefined);
+  assert.equal(details.spells[2].name, "Aprehender");
+  assert.equal(details.spells[2].description, "Aprehender daño");
+});

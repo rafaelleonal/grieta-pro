@@ -1,7 +1,8 @@
 import { getCatalog, getChampionDetails } from "@/lib/catalog";
 
 /** Public Riot data for one champion: ability names, text, base cooldowns and icons. */
-export async function GET(_request: Request, context: RouteContext<"/api/catalog/champion/[id]">) {
+// Explicit params type: the generated RouteContext helper is absent when tsc runs before Next.
+export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   const catalog = await getCatalog();
   // getChampionDetails validates the ID against the catalog and the live version.
