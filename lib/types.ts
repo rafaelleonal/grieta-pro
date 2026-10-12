@@ -92,7 +92,13 @@ export interface Reaction {
   response: string;
   champions: string[];
 }
+export interface CoachBrief {
+  priority?: string;
+  window?: { trigger: string; response: string };
+  avoid?: string;
+}
 export interface CoachPlan {
+  brief?: CoachBrief;
   headline: string;
   difficulty: string;
   winCondition: string;
@@ -183,7 +189,12 @@ export interface PartialCoachResult extends Omit<CoachResult, "plan" | "meta"> {
   plan: PartialCoachPlan;
   meta: Omit<CoachResult["meta"], "formatVersion"> & {
     formatVersion: 3;
-    partial: { missing: CoachSection[]; reason: "validation" | "truncated"; categories: string[] };
+    partial: {
+      missing: CoachSection[];
+      invalid?: CoachSection[];
+      reason: "validation" | "truncated" | "optional";
+      categories: string[];
+    };
   };
 }
 export type GeneratedCoachResult = CoachResult | PartialCoachResult;

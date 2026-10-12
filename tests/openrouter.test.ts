@@ -303,12 +303,15 @@ test("both summoner pairs are constrained to current IDs and repeated IDs still 
     const planBranch = schema.properties.plan.anyOf.find(
       (branch: Record<string, unknown>) => branch.type === "object",
     );
-    const summoners = planBranch.properties.build.properties.summoners;
-    const alternative = summoners.properties.alternative.anyOf.find(
+    const build = planBranch.properties.build.anyOf.find(
       (branch: Record<string, unknown>) => branch.type === "object",
     );
+    const summoners = build.properties.summoners.anyOf.find(
+      (branch: Record<string, unknown>) => branch.type === "object",
+    );
+    assert.equal(summoners.properties.alternative, undefined);
     const expected = currentCatalog.summoners.map(({ id }) => id);
-    for (const pair of [summoners.properties.pick, alternative.properties.pick]) {
+    for (const pair of [summoners.properties.pick]) {
       assert.deepEqual(pair.items.enum, expected);
       assert.equal(pair.items.type, "string");
       assert.ok(!pair.items.enum.includes("Flash"));
@@ -798,9 +801,10 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
       );
       assertCompatibleTransportSchema(body.response_format.json_schema.schema);
       assert.match(
-        body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.levels
-          .description,
-        /Cantidad exacta: 6 elementos/,
+        body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.levels.anyOf.find(
+          (branch: Record<string, unknown>) => branch.type === "array",
+        ).description,
+        /Como máximo 6 elementos/,
       );
       return provider(fixturePlan, []);
     },
@@ -895,24 +899,23 @@ test("provider schema preserves strict objects, nullable fields and bounded arra
     const body = JSON.parse(String(init?.body));
     const schema = body.response_format.json_schema.schema;
     assertCompatibleTransportSchema(schema);
-    assert.match(
-      schema.properties.plan.anyOf[0].properties.build.properties.summoners.properties.pick
-        .description,
-      /Cantidad exacta: 2 elementos/,
+    const planBranch = schema.properties.plan.anyOf[0];
+    const build = planBranch.properties.build.anyOf.find(
+      (branch: Record<string, unknown>) => branch.type === "object",
     );
-    assert.equal(
-      schema.properties.plan.anyOf[0].properties.composition.items.properties.champion.pattern,
-      undefined,
+    const summoners = build.properties.summoners.anyOf.find(
+      (branch: Record<string, unknown>) => branch.type === "object",
     );
-    assert.match(
-      schema.properties.plan.anyOf[0].properties.composition.items.properties.champion.description,
-      /Patrón permitido:/,
-    );
+    assert.match(summoners.properties.pick.description, /Cantidad exacta: 2 elementos/);
     assert.deepEqual(schema.properties.decision.enum, ["coach", "refuse"]);
     assert.deepEqual(schema.properties.plan.anyOf[1], { type: "null" });
+    assert.equal(planBranch.properties.composition, undefined);
+    assert.equal(planBranch.properties.headline, undefined);
+    assert.equal(planBranch.properties.phases, undefined);
+    assert.deepEqual(planBranch.properties.brief.required, ["priority", "window", "avoid"]);
     assert.match(
-      schema.properties.plan.anyOf[0].properties.headline.description,
-      /Longitud máxima en caracteres: 100/,
+      planBranch.properties.brief.properties.priority.description,
+      /Longitud máxima en caracteres: 240/,
     );
     return provider(nullable);
   });

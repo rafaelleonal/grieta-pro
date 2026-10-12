@@ -1,5 +1,6 @@
 "use client";
 
+import { CoachFailure } from "@/components/coach-failure";
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -284,6 +285,8 @@ export default function Home() {
   const [teamOpen, setTeamOpen] = useState(false);
   const [busy, setBusy] = useState<Busy>(null);
   const [error, setError] = useState("");
+  const [coachFailure, setCoachFailure] = useState(false);
+  const [recoveryChecked, setRecoveryChecked] = useState(false);
   const [notice, setNotice] = useState("");
   const [catalogError, setCatalogError] = useState("");
   const [result, setResult] = useState<SavedCoachResult | null>(null);
@@ -320,6 +323,7 @@ export default function Home() {
     promise: Promise<void>;
   } | null>(null);
   const reconciliationPolls = useRef(0);
+  const recoveryVersion = useRef(0);
   const accountOwner = account?.authenticated ? account.user?.id || null : null;
   const verifiedOwner = account?.user?.emailVerified ? accountOwner : null;
   const hasReservedRequests = Boolean(account?.usage?.pending || account?.usage?.uncertain);
@@ -484,6 +488,8 @@ export default function Home() {
     setRiot(null);
     setRiotId("");
     setError("");
+    setCoachFailure(false);
+    setRecoveryChecked(false);
     setNotice("");
     try {
       localStorage.removeItem(STORAGE_KEY);
@@ -559,6 +565,8 @@ export default function Home() {
     if (previousOwner !== undefined) {
       setModal(null);
       setError("");
+      setCoachFailure(false);
+      setRecoveryChecked(false);
       setNotice("");
     }
     let saved: CoachInput | null = null;
@@ -631,11 +639,14 @@ export default function Home() {
     setNotice("");
   }
   function begin(task: Exclude<Busy, null>) {
+    recoveryVersion.current += 1;
     controller.current?.abort();
     const abort = new AbortController();
     controller.current = abort;
     setBusy(task);
     setError("");
+    setCoachFailure(false);
+    setRecoveryChecked(false);
     setNotice("");
     return abort;
   }
@@ -720,6 +731,8 @@ export default function Home() {
     try {
       assertSafeInputText(text);
       setError("");
+      setCoachFailure(false);
+      setRecoveryChecked(false);
       return true;
     } catch (cause) {
       setNotice("");
@@ -792,6 +805,7 @@ export default function Home() {
           block: "start",
         });
     } catch (cause) {
+      if (!abort.signal.aborted && controller.current === abort) setCoachFailure(true);
       fail(cause, abort);
     } finally {
       end(abort);
@@ -809,6 +823,8 @@ export default function Home() {
     setResultInput(next);
     setSample(true);
     setError("");
+    setCoachFailure(false);
+    setRecoveryChecked(false);
     setNotice("");
     if (window.innerWidth < 651)
       resultElement.current?.scrollIntoView({
@@ -823,6 +839,8 @@ export default function Home() {
     if (!file || busy) return;
     const request = ++imageRequest.current;
     setError("");
+    setCoachFailure(false);
+    setRecoveryChecked(false);
     setDraft(null);
     setPendingImageName(file.name);
     setPreparingImage(true);
@@ -981,6 +999,8 @@ export default function Home() {
     setResultInput(null);
     setSample(false);
     setError("");
+    setCoachFailure(false);
+    setRecoveryChecked(false);
     setNotice("");
     setMode("manual");
     setDraftText("");
@@ -1170,7 +1190,7 @@ export default function Home() {
               </div>
             </div>
           ) : null}
-          {catalogError || error ? (
+          {catalogError || (error && !coachFailure) ? (
             <div className="error-alert workspace-alert" role="alert">
               <AlertCircle size={20} aria-hidden="true" />
               <div className="workspace-error-copy">
@@ -1825,15 +1845,38 @@ export default function Home() {
                   </span>
                 </div>
               ) : null}
+              {coachFailure && error && !busy ? (
+                <CoachFailure
+                  checking={checkingConsumption}
+                  checked={recoveryChecked}
+                  uncertain={hasReservedRequests}
+                  error={error}
+                  checkError={consumptionError}
+                  previousPlan={Boolean(result)}
+                  onCheck={() => {
+                    const owner = accountOwner;
+                    const version = recoveryVersion.current;
+                    void checkConsumption().then(() => {
+                      if (
+                        accountIdentity.current === owner &&
+                        recoveryVersion.current === version &&
+                        !controller.current
+                      )
+                        setRecoveryChecked(true);
+                    });
+                  }}
+                  onHistory={() => setModal("history")}
+                />
+              ) : null}
               {busy === "coach" ? (
                 <section className="panel result-panel loading-result" aria-live="polite">
                   <div className="loading-orb">
                     <Sparkles className="spin" size={21} />
                   </div>
-                  <h2>Tu coach está leyendo la partida.</h2>
+                  <h2>Preparando tus consejos…</h2>
                   <p>
-                    Analizando el matchup, las ventanas de los primeros niveles y tus opciones de
-                    build.
+                    Tu prioridad, una ventana para actuar y qué evitar. Los detalles aparecerán si
+                    están disponibles.
                   </p>
                   <div className="skeleton-lines">
                     <span />
@@ -1875,7 +1918,7 @@ export default function Home() {
                     return true;
                   }}
                 />
-              ) : (
+              ) : coachFailure ? null : (
                 <section className="panel result-panel empty-result">
                   <h2>Tu plan de partida</h2>
                   <p>Genera una guía para este matchup.</p>

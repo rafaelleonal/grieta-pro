@@ -29,7 +29,9 @@ import {
   Zap,
 } from "lucide-react";
 import { isCurrentCoachResult, isPartialCoachResult } from "@/lib/types";
+import { coachBrief, unavailableDetail } from "@/lib/coach-presentation";
 import { COACH_SECTION_LABELS } from "@/lib/coach-sections";
+import { CoachBriefView } from "./coach-brief";
 import type {
   Catalog,
   Champion,
@@ -724,27 +726,29 @@ function PartialScreen({ result, maps }: { result: PartialCoachResult; maps: Map
   const { plan } = result;
   const itemName = (id: string) => maps.items.get(id)?.name || id;
   const runeName = (id: string) => maps.runes.get(id)?.name || id;
+  const missingPreparation = (["items", "runes", "summoners", "skillOrder"] as const).filter(
+    (section) => {
+      if (section === "items")
+        return (
+          !plan.build.starting.length && !plan.build.core.length && !plan.build.situational.length
+        );
+      return !plan.build[section];
+    },
+  );
   return (
     <>
-      <div className="cp-partial-notice" role="status">
-        <AlertTriangle size={20} />
-        <div>
-          <strong>Conservamos las partes útiles del plan</strong>
-          <p>
-            {result.meta.partial.reason === "truncated"
-              ? "La respuesta se cortó."
-              : "Algunos datos no pasaron la validación."}{" "}
-            Puedes consultar las secciones disponibles; este resultado se guarda en tu historial.
-          </p>
-          {result.meta.partial.missing.length ? (
-            <p>
-              Falta confirmar:{" "}
-              {result.meta.partial.missing.map((s) => COACH_SECTION_LABELS[s]).join(", ")}.
-            </p>
-          ) : null}
-        </div>
-      </div>
       <div className="cp-partial-grid">
+        {missingPreparation.length ? (
+          <section className="cp-card cp-detail-availability">
+            <h3>Detalles de preparación</h3>
+            {missingPreparation.map((section) => (
+              <div className="cp-detail-unavailable" key={section}>
+                <strong>{COACH_SECTION_LABELS[section]}</strong>
+                <p>{unavailableDetail(result, section)}</p>
+              </div>
+            ))}
+          </section>
+        ) : null}
         {plan.levels.length ? (
           <section className="cp-card">
             <h3>
@@ -932,19 +936,24 @@ function planText(result: SavedCoachResult, maps: Maps, sample: boolean, input: 
   const names = (ids: string[]) => ids.map((id) => maps.items.get(id)?.name || id).join(", ");
   const plan = result.plan;
   const text = [
-    sample ? "EJEMPLO LOCAL · SIN IA · SIN VERIFICAR" : "PLAN DE PARTIDA",
-    plan.headline,
-    plan.winCondition,
+    sample ? "EJEMPLO LOCAL · SIN IA · SIN VERIFICAR" : "CONSEJOS DE PARTIDA",
     `${maps.champions.get(input.champion)?.name || input.champion} vs. ${maps.champions.get(input.enemy)?.name || input.enemy} · ${ROLE_LABELS[input.role]} · ${input.rank}`,
-    "BUILD ORIENTATIVA",
-    plan.build.label,
-    `Inicio: ${names(plan.build.starting)}`,
-    `Orden: ${names(plan.build.core)}`,
-    ...plan.build.situational.map((item) => `${names([item.item])}: ${item.reason}`),
   ];
+  const brief = coachBrief(result);
+  if (brief.priority) text.push(`TU PRIORIDAD: ${brief.priority}`);
+  if (brief.window) text.push(`TU VENTANA: ${brief.window.trigger} → ${brief.window.response}`);
+  if (brief.avoid) text.push(`QUÉ EVITAR: ${brief.avoid}`);
+  if (plan.build.starting.length || plan.build.core.length || plan.build.situational.length)
+    text.push(
+      "BUILD ORIENTATIVA",
+      plan.build.label,
+      `Inicio: ${names(plan.build.starting)}`,
+      `Orden: ${names(plan.build.core)}`,
+      ...plan.build.situational.map((item) => `${names([item.item])}: ${item.reason}`),
+    );
   if (isPartialCoachResult(result)) {
     const partial = result.plan;
-    text.unshift("PLAN PARCIAL · SÓLO SECCIONES VALIDADAS");
+
     text.push(...partial.levels.map((s) => `Nivel ${s.level} · ${s.cue}: ${s.text}`));
     for (const phase of PHASES)
       text.push(
@@ -1080,6 +1089,8 @@ function CoachView({
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState("");
   const [warnOpen, setWarnOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const detailsId = useId();
   const followupId = useId();
   const helpId = useId();
   const warningsId = useId();
@@ -1135,11 +1146,13 @@ function CoachView({
       if (!current) return;
       if (key === "s" || key === "p") {
         event.preventDefault();
+        setDetailsOpen(true);
         setView({ ...view, screen: key === "s" ? "select" : "game" });
       }
       const phase = PHASES.find((entry) => entry.shortcut === key);
       if (phase) {
         event.preventDefault();
+        setDetailsOpen(true);
         setView({ screen: "game", phase: phase.id });
       }
     }
@@ -1168,7 +1181,7 @@ function CoachView({
     <section className="panel result-panel coach-plan" aria-label="Tu plan de partida">
       <header className="cp-header">
         <div className="cp-toolbar">
-          {current ? (
+          {current && detailsOpen ? (
             <div
               className="cp-screen-tabs"
               role="tablist"
@@ -1207,7 +1220,13 @@ function CoachView({
               ))}
             </div>
           ) : (
-            <span className="cp-legacy-label">{partial ? "Plan parcial" : "Plan guardado"}</span>
+            <span className="cp-legacy-label">
+              {sample
+                ? "Demostración sin IA"
+                : partial || current
+                  ? "Consejos disponibles"
+                  : "Plan guardado"}
+            </span>
           )}
           <div className="cp-matchup">
             <Portrait champion={champion} size={30} />
@@ -1221,19 +1240,19 @@ function CoachView({
           </div>
           {sample || result.meta.warnings.length ? (
             <button
-              className="cp-warning-toggle"
+              className="cp-source-toggle"
               type="button"
               aria-expanded={warnOpen}
               aria-controls={warningsId}
               onClick={() => setWarnOpen(!warnOpen)}
             >
               <AlertTriangle size={13} />
-              {sample ? "Ejemplo" : "Avisos"}
+              {sample ? "Acerca del ejemplo" : "Fuentes y alcance"}
               <ChevronDown size={11} />
             </button>
           ) : null}
           <div className="cp-toolbar-right">
-            {current && view.screen === "game" ? (
+            {current && detailsOpen && view.screen === "game" ? (
               <div
                 className="cp-phase-tabs"
                 role="tablist"
@@ -1310,68 +1329,91 @@ function CoachView({
         ) : null}
         <div className="cp-heading">
           <div>
-            <h2>{result.plan.headline}</h2>
-            <p>{result.plan.winCondition}</p>
+            {sample ? (
+              <p>Demostración escrita · sin IA · sin verificar para el parche actual.</p>
+            ) : null}
+            <h2>Qué hacer en esta partida</h2>
           </div>
-          <Composition input={input} plan={current ? result.plan : undefined} maps={maps} />
         </div>
       </header>
-      {isPartialCoachResult(result) ? (
-        <PartialScreen result={result} maps={maps} />
-      ) : current ? (
-        <>
-          <div
-            className="cp-screen-body"
-            role="tabpanel"
-            id={view.screen === "select" ? selectId : gameId}
-            aria-labelledby={
-              view.screen === "select"
-                ? `${selectId}-tab`
-                : `${gameId}-tab ${gameId}-phase-${view.phase}`
-            }
-          >
-            {view.screen === "select" ? (
-              <SelectScreen
-                plan={result.plan}
-                maps={maps}
-                onGame={() => setView({ screen: "game", phase: "linea" })}
-              />
+      <CoachBriefView result={result} />
+      <div className="cp-details-action">
+        <button
+          className="cp-details-toggle"
+          type="button"
+          aria-expanded={detailsOpen}
+          aria-controls={detailsId}
+          onClick={() => setDetailsOpen(!detailsOpen)}
+        >
+          {detailsOpen ? "Ocultar detalles" : "Ver niveles, mecánicas y compras"}
+          <ChevronDown size={16} aria-hidden="true" />
+        </button>
+      </div>
+      <div id={detailsId} className="cp-details" hidden={!detailsOpen}>
+        {detailsOpen ? (
+          <>
+            <Composition input={input} plan={current ? result.plan : undefined} maps={maps} />
+            {isPartialCoachResult(result) ? (
+              <PartialScreen result={result} maps={maps} />
+            ) : current ? (
+              <>
+                <div
+                  className="cp-screen-body"
+                  role="tabpanel"
+                  id={view.screen === "select" ? selectId : gameId}
+                  aria-labelledby={
+                    view.screen === "select"
+                      ? `${selectId}-tab`
+                      : `${gameId}-tab ${gameId}-phase-${view.phase}`
+                  }
+                >
+                  {view.screen === "select" ? (
+                    <SelectScreen
+                      plan={result.plan}
+                      maps={maps}
+                      onGame={() => setView({ screen: "game", phase: "linea" })}
+                    />
+                  ) : (
+                    <GameScreen
+                      plan={result.plan}
+                      maps={maps}
+                      phase={view.phase}
+                      enemy={input.enemy}
+                      formOpen={formOpen}
+                    />
+                  )}
+                </div>
+                <div
+                  id={view.screen === "select" ? gameId : selectId}
+                  role="tabpanel"
+                  aria-labelledby={`${view.screen === "select" ? gameId : selectId}-tab`}
+                  hidden
+                />
+              </>
             ) : (
-              <GameScreen
-                plan={result.plan}
-                maps={maps}
-                phase={view.phase}
-                enemy={input.enemy}
-                formOpen={formOpen}
-              />
+              <LegacyScreen plan={result.plan} maps={maps} />
             )}
-          </div>
-          <div
-            id={view.screen === "select" ? gameId : selectId}
-            role="tabpanel"
-            aria-labelledby={`${view.screen === "select" ? gameId : selectId}-tab`}
-            hidden
-          />
-        </>
-      ) : (
-        <LegacyScreen plan={result.plan} maps={maps} />
-      )}
-      <footer className="cp-plan-footer">
-        <span>
-          {sample ? "Ejemplo local" : `Catálogo ${result.meta.version} · ${result.plan.difficulty}`}
-        </span>
-        {sources.map((source, index) => (
-          <a
-            key={index}
-            href={safeUrl(source.url) || undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <ExternalLink size={11} />
-            {source.title}
-          </a>
-        ))}
-      </footer>
+            <footer className="cp-plan-footer">
+              <span>
+                {sample
+                  ? "Ejemplo local"
+                  : `Catálogo ${result.meta.version} · ${result.plan.difficulty}`}
+              </span>
+              {sources.map((source, index) => (
+                <a
+                  key={index}
+                  href={safeUrl(source.url) || undefined}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <ExternalLink size={11} />
+                  {source.title}
+                </a>
+              ))}
+            </footer>
+          </>
+        ) : null}
+      </div>
       <span className="cp-sr-only" role="status">
         {copied ? "Plan copiado al portapapeles." : ""}
       </span>

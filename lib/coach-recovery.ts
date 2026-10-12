@@ -26,10 +26,18 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
   const shape = coachPlanSchema.shape;
   if (!raw || !onlyKeys(raw, Object.keys(shape))) throw new CoachPlanValidationError("schema");
   const missing = new Set<CoachSection>();
+  const invalid = new Set<CoachSection>();
   const categories = new Set<CoachPlanValidationCategory>();
-  const mark = (section: CoachSection, category: CoachPlanValidationCategory = "schema") => {
+  const mark = (
+    section: CoachSection,
+    category: CoachPlanValidationCategory = "schema",
+    bad = true,
+  ) => {
     missing.add(section);
-    categories.add(category);
+    if (bad) {
+      invalid.add(section);
+      categories.add(category);
+    }
   };
   const read = <T>(
     value: unknown,
@@ -37,6 +45,10 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
     section: CoachSection,
     check?: (data: T) => void,
   ): T | undefined => {
+    if (value === undefined) {
+      mark(section, "schema", false);
+      return;
+    }
     const parsed = schema.safeParse(value);
     if (!parsed.success) {
       mark(section);
@@ -67,7 +79,7 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
     min = 1,
   ): T[] => {
     if (!Array.isArray(value) || value.length > max) {
-      mark(section);
+      mark(section, "schema", value !== undefined);
       return [];
     }
     const valid = value.flatMap((row) => {
@@ -77,10 +89,55 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
     if (valid.length < min) mark(section);
     return valid;
   };
-  const headline = read(raw.headline, shape.headline, "summary");
-  const winCondition = read(raw.winCondition, shape.winCondition, "summary") || "";
-  const difficulty = read(raw.difficulty, shape.difficulty, "summary") || "Sin confirmar";
-  const proposedLevels = rows(raw.levels, shape.levels.element, "levels", 6, 6);
+  const briefRaw = object(raw.brief);
+  const briefSchema = shape.brief.unwrap().shape;
+  const briefKnown = briefRaw && onlyKeys(briefRaw, Object.keys(briefSchema));
+  const priority = read(
+    briefKnown ? briefRaw.priority : undefined,
+    briefSchema.priority.unwrap(),
+    "summary",
+  );
+  const window = read(
+    briefKnown ? briefRaw.window : undefined,
+    briefSchema.window.unwrap(),
+    "summary",
+  );
+  const briefAvoid = read(
+    briefKnown ? briefRaw.avoid : undefined,
+    briefSchema.avoid.unwrap(),
+    "summary",
+  );
+  if (raw.brief !== undefined && !briefKnown) mark("summary");
+  const brief =
+    priority || window || briefAvoid
+      ? {
+          ...(priority ? { priority } : {}),
+          ...(window ? { window } : {}),
+          ...(briefAvoid ? { avoid: briefAvoid } : {}),
+        }
+      : undefined;
+  const headline =
+    raw.headline !== undefined ? read(raw.headline, shape.headline, "summary") : undefined;
+  const winCondition =
+    (raw.winCondition !== undefined
+      ? read(raw.winCondition, shape.winCondition, "summary")
+      : undefined) ||
+    priority ||
+    "";
+  const difficulty =
+    (raw.difficulty !== undefined
+      ? read(raw.difficulty, shape.difficulty, "summary")
+      : undefined) || "Sin confirmar";
+  if (raw.brief === undefined && headline && winCondition && !invalid.has("summary"))
+    missing.delete("summary");
+  if (priority && window && briefAvoid && !invalid.has("summary")) missing.delete("summary");
+  const proposedLevels = rows(
+    raw.levels,
+    shape.levels.element,
+    "levels",
+    6,
+    raw.brief !== undefined ? 1 : 6,
+  );
   const levels = proposedLevels
     .filter((row) => {
       if (proposedLevels.filter((other) => other.level === row.level).length === 1) return true;
@@ -112,7 +169,7 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
       shape.reactions.shape.linea.element,
       "reactions",
       3,
-      2,
+      raw.brief !== undefined ? 1 : 2,
     ),
     mid: rows(
       reactionsKnown ? reactionsRaw.mid : undefined,
@@ -207,6 +264,7 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
   );
   const macroRaw = read(raw.macro, shape.macro, "macro") || [];
   const plan: PartialCoachPlan = {
+    ...(brief ? { brief } : {}),
     headline:
       headline ||
       `${catalog.champions.find((c) => c.id === context.champion)?.name || context.champion} contra ${catalog.champions.find((c) => c.id === context.enemy)?.name || context.enemy}`,
@@ -242,9 +300,9 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
     macroRaw.length +
     (runes ? 1 : 0) +
     (summoners ? 1 : 0);
-  if (!useful) throw new CoachPlanValidationError("schema");
+  if (!useful && !brief) throw new CoachPlanValidationError("schema");
   // Re-scan the actual result. All catalog IDs, ranges and contextual references
   // passed the same semantic checks used for a complete plan.
   assertSafeOutput(plan);
-  return { plan, missing: [...missing], categories: [...categories] };
+  return { plan, missing: [...missing], invalid: [...invalid], categories: [...categories] };
 }

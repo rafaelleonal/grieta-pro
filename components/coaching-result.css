@@ -1476,24 +1476,6 @@
     animation: none;
   }
 }
-.cp-partial-notice {
-  display: flex;
-  gap: 12px;
-  margin: 0 24px 20px;
-  padding: 16px;
-  border: 1px solid #9b763b;
-  border-radius: 10px;
-  background: #302619;
-  color: #f5d99e;
-}
-.cp-partial-notice > svg {
-  flex-shrink: 0;
-}
-.cp-partial-notice p {
-  margin: 6px 0 0;
-  font-size: 13px;
-  line-height: 1.6;
-}
 .cp-partial-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1513,7 +1495,131 @@
     grid-template-columns: minmax(0, 1fr);
     padding: 0 12px 12px;
   }
-  .cp-partial-notice {
-    margin: 0 12px 16px;
+}
+.coach-plan .cp-brief {
+  padding: 0 24px;
+}
+.coach-plan .cp-brief h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--color-neutral-400);
+  margin: 0 0 8px;
+}
+.coach-plan .cp-brief p {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.coach-plan .cp-brief-priority {
+  display: flex;
+  gap: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 18px;
+  background: var(--color-bg);
+}
+.coach-plan .cp-brief-priority > svg {
+  flex-shrink: 0;
+  color: var(--color-accent);
+}
+.coach-plan .cp-brief-priority > div,
+.coach-plan .cp-brief-decisions > section {
+  min-width: 0;
+}
+.coach-plan .cp-brief-priority h3 {
+  color: var(--color-accent);
+}
+.coach-plan .cp-brief-decisions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding: 24px 0;
+}
+.coach-plan .cp-brief-decisions strong {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 6px;
+  overflow-wrap: anywhere;
+}
+.coach-plan .cp-details-action {
+  padding: 0 24px 24px;
+}
+.coach-plan .cp-details-action button {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 44px;
+  width: auto;
+  max-width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--color-accent);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-accent-200);
+  font-size: 14px;
+}
+.coach-plan .cp-details > .cp-composition {
+  padding: 0 24px 24px;
+}
+.coach-plan .cp-source-toggle {
+  background: transparent;
+  color: var(--color-neutral-400);
+  border: 1px solid var(--border);
+  padding: 7px 9px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+}
+.coach-plan .cp-detail-unavailable {
+  color: var(--color-neutral-400);
+  font-size: 13px;
+  line-height: 1.6;
+}
+.coach-plan .cp-detail-availability > div + div {
+  margin-top: 14px;
+}
+.coach-recovery h2 {
+  font-size: 22px;
+}
+.coach-recovery p {
+  color: var(--color-neutral-400);
+  line-height: 1.65;
+}
+.coach-recovery .coach-recovery-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+.coach-recovery summary {
+  color: var(--color-neutral-400);
+  font-size: 13px;
+  cursor: pointer;
+}
+.coach-recovery .coach-recovery-previous {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+@media (max-width: 650px) {
+  .coach-plan .cp-brief {
+    padding: 0 14px;
+  }
+  .coach-plan .cp-brief-decisions {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+  .coach-plan .cp-details-action {
+    padding: 0 14px 20px;
+  }
+  .coach-plan .cp-details > .cp-composition {
+    padding: 0 14px 20px;
+  }
+  .coach-recovery .coach-recovery-actions > * {
+    flex: 1 1 auto;
   }
 }

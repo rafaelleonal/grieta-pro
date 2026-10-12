@@ -91,8 +91,16 @@ const alternatives = {
   champions: championReferences.optional(),
 };
 const summonerPair = z.tuple([catalogKey, catalogKey]);
+export const coachBriefSchema = z
+  .object({
+    priority: shortText,
+    window: z.object({ trigger: z.string().trim().min(1).max(120), response: shortText }).strict(),
+    avoid: shortText,
+  })
+  .strict();
 export const coachPlanSchema = z
   .object({
+    brief: coachBriefSchema.partial().optional(),
     headline: z.string().trim().min(1).max(100),
     difficulty: z.string().trim().min(1).max(60),
     winCondition: shortText,
