@@ -1,8 +1,10 @@
+import { readProviderStream, type CoachProgress } from "./provider-stream";
 import { anthropicCoachRequest, anthropicCoachResponse } from "./anthropic-transport";
 import { z } from "zod";
 import type { ChampionDetails } from "./catalog";
 import type {
   AppStatus,
+  CoachBrief,
   Catalog,
   CoachInput,
   CoachResult,
@@ -57,6 +59,7 @@ export interface ProviderExecution {
   apiKey: string;
   model: string;
   policy: ModelPolicy;
+  onBrief?: CoachProgress;
   onDispatch: () => Promise<void>;
   onUsage: (usage: ProviderUsage) => Promise<void>;
 }
@@ -700,6 +703,8 @@ async function structuredCompletion(
   // contract as instructions and keep parsing, safety and semantic checks local.
   const schemaInPrompt = operation === "COACH" && model.startsWith("anthropic/");
   const nativeTaskBudget = operation === "COACH" ? policy?.coachTaskBudgetTokens : undefined;
+  const streaming =
+    operation === "COACH" && Boolean(options.execution?.onBrief) && !nativeTaskBudget;
   const messages = schemaInPrompt
     ? [
         ...options.messages,
@@ -790,7 +795,8 @@ async function structuredCompletion(
             model,
             messages,
             max_completion_tokens: options.maxTokens,
-            stream: false,
+            stream: streaming,
+            ...(streaming ? { stream_options: { include_usage: true } } : {}),
             reasoning:
               policy?.reasoning || (operation === "COACH" && policy?.coachReasoningEffort)
                 ? {
@@ -865,8 +871,39 @@ async function structuredCompletion(
     );
   }
   let data: Record<string, unknown>;
+  let emittedBrief: CoachBrief | undefined;
   try {
-    data = await readProviderBody(response, signal);
+    data =
+      response.ok &&
+      streaming &&
+      response.headers.get("content-type")?.includes("text/event-stream")
+        ? await readProviderStream(
+            response,
+            signal,
+            (value) => {
+              // Early content passes the same secrecy/scope/schema boundary as the final plan.
+              assertNoProtectedOutput(value, options, apiKey);
+              assertSafeOutput(value);
+              const brief = coachBriefSchema.partial().safeParse(value);
+              if (brief.success && brief.data.priority && brief.data.matchup) {
+                if (
+                  emittedBrief &&
+                  Object.entries(emittedBrief).some(
+                    ([key, previous]) =>
+                      JSON.stringify(brief.data[key as keyof CoachBrief]) !==
+                      JSON.stringify(previous),
+                  )
+                )
+                  throw new Error("Changed streamed brief");
+                emittedBrief = brief.data;
+                options.execution?.onBrief?.(brief.data);
+              }
+            },
+            async (id) => {
+              await options.execution?.onUsage({ id });
+            },
+          )
+        : await readProviderBody(response, signal);
   } catch {
     if (signal.aborted) {
       diagnose(
@@ -980,6 +1017,22 @@ async function structuredCompletion(
     diagnose("output_rejected", "protected_output", response.status);
     throw error;
   }
+  if (emittedBrief) {
+    const finalBrief = coachBriefSchema.safeParse(
+      (json as { plan?: { brief?: unknown } })?.plan?.brief,
+    );
+    if (
+      !finalBrief.success ||
+      Object.entries(emittedBrief).some(
+        ([key, value]) =>
+          JSON.stringify(finalBrief.data[key as keyof CoachBrief]) !== JSON.stringify(value),
+      )
+    )
+      throw new ApiError(
+        502,
+        "El resumen cambió durante la respuesta. Tu selección sigue guardada.",
+      );
+  }
   const sources = options.webSearch ? extractSources(choice.message.annotations) : [];
   try {
     assertNoProtectedOutput(sources, options, apiKey);
@@ -1026,8 +1079,24 @@ export async function generateCoach(
 ): Promise<GeneratedCoachResult> {
   input = validateCoachInput(input, catalog);
   const name = (id: string) => catalog.champions.find((champion) => champion.id === id)?.name || id;
-  const compact = (execution?.model || input.model || configuredModel()).startsWith("anthropic/");
+  const selectedModel = execution?.model || input.model || configuredModel();
+  const fastContext =
+    execution?.policy.coachCompactPrompt ||
+    (MODEL_POLICIES[selectedModel as keyof typeof MODEL_POLICIES] as ModelPolicy | undefined)
+      ?.coachCompactPrompt;
+  const compact = selectedModel.startsWith("anthropic/") || Boolean(fastContext);
+  const itemPrices = new Map(catalog.items.map((item) => [item.id, item.gold]));
+  // Supply affordable role-specific starter baskets from the current catalog.
+  const starters =
+    input.role === "JUNGLE" ? ["1101", "1102", "1103"] : input.role === "SUPPORT" ? ["3865"] : [];
+  const startingOptions = starters.flatMap((id) => {
+    const gold = itemPrices.get(id);
+    if (gold === undefined || gold > 500) return [];
+    const potion = itemPrices.get("2003");
+    return potion !== undefined && gold + potion <= 500 ? [[id], [id, "2003"]] : [[id]];
+  });
   const context = {
+    ...(startingOptions.length ? { startingOptions } : {}),
     champion: {
       id: input.champion,
       name: name(input.champion),
@@ -1057,13 +1126,20 @@ export async function generateCoach(
       style: key,
       keystones: slots[0],
     })),
-    runes: catalog.runes.map(({ key, name, style, slot }) => ({ key, name, style, slot })),
+    runes: catalog.runes.map(({ key, name, style, slot }) =>
+      fastContext ? [key, name, style, slot] : { key, name, style, slot },
+    ),
     summonerSpells: catalog.summoners.map(({ id, name }) => ({ id, name })),
     statShardRows: RUNE_SHARD_ROWS,
     // [id, name, gold] or [id, name, gold, effects] to avoid repeating keys 250 times.
     purchasableRiftItems: promptItems(catalog).map((item) =>
       item.gold >= PROMPT_ITEM_DETAIL_GOLD
-        ? [item.id, item.name, item.gold, item.description.slice(0, PROMPT_ITEM_DETAIL_CHARS)]
+        ? [
+            item.id,
+            item.name,
+            item.gold,
+            item.description.slice(0, fastContext ? 300 : PROMPT_ITEM_DETAIL_CHARS),
+          ]
         : [item.id, item.name, item.gold],
     ),
   };
@@ -1087,7 +1163,14 @@ export async function generateCoach(
             `Eres un coach experto de League of Legends que prepara a un jugador de rango ${input.rank} para ESTA partida con ${name(input.champion)} (${input.role}). Rival de referencia: ${name(input.enemy)}. Escribe en español de México, con frases cortas y ejecutables. No afirmes un rango Challenger acreditado ni garantices ganar.`,
             coachRolePolicy(input.role),
             ...(compact
-              ? [COMPACT_COACH_INSTRUCTIONS]
+              ? [
+                  COMPACT_COACH_INSTRUCTIONS,
+                  ...(fastContext
+                    ? [
+                        "Contexto compacto: runes son filas [key,nombre,style,slot]. Los objetos son [id,nombre,oro,efectos opcionales]. Usa esos efectos; si no aparecen, no inventes estadísticas ni pasivas. Mantén brief conciso: cada texto con una acción concreta, idealmente 15–25 palabras. Orden de salida obligatorio: decision, plan; dentro de plan primero format, luego brief y después el resto del plan.",
+                      ]
+                    : []),
+                ]
               : [
                   "Devuelve SOLO JSON: decision=coach y plan para LoL permitido, o decision=refuse y plan=null. El plan debe estar COMPLETO: llena todas las secciones del esquema (brief, levels, reactions.linea, build y macro). Si un consejo depende de algo que no sabes (vida, oleada, jungla, cooldowns), exprésalo como condición «si… entonces…» en lugar de omitirlo.",
                   "Prepara la partida completa, no sólo un duelo: vincula inicio, recursos, objetivos y peleas con una condición de victoria para el equipo. Ganar el matchup no garantiza ganar la partida; no fuerces peleas si presionar una lateral o intercambiar objetivos aporta más. Fundamenta las decisiones en el rol, tu kit y los equipos conocidos: usa champion.abilities y enemy.abilities del contexto, nombra las habilidades por tecla y nombre, y explica la interacción (qué habilidad rival esquivar o castigar, qué ventana abre su enfriamiento, qué hace tu kit contra el suyo). Evita frases genéricas que servirían para cualquier enfrentamiento y no repitas el mismo consejo entre secciones. No inventes estadísticas, winrates ni cooldowns numéricos que no estén en el contexto.",

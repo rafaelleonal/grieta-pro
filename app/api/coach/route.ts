@@ -1,3 +1,5 @@
+import { coachStreamResponse } from "@/lib/coach-stream-response";
+import type { CoachBrief } from "@/lib/types";
 import { getCatalog, getChampionDetails } from "@/lib/catalog";
 import { assertSameOrigin, errorResponse, jsonResponse, readJsonBody } from "@/lib/http";
 import { generateCoach } from "@/lib/openrouter";
@@ -24,16 +26,21 @@ export async function POST(request: Request): Promise<Response> {
       getChampionDetails(input.champion, catalog),
       getChampionDetails(input.enemy, catalog),
     ]);
-    return jsonResponse(
-      await runGeneration(request, {
+    const work = (onBrief?: (brief: CoachBrief) => void, signal = request.signal) =>
+      runGeneration(request, {
         operation: "COACH",
         input,
         fingerprint: safeCoachInput(input),
         coachInput: input,
         work: (execution) =>
-          generateCoach(input, catalog, { champion, enemy }, fetch, request.signal, execution),
-      }),
-    );
+          generateCoach(input, catalog, { champion, enemy }, fetch, signal, {
+            ...execution,
+            onBrief,
+          }),
+      });
+    return request.headers.get("accept")?.includes("application/x-ndjson")
+      ? coachStreamResponse(request.signal, work)
+      : jsonResponse(await work());
   } catch (error) {
     return errorResponse(error);
   }

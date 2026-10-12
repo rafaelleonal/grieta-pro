@@ -288,6 +288,12 @@ test("plan rejection exposes only a finite rule category while preserving the pu
       },
     ],
   ];
+  cases.push([
+    "starting_gold",
+    (value) => {
+      value.build.starting = ["1103", "2031"];
+    },
+  ]);
   // phase_items remains readable in historical diagnostics but no longer rejects a whole plan.
   assert.deepEqual(
     cases.map(([category]) => category),

@@ -130,11 +130,12 @@ test("jungle and support presentation stop describing the opening as a solo lane
   );
 });
 
-test("teamfight is visible before the duel and copied, while old plans get no invented advice", () => {
+test("priority and matchup stay above incoming teamfight details; old plans get no invented advice", () => {
   const result = { ...demoResult, plan: { ...demoResult.plan, brief } };
   const html = renderToStaticMarkup(createElement(CoachBriefView, { result, input: demoInput }));
   assert.ok(html.indexOf("Tu prioridad") < html.indexOf("Tu papel en las peleas"));
-  assert.ok(html.indexOf("Tu papel en las peleas") < html.indexOf("Matchup de mid"));
+  assert.ok(html.indexOf("Tu prioridad") < html.indexOf("Matchup de mid"));
+  assert.ok(html.indexOf("Matchup de mid") < html.indexOf("Tu papel en las peleas"));
   for (const value of Object.values(teamfight)) {
     assert.ok(html.includes(value));
     assert.ok(planText(result, catalogMaps(fixtureCatalog), false, demoInput).includes(value));

@@ -1,12 +1,13 @@
 "use client";
 
+import { CoachBriefContent } from "@/components/coach-brief";
 import { Check } from "lucide-react";
 import { Mascot } from "@/components/brand";
 import { Button, Spinner } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/feedback";
 import { cn } from "@/components/ui/cn";
 import { roleName } from "@/lib/coach-draft";
-import type { Catalog, CoachInput } from "@/lib/types";
+import type { Catalog, CoachBrief, CoachInput } from "@/lib/types";
 
 type StepState = "done" | "active" | "pending";
 
@@ -19,12 +20,34 @@ export function GeneratingScreen({
   input,
   catalog,
   onCancel,
+  preview,
 }: {
   input: CoachInput;
   catalog: Catalog | null;
   onCancel: () => void;
+  preview?: CoachBrief | null;
 }) {
   const name = (id: string) => catalog?.champions.find((entry) => entry.id === id)?.name || id;
+  if (preview)
+    return (
+      <section className="mx-auto flex w-full max-w-6xl flex-col gap-5 px-4 py-5 md:px-7 md:py-6">
+        <header className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h1 className="text-h3 font-medium">
+              {name(input.champion)} vs. {name(input.enemy)}
+            </h1>
+            <p role="status" className="mt-1 flex items-center gap-2 text-small text-neutral-400">
+              <Spinner className="size-3.5" /> Completando compras y detalles…
+            </p>
+          </div>
+          <Button onClick={onCancel}>Cancelar</Button>
+        </header>
+        <CoachBriefContent brief={preview} input={input} pending />
+        <p className="text-xs text-neutral-400">
+          El plan se guarda al terminar. Cancelar puede consumir cuota.
+        </p>
+      </section>
+    );
   const steps: { label: string; state: StepState }[] = [
     { label: "Selección", state: "done" },
     { label: `Catálogo Riot ${catalog?.version || ""}`.trim(), state: "done" },
@@ -47,7 +70,7 @@ export function GeneratingScreen({
             </span>
             <h1 className="text-h1 font-medium">Preparando tu plan…</h1>
             <p className="text-small text-neutral-400 md:text-body">
-              Suele tardar de 15 a 60 segundos.
+              Primero verás lo esencial; después, los detalles.
             </p>
           </div>
           <div className="flex w-full flex-col items-stretch gap-1.5 sm:w-auto sm:items-end">

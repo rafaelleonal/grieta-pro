@@ -106,7 +106,7 @@ Precios consultados el 10 de octubre de 2026, hora de México, y GPT 5.6 Luna y 
 
 Cálculo: `50 × (20 000 × tarifaEntrada + 2 500 × tarifaSalida) / 1 000 000`.
 
-Es un escenario ilustrativo, no consumo medido. Cada plan envía el catálogo permitido de objetos, runas y hechizos, las habilidades y el contexto de la partida. Las descripciones de objetos se limitan a 160 caracteres; las políticas y el esquema también agregan contexto. Hace falta medir tokens reales antes de fijar cuotas comerciales.
+Es un escenario ilustrativo, no consumo medido. Cada plan envía el catálogo permitido de objetos, runas y hechizos, las habilidades y el contexto de la partida. Las descripciones de objetos completos se limitan a 120 caracteres, o 300 en el perfil rápido; las políticas y el esquema también agregan contexto. Hace falta medir tokens reales antes de fijar cuotas comerciales.
 
 La estimación excluye extracción de capturas, búsquedas, efectos de caché, razonamiento adicional, recargas, impuestos y alojamiento. Los 2 500 tokens de salida representan el total facturable; si hay más razonamiento, el cálculo aumenta. Una captura seguida de un plan puede hacer dos llamadas. El límite de archivo de 30 MB no define el precio de visión.
 
@@ -161,3 +161,13 @@ Los pasos están en la [guía de OpenRouter y Resend](provider-setup.md) y la [g
 Los pagos y el acompañante de escritorio son ampliaciones futuras. No hace falta un backend separado de Next.js para esta etapa.
 
 Los planes parciales validados se guardan con `formatVersion: 3` tanto en historial como en la respuesta de replay de la solicitud. La misma clave y huella devuelven ese resultado sin repetir el POST al proveedor. Sus metadatos conservan las secciones omitidas y categorías finitas, sin prompts, capturas originales ni valores rechazados. El borrado retira ambas copias del plan y mantiene el coste y la contabilidad. Los formatos anteriores siguen siendo legibles; este cambio no requiere migración ni modificación de los planes Free/Pro.
+
+## Lectura progresiva y opción Gemini Flash
+
+El coach acepta `Accept: application/x-ndjson` y entrega eventos `brief`, `result` o `error`. Los clientes JSON conservan el contrato anterior. El avance pasa esquema y filtros; no se persiste como plan completo. El evento final sólo se entrega después de cerrar la generación y guardar el historial. Haiku max conserva su transporte Messages y muestra el resultado al terminar.
+
+Se registra el ID de generación al recibirlo, antes de mostrar el resumen. Una desconexión conserva la reserva incierta y el ID para conciliación; nunca crea una segunda consulta. La cancelación se propaga hasta el proveedor. El cliente borra el avance al fallar, cancelar o cambiar de cuenta. Ni la PWA ni una caché compartida guardan el stream.
+
+`google/gemini-3.8-flash` es una opción rápida, con razonamiento `low`, 7000 tokens de salida de coach, 1600 en extracción y tarifas máximas USD 0.75/3.75 por millón. Reserva manual sin búsqueda: USD 0.13425. Imágenes y búsqueda conservan sus márgenes y controles. La selección manual también afecta extracción; no se midió la precisión de capturas reales en este ensayo.
+
+Las semillas nuevas lo incluyen; para planes existentes, `pnpm db:seed --enable-flash` lo añade sin cambiar predeterminado, cuotas ni presupuestos. No se activa silenciosamente al desplegar. La configuración `OPENROUTER_MODEL` y elecciones explícitas prevalecen. Se conserva Gemini Pro como predeterminado porque las pruebas rápidas aún muestran imprecisiones tácticas: [resultados y límites](fast-coach-evaluation.md).

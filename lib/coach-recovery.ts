@@ -5,6 +5,7 @@ import {
   coachPlanSchema,
   CoachPlanValidationError,
   validateCoachRunes,
+  validateStartingGold,
   validateCoachSkillOrder,
   validateCoachSummoners,
   type CoachPlanValidationCategory,
@@ -247,7 +248,14 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
       return false;
     });
   };
-  const starting = itemList(build.starting, bs.starting);
+  let starting = itemList(build.starting, bs.starting);
+  try {
+    validateStartingGold(starting, catalog);
+  } catch (error) {
+    if (!(error instanceof CoachPlanValidationError)) throw error;
+    mark("items", error.category);
+    starting = [];
+  }
   const core = itemList(build.core, bs.core);
   const situational = rows(build.situational, bs.situational.element, "items", 3, 0).filter(
     (entry, index, all) => {

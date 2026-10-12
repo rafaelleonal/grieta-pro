@@ -174,3 +174,18 @@ test("length-limited valid JSON can yield a labelled result but broken JSON, ref
     ApiError,
   );
 });
+
+test("starting purchases over 500 gold are omitted without inventing replacements", () => {
+  const plan = matchupPlan();
+  plan.build.starting = ["1103", "2031"];
+  const recovered = recoverCoachPlan(plan, fixtureCatalog, input);
+  assert.deepEqual(recovered.plan.build.starting, []);
+  assert.ok(recovered.invalid.includes("items"));
+  assert.ok(recovered.categories.includes("starting_gold"));
+  assert.deepEqual(recovered.plan.levels, plan.levels);
+  plan.build.starting = ["1103", "2003"];
+  assert.deepEqual(
+    recoverCoachPlan(plan, fixtureCatalog, input).plan.build.starting,
+    plan.build.starting,
+  );
+});

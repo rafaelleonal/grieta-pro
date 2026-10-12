@@ -1,10 +1,11 @@
 import { loadEnvConfig } from "@next/env";
 import { getDb } from "../lib/db";
-import { DEFAULT_MODEL, OPUS_MODEL } from "../lib/usage";
+import { DEFAULT_MODEL, GEMINI_FLASH_MODEL, OPUS_MODEL } from "../lib/usage";
 
 export async function seedPlans(
   options: {
     enableDefaultModel?: boolean;
+    enableFlash?: boolean;
     enableGeminiDailyBudgets?: boolean;
     enableOpus?: boolean;
   } = {},
@@ -13,6 +14,7 @@ export async function seedPlans(
   const includedModels = [
     ...new Set([
       DEFAULT_MODEL,
+      GEMINI_FLASH_MODEL,
       "openai/gpt-5.6-luna",
       "anthropic/claude-haiku-5.5",
       "openai/gpt-6-luna",
@@ -62,6 +64,12 @@ export async function seedPlans(
       },
       data: { allowedModels: { push: DEFAULT_MODEL }, version: { increment: 1 } },
     });
+  // Fast coach is an explicit option while tactical quality is still under review.
+  if (options.enableFlash)
+    await db.plan.updateMany({
+      where: { code: { in: ["FREE", "PRO"] }, NOT: { allowedModels: { has: GEMINI_FLASH_MODEL } } },
+      data: { allowedModels: { push: GEMINI_FLASH_MODEL }, version: { increment: 1 } },
+    });
   // Opt in to Opus for existing Pro plans; quotas and budgets stay as administered.
   if (options.enableOpus)
     await db.plan.updateMany({
@@ -82,8 +90,9 @@ if (process.argv[1]?.endsWith("seed-plans.ts")) {
   loadEnvConfig(process.cwd());
   const enableDefaultModel = process.argv.includes("--enable-default-model");
   const enableGeminiDailyBudgets = process.argv.includes("--enable-gemini-daily-budgets");
+  const enableFlash = process.argv.includes("--enable-flash");
   const enableOpus = process.argv.includes("--enable-opus");
-  seedPlans({ enableDefaultModel, enableGeminiDailyBudgets, enableOpus })
+  seedPlans({ enableDefaultModel, enableGeminiDailyBudgets, enableOpus, enableFlash })
     .then(() =>
       console.info(
         enableGeminiDailyBudgets
@@ -92,6 +101,7 @@ if (process.argv[1]?.endsWith("seed-plans.ts")) {
             ? "Planes Free y Pro listos; modelo predeterminado permitido sin cambiar los demás límites."
             : "Planes Free y Pro listos; se conservaron las políticas existentes.",
         enableOpus ? "Opus 5.5 permitido en Pro sin cambiar sus límites." : "",
+        enableFlash ? "Gemini Flash permitido sin cambiar límites ni modelo predeterminado." : "",
       ),
     )
     .catch(() => {

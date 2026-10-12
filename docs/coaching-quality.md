@@ -1,6 +1,6 @@
 # Cómo evaluar el coaching de Elociencia
 
-Esta guía define una comparación futura; no contiene un benchmark ejecutado ni demuestra que un modelo sea el mejor coach. El 11 de octubre de 2026 se revisaron el prompt, la validación y las pruebas actuales. No se realizaron consultas de pago para preparar este documento.
+La [comparación de modelos rápidos del 12 de octubre](fast-coach-evaluation.md) contiene evidencia posterior y sus límites. Esta guía define una comparación más amplia futura; no contiene un benchmark ejecutado ni demuestra que un modelo sea el mejor coach. El 11 de octubre de 2026 se revisaron el prompt, la validación y las pruebas actuales. No se realizaron consultas de pago para preparar este documento.
 
 El coaching combina hechos comprobables y decisiones contextuales. Una habilidad, un objeto o un rango de habilidad pueden ser incorrectos. Decidir cuándo presionar, intercambiar o rotar admite varias respuestas útiles según la oleada, los recursos y la información disponible. Se evalúa la calidad de esa decisión bajo condiciones explícitas, sin exigir una redacción única ni usar una victoria aislada como prueba.
 
@@ -12,7 +12,7 @@ Los planes anteriores conservan sus datos: la presentación proyecta el resumen 
 
 La disponibilidad del resultado se evalúa por separado de su calidad táctica. Un campo mal formado o una página de runas inválida no debe borrar consejos independientes que sí pasan sus controles. Desde el 12 de octubre, la recuperación por secciones conserva exclusivamente campos completos con esquemas estrictos, referencias al contexto y recursos válidos. Un resultado parcial usa `formatVersion: 3`, identifica las secciones omitidas y conserva códigos de diagnóstico finitos en sus metadatos e historial. No rellena consejos ausentes ni hace otra llamada de IA.
 
-El análisis de seguridad abarca la respuesta completa antes de omitir campos: filtraciones, contenido fuera de LoL, instrucciones inseguras, negativas y llamadas a herramientas inesperadas impiden mostrar el plan. Una respuesta con límite de salida sólo se conserva si todavía es JSON íntegro y validable; un JSON cortado, una respuesta vacía o un fallo de red no permiten inventar el contenido perdido. Los costes conocidos y las reservas inciertas mantienen su tratamiento habitual.
+En la entrega progresiva, cada campo del resumen pasa sus controles antes de mostrarse; todavía no se ha validado el resto de la respuesta. Un error posterior retira ese avance. El análisis final abarca la respuesta completa antes de omitir campos: filtraciones, contenido fuera de LoL, instrucciones inseguras, negativas y llamadas a herramientas inesperadas impiden mostrar el plan. Una respuesta con límite de salida sólo se conserva si todavía es JSON íntegro y validable; un JSON cortado, una respuesta vacía o un fallo de red no permiten inventar el contenido perdido. Los costes conocidos y las reservas inciertas mantienen su tratamiento habitual.
 
 [`sanitizeCoachPlan`](../lib/validation.ts) comprueba estructura, niveles 1–6, composición y referencias, runas, hechizos y rangos legales, con excepciones para campeones como Aphelios, Udyr y Jayce. Los objetos desconocidos se omiten con advertencia. Eso evita varias incoherencias; no demuestra que una build sea óptima ni que una reacción mecánica sea correcta.
 

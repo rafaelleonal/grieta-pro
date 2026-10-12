@@ -35,10 +35,10 @@ OPENROUTER_MODEL=google/gemini-3.1-pro-preview
 
 El campo de clave vacío debe contener tu clave real. El modelo es un ID exacto de la política del servidor, no un nombre libre. Las políticas iniciales permiten:
 
-| Plan | Modelos                                                                                                   |
-| ---- | --------------------------------------------------------------------------------------------------------- |
-| Free | `google/gemini-3.1-pro-preview`, `openai/gpt-5.6-luna`, `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
-| Pro  | Los anteriores y `anthropic/claude-sonnet-5.5`                                                            |
+| Plan | Modelos                                                                                                                              |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Free | `google/gemini-3.8-flash`, `google/gemini-3.1-pro-preview`, `openai/gpt-5.6-luna`, `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
+| Pro  | Los anteriores y `anthropic/claude-sonnet-5.5`                                                                                       |
 
 Gemini 3.1 Pro Preview es el modelo predeterminado. Su ID, imágenes, salidas estructuradas y razonamiento se verificaron el 11 de octubre de 2026 mediante metadatos públicos; no se hizo una consulta pagada para validar esta configuración. GPT 5.6 Luna y los demás modelos permanecen disponibles según el plan. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
 
@@ -59,6 +59,8 @@ pnpm db:seed --enable-opus
 ```
 
 Sólo añade `anthropic/claude-opus-5.5` a Pro si falta e incrementa la versión del plan; no toca Free, cupos ni presupuestos. Opus usa razonamiento `medium` y hasta 12 000 tokens de salida para el coach: un análisis manual reserva USD 0.816 mientras está en curso y después se cobra el coste confirmado. En la comparación real del 12 de octubre costó de media USD 0.24 por análisis, con el prompt anterior; el prompt compacto lo reduce a unos USD 0.17 estimados. Con esos importes, el presupuesto Pro de USD 2/día admite unas 7 consultas seguidas y el mensual de USD 5, unas 25. Despliega primero el código con su política; un modelo permitido sin política se ignora.
+
+Gemini Flash (`google/gemini-3.8-flash`) ofrece lectura progresiva con razonamiento bajo. Para habilitarlo en una base existente, comprueba primero el destino de conexión y ejecuta `pnpm db:seed --enable-flash`. Después elige **Gemini Flash** en el selector de modelo. No cambia el modelo habitual ni los presupuestos. La [comparación real](fast-coach-evaluation.md) mide rapidez y formato; todavía hay límites tácticos que impiden promoverlo automáticamente. El streaming requiere que cualquier proxy intermedio respete `X-Accel-Buffering: no` y no acumule el cuerpo; compruébalo en el despliegue.
 
 Para incorporar otro modelo hace falta revisar `lib/usage.ts`, las políticas de los planes y las pruebas de imágenes, salida y gasto. No sustituyas el ID por un alias o una variante `:free` esperando que evite esos controles.
 

@@ -378,6 +378,7 @@ export const COACH_PLAN_VALIDATION_CATEGORIES = [
   "skill_order",
   // Retained for historical diagnostics; orphan phase highlights are now omitted with a warning.
   "phase_items",
+  "starting_gold",
 ] as const;
 export type CoachPlanValidationCategory = (typeof COACH_PLAN_VALIDATION_CATEGORIES)[number];
 
@@ -395,6 +396,13 @@ export class CoachPlanValidationError extends ApiError {
 }
 
 const invalid = (category: CoachPlanValidationCategory) => new CoachPlanValidationError(category);
+
+/** Starting purchases must fit the standard Summoner's Rift opening budget. */
+export function validateStartingGold(ids: string[], catalog: Catalog) {
+  const prices = new Map(catalog.items.map((item) => [item.id, item.gold]));
+  if (ids.reduce((total, id) => total + (prices.get(id) ?? 0), 0) > 500)
+    throw invalid("starting_gold");
+}
 
 export function validateCoachRunes(
   runesValue: CoachPlan["build"]["runes"],
@@ -550,6 +558,7 @@ export function sanitizeCoachPlan(
   };
   plan.levels.sort((a, b) => Number(a.level) - Number(b.level));
   plan.build.starting = [...new Set(plan.build.starting)].filter(keep);
+  validateStartingGold(plan.build.starting, catalog);
   plan.build.core = [...new Set(plan.build.core)].filter(keep);
   const situationalItems = new Set<string>();
   plan.build.situational = plan.build.situational.filter((item) => {

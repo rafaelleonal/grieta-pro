@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { assertSafeInputText } from "@/lib/coach-safety";
 import { DRAFT_STORAGE_KEY, EMPTY_INPUT, loadDraft, serializeDraft } from "@/lib/coach-draft";
+import { postCoachStream } from "@/lib/client-coach-stream";
 import { postJson } from "@/lib/client-api";
 import { demoInput, demoResult } from "@/lib/demo";
 import type {
+  CoachBrief,
   CoachInput,
   Credentials,
   DraftResult,
-  GeneratedCoachResult,
   RiotResult,
   SavedCoachResult,
 } from "@/lib/types";
@@ -41,6 +42,7 @@ export function useCoachWorkspace() {
   const [coachFailure, setCoachFailure] = useState(false);
   const [recoveryChecked, setRecoveryChecked] = useState(false);
   const [notice, setNotice] = useState("");
+  const [preview, setPreview] = useState<CoachBrief | null>(null);
   const [result, setResult] = useState<SavedCoachResult | null>(null);
   const [resultInput, setResultInput] = useState<CoachInput | null>(null);
   const [sample, setSample] = useState(false);
@@ -55,6 +57,7 @@ export function useCoachWorkspace() {
     controller.current?.abort();
     controller.current = null;
     setBusy(null);
+    setPreview(null);
     resetCapture();
     resetRiot();
     setCredentials({});
@@ -150,6 +153,7 @@ export function useCoachWorkspace() {
     const abort = new AbortController();
     controller.current = abort;
     setBusy(task);
+    setPreview(null);
     clearMessages();
     return abort;
   }
@@ -161,6 +165,7 @@ export function useCoachWorkspace() {
     if (controller.current === abort) {
       controller.current = null;
       setBusy(null);
+      setPreview(null);
     }
   }
   /** Dejar de esperar no prueba que la consulta fuera gratuita: se concilia el consumo. */
@@ -168,6 +173,7 @@ export function useCoachWorkspace() {
     controller.current?.abort();
     controller.current = null;
     setBusy(null);
+    setPreview(null);
     setNotice(
       "Espera cancelada. Si la consulta ya se envió, puede consumir cuota. Tu selección sigue aquí.",
     );
@@ -284,7 +290,10 @@ export function useCoachWorkspace() {
         return true;
       }
       if (!ensureCredentials("coach", Boolean(intent.attempt?.hasResponse))) return true;
-      const next = await postJson<GeneratedCoachResult>("/api/coach", body, abort.signal, key);
+      const next = await postCoachStream(body, abort.signal, key, (brief) => {
+        if (!abort.signal.aborted && controller.current === abort && identityRef.current === owner)
+          setPreview(brief);
+      });
       if (abort.signal.aborted) return true;
       session.intentsRef.current.complete(key);
       setResult(next);
@@ -476,6 +485,7 @@ export function useCoachWorkspace() {
     notice,
     setNotice,
     result,
+    preview,
     resultInput,
     sample,
     editing,

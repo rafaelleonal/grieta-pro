@@ -18,8 +18,8 @@ El jugador debe entender rápidamente qué priorizar, cuándo actuar y cómo con
 El resumen debe permitir encontrar estas respuestas sin abrir todas las secciones:
 
 1. **Tu prioridad:** la decisión principal para tu rol y contexto.
-2. **Tu papel en las peleas:** cómo prepararte, qué trabajo cumplir y qué hacer si no conviene pelear.
-3. **Lectura del matchup:** quién tiene ventaja, por qué y bajo qué condición cambia.
+2. **Lectura del matchup:** quién tiene ventaja, por qué y bajo qué condición cambia.
+3. **Tu papel en las peleas:** cómo prepararte, qué trabajo cumplir y qué hacer si no conviene pelear.
 4. **Cuándo actuar y qué evitar:** oportunidades y riesgos concretos.
 
 Los niveles, reacciones, compras, runas, hechizos y mapa amplían ese resumen mediante secciones independientes. Usa detalle progresivo: el usuario debe poder consultar una sección sin desplegar un bloque enorme de contenido.
@@ -114,6 +114,15 @@ Puntos de entrada para contribuir:
 | Roles                  | [Etiquetas y contexto visual](../lib/role-focus.ts) e [instrucciones del coach](../lib/coach-role-policy.ts) |
 | Contrato de respuesta  | [Tipos](../lib/types.ts), [validación](../lib/validation.ts) y [recuperación](../lib/coach-recovery.ts)      |
 | Evaluación de consejos | [Calidad del coaching](coaching-quality.md)                                                                  |
+
+### Entrega progresiva
+
+- Objetivo: mostrar prioridad y matchup en 3–5 segundos con un modelo rápido. Medir desde el clic, además del tiempo del proveedor; una muestra local no garantiza latencia de producción.
+- Mostrar sólo campos completos que hayan pasado esquema, alcance y protección de secretos. No renderizar tokens sueltos, JSON, razonamiento ni frases a medio escribir.
+- La lectura inicial es provisional: indicar que faltan detalles y guardar únicamente después de validar el resultado final. Un fallo, cancelación o cambio de cuenta retira el avance.
+- Mantener prioridad y matchup en el mismo orden al llegar peleas, ventanas y compras. El contenido nuevo se agrega debajo, sin desplazar la decisión que se está leyendo.
+- Una sola llamada admitida: no generar un resumen con otro modelo ni reintentar automáticamente para completar secciones.
+- No promover un modelo por velocidad o JSON válido solamente. Comparar también mecánicas, compras, condiciones y roles; publicar los límites del ensayo. Véase [la comparación de modelos rápidos](fast-coach-evaluation.md).
 
 ## 9. Criterios de aceptación
 

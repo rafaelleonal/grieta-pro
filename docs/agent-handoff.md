@@ -2,6 +2,14 @@
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 12 de octubre: lectura progresiva
+
+Se añadió streaming de una sola generación, con prioridad y matchup validados antes del resto del plan. Gemini Flash 3.8 es una opción rápida; Gemini Pro sigue siendo el predeterminado. No se promueve Flash automáticamente: seis planes finales pasaron estructura, pero la revisión encontró imprecisiones tácticas. El [informe de evaluación](fast-coach-evaluation.md) conserva las 30 consultas, métricas, cambios de contexto y límites.
+
+Puntos nuevos: `lib/provider-stream.ts`, `lib/coach-stream-response.ts`, `lib/client-coach-stream.ts`, `tests/coach-stream.test.ts` y `scripts/smoke-coach-stream.ts`. Los campos visibles deben permanecer iguales hasta el resultado final. El ID de proveedor se registra temprano para poder conciliar una cancelación. Las compras iniciales que suman más de 500 de oro se descartan por `starting_gold` sin inventar reemplazos.
+
+Para habilitar Flash en planes existentes: `pnpm db:seed --enable-flash`, verificando antes la conexión. La opción no modifica cuotas, fondos, reservas ni el modelo configurado. Las llamadas pagadas de esta evaluación ya se consumieron; nuevas llamadas necesitan autorización. No confundir las capturas con reproducción local de respuestas grabadas con latencia o calidad en producción.
+
 ## Punto de entrada
 
 1. Lee [AGENTS.md](../AGENTS.md), [README](../README.md) y la [skill de revisión](../.agents/skills/elociencia-review/SKILL.md) cuando el cambio afecte IA, cuentas, privacidad o gasto.

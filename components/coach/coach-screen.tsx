@@ -67,7 +67,12 @@ export function CoachScreen({
         ) : null}
       </div>
       {ws.busy === "coach" ? (
-        <GeneratingScreen input={ws.input} catalog={ws.catalog} onCancel={ws.cancel} />
+        <GeneratingScreen
+          input={ws.input}
+          catalog={ws.catalog}
+          onCancel={ws.cancel}
+          preview={ws.preview}
+        />
       ) : showPlan ? (
         <PlanScreen ws={ws} />
       ) : mode === "capture" ? (

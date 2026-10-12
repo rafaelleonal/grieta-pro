@@ -95,6 +95,7 @@ async function main() {
     const seededPro = await db.plan.findUniqueOrThrow({ where: { code: "PRO" } });
     const seededModels = [
       usage.DEFAULT_MODEL,
+      usage.GEMINI_FLASH_MODEL,
       "openai/gpt-5.6-luna",
       "anthropic/claude-haiku-5.5",
       "openai/gpt-6-luna",
@@ -154,6 +155,28 @@ async function main() {
       },
     });
 
+    // Enabling the fast option is explicit and idempotent, independent of the default.
+    for (const seeded of [seededFree, seededPro]) {
+      const before = await db.plan.update({
+        where: { id: seeded.id },
+        data: {
+          allowedModels: seeded.allowedModels.filter((entry) => entry !== usage.GEMINI_FLASH_MODEL),
+        },
+      });
+      await seedPlans();
+      assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seeded.id } }), before);
+      await seedPlans({ enableFlash: true });
+      const enabled = await db.plan.findUniqueOrThrow({ where: { id: seeded.id } });
+      assert.deepEqual(enabled, {
+        ...before,
+        allowedModels: [...before.allowedModels, usage.GEMINI_FLASH_MODEL],
+        version: before.version + 1,
+        updatedAt: enabled.updatedAt,
+      });
+      await seedPlans({ enableFlash: true });
+      assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seeded.id } }), enabled);
+    }
+
     const sharedBudgetNames = [
       "AI_MONTHLY_BUDGET_USD",
       "AI_DAILY_BUDGET_USD",
@@ -188,7 +211,7 @@ async function main() {
         [geminiFree, "DRAFT", true, false, "0.694146"],
         [geminiPro, "COACH", false, true, "1.242"],
       ] as const) {
-        const policy = await usage.generationPolicy(user.id, usage.DEFAULT_MODEL, webSearch);
+        const policy = await usage.generationPolicy(user.id, usage.GEMINI_PRO_MODEL, webSearch);
         assert.equal(policy.model, "google/gemini-3.1-pro-preview");
         assert.equal(policy.policy.reasoning, true);
         const reserveUsd = usage.maximumCost(policy.model, operation, hasImage, webSearch);
@@ -1567,6 +1590,9 @@ async function main() {
         }),
         reserveBeforeReplay,
         "Redirect replay preserves the uncertain reservation",
+      );
+      await import("./smoke-coach-stream").then(({ smokeCoachStream }) =>
+        smokeCoachStream(alice, pro.id, routeInput, privateRequest),
       );
       await db.plan.update({ where: { id: pro.id }, data: { minuteRequestLimit: 5 } });
     } finally {

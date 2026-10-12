@@ -12,17 +12,19 @@ import { safeNotesForStorage } from "./coach-safety";
 import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
+export const GEMINI_FLASH_MODEL = "google/gemini-3.8-flash";
 export const DEFAULT_MODEL = GEMINI_PRO_MODEL;
 export const OPUS_MODEL = "anthropic/claude-opus-5.5";
 export type ModelPolicy = {
   prompt: number;
   completion: number;
   reasoning: boolean;
-  reasoningEffort?: "low" | "medium" | "high" | "max";
-  coachReasoningEffort?: "low" | "medium" | "high" | "max";
+  reasoningEffort?: "minimal" | "low" | "medium" | "high" | "max";
+  coachReasoningEffort?: "minimal" | "low" | "medium" | "high" | "max";
   coachCompletionTokens?: number;
   draftCompletionTokens?: number;
   maxInputTokens?: number;
+  coachCompactPrompt?: boolean;
   coachTimeoutMs?: number;
   coachTaskBudgetTokens?: number;
   coachProviderOrder?: readonly string[];
@@ -62,6 +64,17 @@ export const MODEL_POLICIES = {
     reasoningEffort: "medium",
     coachCompletionTokens: 12_000,
     draftCompletionTokens: 4_000,
+  },
+  [GEMINI_FLASH_MODEL]: {
+    prompt: 0.75,
+    completion: 3.75,
+    image: 0.00000075,
+    reasoning: true,
+    reasoningEffort: "low",
+    coachCompactPrompt: true,
+    coachCompletionTokens: 7000,
+    draftCompletionTokens: 1600,
+    maxInputTokens: 199_999,
   },
   [GEMINI_PRO_MODEL]: {
     prompt: 2,
