@@ -161,3 +161,108 @@ test("stored older plans project only their own advice into the new summary", ()
   assert.deepEqual(projected.window, { trigger: step.cue, response: step.text });
   assert.equal(projected.priority, demoResult.plan.winCondition);
 });
+
+const CLAUDE_MODELS = ["anthropic/claude-sonnet-5.5", "anthropic/claude-opus-5.5"] as const;
+const completeTransportPlan = () => ({
+  brief,
+  levels: fixturePlan.levels.map((step, index) => ({
+    ...step,
+    skill: fixturePlan.build.skillOrder.first6[index],
+    champions: index === 0 ? ["Yasuo"] : [],
+  })),
+  reactions: {
+    linea: [
+      { trigger: "Yasuo usa su muro", response: "Espera a que expire.", champions: ["Yasuo"] },
+      { trigger: "Yasuo carga su Q3", response: "Mantén distancia lateral.", champions: [] },
+    ],
+  },
+  build: {
+    starting: ["1056"],
+    core: ["3020", "3089"],
+    situational: [{ item: "3157", reason: "Detén su definitiva.", champions: ["Yasuo"] }],
+    runes: { ...fixturePlan.build.runes },
+    summoners: fixturePlan.build.summoners,
+    skillOrder: { first6: fixturePlan.build.skillOrder.first6, max: ["Q", "E", "W"] },
+  },
+  macro: ["Rota después de empujar la oleada.", "Acompaña a tu jungla al dragón."],
+});
+const schemaFor = async (overrides: Partial<CoachInput> = {}) => {
+  let schema: ReturnType<typeof JSON.parse>;
+  await generateCoach({ ...input, ...overrides }, fixtureCatalog, undefined, async (_, init) => {
+    schema = JSON.parse(String(init?.body)).response_format.json_schema.schema;
+    return response(completeTransportPlan());
+  });
+  return schema;
+};
+
+test("Claude transport schemas avoid regex and unions while requiring every coach section", async () => {
+  for (const model of CLAUDE_MODELS) {
+    assert.ok(model in MODEL_POLICIES);
+    const schema = await schemaFor({ model, allies: ["LeeSin"], enemies: ["Nautilus"] });
+    const text = JSON.stringify(schema);
+    assert.ok(!text.includes('"pattern"'), "Claude compiles regex into its grammar");
+    let unions = 0;
+    const visit = (node: unknown) => {
+      if (!node || typeof node !== "object") return;
+      if (Array.isArray((node as { anyOf?: unknown }).anyOf)) unions++;
+      Object.values(node).forEach(visit);
+    };
+    visit(schema);
+    // Only the nullable refusal envelope remains (Claude allows at most 16 unions).
+    assert.equal(unions, 1);
+    const plan = schema.properties.plan.anyOf[0];
+    assert.deepEqual(plan.required, ["brief", "levels", "reactions", "build", "macro"]);
+    assert.deepEqual(plan.properties.build.required, [
+      "starting",
+      "core",
+      "situational",
+      "runes",
+      "summoners",
+      "skillOrder",
+    ]);
+    assert.deepEqual(plan.properties.levels.items.properties.champions.items.enum.sort(), [
+      "Ahri",
+      "LeeSin",
+      "Nautilus",
+      "Yasuo",
+    ]);
+    assert.deepEqual(plan.properties.build.properties.skillOrder.properties.max.items.enum, [
+      "Q",
+      "W",
+      "E",
+    ]);
+    assert.ok(plan.properties.build.properties.core.items.enum.includes("3020"));
+  }
+  const udyr = await schemaFor({ champion: "Udyr", model: CLAUDE_MODELS[0] });
+  assert.deepEqual(
+    udyr.properties.plan.anyOf[0].properties.build.properties.skillOrder.properties.max.items.enum,
+    ["Q", "W", "E", "R"],
+  );
+  const aphelios = await schemaFor({ champion: "Aphelios", model: CLAUDE_MODELS[1] });
+  const order = aphelios.properties.plan.anyOf[0].properties.build.properties.skillOrder;
+  assert.equal(order.properties.first6.items.type, "null");
+  assert.deepEqual(order.properties.max.items.enum, ["AD", "AS", "Letalidad"]);
+});
+
+test("a structured skill priority is stored as the readable legacy string and validated", async () => {
+  const result = await generateCoach(
+    { ...input, model: CLAUDE_MODELS[1] },
+    fixtureCatalog,
+    undefined,
+    async () => response(completeTransportPlan()),
+  );
+  assert.equal(result.plan.build.skillOrder?.max, "Q > E > W");
+  assert.deepEqual(result.plan.build.core, ["3020", "3089"]);
+  assert.equal(result.plan.levels.length, 6);
+  assert.equal(result.plan.levels[1].champions, undefined);
+  assert.ok(isPartialCoachResult(result));
+  assert.deepEqual(result.meta.partial.invalid, []);
+  const illegal = completeTransportPlan();
+  illegal.build.skillOrder = { first6: ["Q", "Q", "E", "W", "Q", "R"], max: ["Q", "E", "W"] };
+  const recovered = await generateCoach(input, fixtureCatalog, undefined, async () =>
+    response(illegal),
+  );
+  assert.ok(isPartialCoachResult(recovered));
+  assert.deepEqual(recovered.meta.partial.invalid, ["skillOrder"]);
+  assert.deepEqual(recovered.plan.build.core, ["3020", "3089"]);
+});

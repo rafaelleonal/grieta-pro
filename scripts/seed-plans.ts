@@ -1,9 +1,13 @@
 import { loadEnvConfig } from "@next/env";
 import { getDb } from "../lib/db";
-import { DEFAULT_MODEL } from "../lib/usage";
+import { DEFAULT_MODEL, OPUS_MODEL } from "../lib/usage";
 
 export async function seedPlans(
-  options: { enableDefaultModel?: boolean; enableGeminiDailyBudgets?: boolean } = {},
+  options: {
+    enableDefaultModel?: boolean;
+    enableGeminiDailyBudgets?: boolean;
+    enableOpus?: boolean;
+  } = {},
 ) {
   const db = getDb();
   const includedModels = [
@@ -37,7 +41,11 @@ export async function seedPlans(
       monthlyBudgetUsd: "5.00",
       dailyBudgetUsd: "2.00",
       minuteRequestLimit: 5,
-      allowedModels: [...includedModels, "anthropic/claude-sonnet-5.5"],
+      allowedModels: [
+        ...includedModels,
+        "anthropic/claude-sonnet-5.5",
+        "anthropic/claude-opus-5.5",
+      ],
       webSearchAllowed: true,
       concurrentLimit: 1,
     },
@@ -54,6 +62,12 @@ export async function seedPlans(
       },
       data: { allowedModels: { push: DEFAULT_MODEL }, version: { increment: 1 } },
     });
+  // Opt in to Opus for existing Pro plans; quotas and budgets stay as administered.
+  if (options.enableOpus)
+    await db.plan.updateMany({
+      where: { code: "PRO", NOT: { allowedModels: { has: OPUS_MODEL } } },
+      data: { allowedModels: { push: OPUS_MODEL }, version: { increment: 1 } },
+    });
   // Apply only the explicitly enabled daily increases. Never lower a custom
   // allowance or reset monthly quotas, budgets, usage or pending reservations.
   if (options.enableGeminiDailyBudgets)
@@ -68,7 +82,8 @@ if (process.argv[1]?.endsWith("seed-plans.ts")) {
   loadEnvConfig(process.cwd());
   const enableDefaultModel = process.argv.includes("--enable-default-model");
   const enableGeminiDailyBudgets = process.argv.includes("--enable-gemini-daily-budgets");
-  seedPlans({ enableDefaultModel, enableGeminiDailyBudgets })
+  const enableOpus = process.argv.includes("--enable-opus");
+  seedPlans({ enableDefaultModel, enableGeminiDailyBudgets, enableOpus })
     .then(() =>
       console.info(
         enableGeminiDailyBudgets
@@ -76,6 +91,7 @@ if (process.argv[1]?.endsWith("seed-plans.ts")) {
           : enableDefaultModel
             ? "Planes Free y Pro listos; modelo predeterminado permitido sin cambiar los demás límites."
             : "Planes Free y Pro listos; se conservaron las políticas existentes.",
+        enableOpus ? "Opus 5.5 permitido en Pro sin cambiar sus límites." : "",
       ),
     )
     .catch(() => {

@@ -113,12 +113,46 @@ async function main() {
       assert.equal(plan.webSearchAllowed, plan.code === "PRO");
       assert.deepEqual(
         plan.allowedModels,
-        plan.code === "PRO" ? [...seededModels, "anthropic/claude-sonnet-5.5"] : seededModels,
+        plan.code === "PRO"
+          ? [...seededModels, "anthropic/claude-sonnet-5.5", usage.OPUS_MODEL]
+          : seededModels,
       );
     }
-    await seedPlans({ enableDefaultModel: true, enableGeminiDailyBudgets: true });
+    await seedPlans({ enableDefaultModel: true, enableGeminiDailyBudgets: true, enableOpus: true });
     assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seededFree.id } }), seededFree);
     assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seededPro.id } }), seededPro);
+    // An existing Pro plan without Opus gains it explicitly, keeping every other setting.
+    const withoutOpus = await db.plan.update({
+      where: { id: seededPro.id },
+      data: {
+        allowedModels: seededPro.allowedModels.filter((model) => model !== usage.OPUS_MODEL),
+        dailyBudgetUsd: "3.00",
+      },
+    });
+    await seedPlans();
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seededPro.id } }), withoutOpus);
+    await seedPlans({ enableOpus: true });
+    const withOpus = await db.plan.findUniqueOrThrow({ where: { id: seededPro.id } });
+    assert.deepEqual(withOpus, {
+      ...withoutOpus,
+      allowedModels: [...withoutOpus.allowedModels, usage.OPUS_MODEL],
+      version: withoutOpus.version + 1,
+      updatedAt: withOpus.updatedAt,
+    });
+    await seedPlans({ enableOpus: true });
+    assert.equal(
+      (await db.plan.findUniqueOrThrow({ where: { id: seededPro.id } })).version,
+      withOpus.version,
+    );
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seededFree.id } }), seededFree);
+    await db.plan.update({
+      where: { id: seededPro.id },
+      data: {
+        allowedModels: seededPro.allowedModels,
+        dailyBudgetUsd: seededPro.dailyBudgetUsd,
+        version: seededPro.version,
+      },
+    });
 
     const sharedBudgetNames = [
       "AI_MONTHLY_BUDGET_USD",

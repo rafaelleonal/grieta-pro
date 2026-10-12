@@ -52,6 +52,14 @@ pnpm db:seed --enable-default-model --enable-gemini-daily-budgets
 
 Los dos indicadores son independientes: `--enable-default-model` sólo añade el modelo si falta; `--enable-gemini-daily-budgets` sólo eleva los límites diarios inferiores. Ninguno reduce un límite personalizado ni reinicia consumo o reservas. Conservan los límites mensuales, cupos, fondos por plan y presupuestos globales. No hace falta una migración de esquema. Reinicia Next.js después de cambiar `OPENROUTER_MODEL` para que use la nueva configuración.
 
+Las semillas nuevas también permiten Sonnet 5.5 y Opus 5.5 en Pro. Para añadir Opus a un plan Pro existente, después de comprobar el destino de la conexión:
+
+```sh
+pnpm db:seed --enable-opus
+```
+
+Sólo añade `anthropic/claude-opus-5.5` a Pro si falta e incrementa la versión del plan; no toca Free, cupos ni presupuestos. Opus usa razonamiento `medium` y hasta 12 000 tokens de salida para el coach: un análisis manual reserva USD 1.008, por lo que con el presupuesto diario Pro de USD 2 caben uno o dos al día. En la comparación real del 12 de octubre costó de media USD 0.24 por análisis. Despliega primero el código con su política; un modelo permitido sin política se ignora.
+
 Para incorporar otro modelo hace falta revisar `lib/usage.ts`, las políticas de los planes y las pruebas de imágenes, salida y gasto. No sustituyas el ID por un alias o una variante `:free` esperando que evite esos controles.
 
 Conserva además los presupuestos `AI_*` de `.env.example`, ajustados al gasto que quieras permitir. El límite de OpenRouter y los límites de GrietaPro se complementan. Una clave personal introducida en **Conexión** sigue necesitando cuenta verificada y conserva las cuotas; no es un acceso anónimo.

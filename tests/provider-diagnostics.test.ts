@@ -616,3 +616,17 @@ test("valid completions emit no error events and a failing diagnostic sink never
     console.warn = previous;
   }
 });
+
+test("compiled grammar limits are classified as schema complexity", () => {
+  assert.equal(
+    parameterErrorCategory({
+      message:
+        "The compiled grammar is too large, which would cause performance issues. Simplify your schemas.",
+    }),
+    "schema_complexity",
+  );
+  assert.equal(
+    parameterErrorCategory({ message: "Schema exceeds the maximum of 24 optional parameters" }),
+    "schema_complexity",
+  );
+});

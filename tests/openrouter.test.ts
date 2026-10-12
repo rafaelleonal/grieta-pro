@@ -62,6 +62,13 @@ const provider = (value: unknown = plan, annotations: unknown = [citation], draf
   });
 const isStatus = (status: number) => (error: unknown) =>
   error instanceof ApiError && error.status === status;
+/** Parsed provider JSON, loosely typed like the request bodies read in these tests. */
+type JsonNode = ReturnType<typeof JSON.parse>;
+/** Required sections are plain objects; nullable ones expose their non-null branch. */
+const present = (node: JsonNode): JsonNode =>
+  Array.isArray(node.anyOf)
+    ? node.anyOf.find((branch: Record<string, unknown>) => branch.type !== "null")
+    : node;
 function assertCompatibleTransportSchema(schema: unknown) {
   let unions = 0;
   const visit = (value: unknown) => {
@@ -171,7 +178,7 @@ test("invalid rune alternatives are omitted while valid tactical advice survives
       context.runeStyleKeystones,
       catalog.runeStyles.map(({ key, slots }) => ({ style: key, keystones: slots[0] })),
     );
-    assert.ok(body.messages[0].content.includes("la lista de ESE style"));
+    assert.ok(body.messages[0].content.includes("slot0 de ESE style (runeStyleKeystones)"));
     assertCompatibleTransportSchema(body.response_format.json_schema.schema);
     return provider(valid);
   });
@@ -300,15 +307,9 @@ test("both summoner pairs are constrained to current IDs and repeated IDs still 
   await generateCoach(input, currentCatalog, undefined, async (_url, init) => {
     const body = JSON.parse(String(init?.body));
     const schema = body.response_format.json_schema.schema;
-    const planBranch = schema.properties.plan.anyOf.find(
-      (branch: Record<string, unknown>) => branch.type === "object",
-    );
-    const build = planBranch.properties.build.anyOf.find(
-      (branch: Record<string, unknown>) => branch.type === "object",
-    );
-    const summoners = build.properties.summoners.anyOf.find(
-      (branch: Record<string, unknown>) => branch.type === "object",
-    );
+    const planBranch = present(schema.properties.plan);
+    const build = present(planBranch.properties.build);
+    const summoners = present(build.properties.summoners);
     assert.equal(summoners.properties.alternative, undefined);
     const expected = currentCatalog.summoners.map(({ id }) => id);
     for (const pair of [summoners.properties.pick]) {
@@ -801,10 +802,9 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
       );
       assertCompatibleTransportSchema(body.response_format.json_schema.schema);
       assert.match(
-        body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.levels.anyOf.find(
-          (branch: Record<string, unknown>) => branch.type === "array",
-        ).description,
-        /Como máximo 6 elementos/,
+        present(body.response_format.json_schema.schema.properties.plan).properties.levels
+          .description,
+        /Cantidad exacta: 6 elementos/,
       );
       return provider(fixturePlan, []);
     },
@@ -900,12 +900,8 @@ test("provider schema preserves strict objects, nullable fields and bounded arra
     const schema = body.response_format.json_schema.schema;
     assertCompatibleTransportSchema(schema);
     const planBranch = schema.properties.plan.anyOf[0];
-    const build = planBranch.properties.build.anyOf.find(
-      (branch: Record<string, unknown>) => branch.type === "object",
-    );
-    const summoners = build.properties.summoners.anyOf.find(
-      (branch: Record<string, unknown>) => branch.type === "object",
-    );
+    const build = present(planBranch.properties.build);
+    const summoners = present(build.properties.summoners);
     assert.match(summoners.properties.pick.description, /Cantidad exacta: 2 elementos/);
     assert.deepEqual(schema.properties.decision.enum, ["coach", "refuse"]);
     assert.deepEqual(schema.properties.plan.anyOf[1], { type: "null" });

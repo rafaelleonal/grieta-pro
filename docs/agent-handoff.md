@@ -29,46 +29,40 @@ Los últimos commits de implementación antes de este documento fueron:
 | `75688ef` | Recuperación de secciones independientes de respuestas incompletas.               |
 | `42cb8fe` | Consejo central primero, detalles opcionales y recuperación sin nueva generación. |
 
-El contrato que recibe el modelo solicita `brief` con `priority`, `window.trigger/response` y `avoid`. `levels`, `reactions.linea`, `build` y `macro` son opcionales. Ya no exige títulos, resúmenes duplicados, fases extensas ni alternativas de preparación. La respuesta completa se analiza por seguridad antes de omitir campos.
+Desde el 12 de octubre (sin publicar), el contrato pide un plan **completo**: `brief`, 6 `levels`, 2–3 `reactions.linea`, `build` (inicio, núcleo, situacionales, runas, hechizos y habilidades) y 2–3 `macro`. Los IDs de campeones, objetos, runas y hechizos son enums de la partida y del catálogo; `skillOrder.max` viaja como arreglo de 3 teclas y se guarda como `Q > E > W`. El esquema de transporte no usa `pattern` y sólo conserva una unión (el sobre de rechazo). Ya no exige títulos, resúmenes duplicados, fases extensas ni alternativas de preparación. La respuesta completa se analiza por seguridad antes de omitir campos.
 
 Los planes completos usan formato 2; los recuperados, formato 3; el formato 1 antiguo sigue siendo legible. `meta.partial.invalid` distingue rechazo de ausencia deliberada; el motivo `optional` no significa que haya fallado la consulta. La presentación de planes antiguos proyecta consejos del mismo registro, sin inventarlos ni consultar otra IA.
 
 Cuando no llega consejo válido, la interfaz conserva la selección y ofrece comprobar estado o abrir el historial. Esas acciones no generan otra consulta. Si permanece un resultado anterior, se identifica como anterior. JSON cortado, contenido inseguro o una respuesta vacía no se convierten en consejos ficticios.
 
-## Diagnóstico de IA que debe retomarse
+## Diagnóstico de IA del 12 de octubre
 
-### Gemini: Darius contra Yorick
+### Causas encontradas sin llamadas pagadas
 
-La captura del usuario mostró consejo central y una omisión de **Orden de habilidades**. El log de Production confirmó HTTP 200 en aproximadamente 20 segundos, modelo `google/gemini-3.1-pro-preview`, categoría `output_validation` y regla `skill_order`.
+- **Gemini incompleto:** el prompt declaraba opcionales niveles, mecánicas, compras y mapa y pedía omitirlos ante la duda; el modelo devolvía planes escuetos. La prioridad de habilidades era texto libre (`Q, E, W` se rechazaba).
+- **Sonnet HTTP 400:** el esquema estricto tenía exactamente 16 uniones (`anyOf` con `null`), el máximo documentado por Anthropic, y tres `pattern` con cuantificadores `{0,39}`/`{0,59}`, que Claude compila en su gramática. Ahora hay 1 unión y ningún `pattern`. Los diagnósticos clasifican también «compiled grammar too large» como `schema_complexity`.
 
-Esa regla en `lib/validation.ts` revisa:
+### Comparación real autorizada
 
-- Seis asignaciones legales de habilidades, incluyendo rangos máximos por nivel.
-- R a partir de nivel 6 para campeones normales; excepciones explícitas para Udyr, Jayce, Nidalee, Elise y Aphelios.
-- Una prioridad de tres habilidades básicas únicas. Hoy `max` es un string separado con `→` o `>`.
+El usuario autorizó 9 llamadas con tope de USD 3, una por caso, sin reintentos ni búsqueda, con la clave del servidor y catálogo vivo 16.20.1, mediante `.local/compare-models.ts` (excluido de Git; llama a `generateCoach` sin pasar por cuentas ni base de datos). Gasto confirmado por OpenRouter: **USD 1.308**. Los planes completos están en `artifacts/qa/model-comparison/2026-10-12/`.
 
-El campo original rechazado no se conserva. **No está demostrado qué condición concreta falló.** Una reproducción sintética confirma que `Q, E, W` se rechaza aunque los seis niveles sean legales; es una posible fricción de formato, no una reconstrucción de aquella respuesta. El nombre «Procesión Oscura» de la W de Yorick es correcto según Riot; no usarlo como supuesto fallo.
+| Modelo (esfuerzo medio) | Planes válidos completos | Coste medio | Latencia media |
+| ----------------------- | ------------------------ | ----------: | -------------: |
+| Gemini 3.1 Pro          | 3/3                      |   USD 0.090 |           29 s |
+| Sonnet 5.5              | 1/3                      |   USD 0.106 |           21 s |
+| Opus 5.5                | 3/3                      |   USD 0.240 |           54 s |
 
-### Sonnet: única prueba real autorizada
+Sonnet: Ahri–Yasuo fue bloqueado por el filtro de seguridad de salida (el texto no se conserva, no se sabe si fue falso positivo) y en Jinx–Caitlyn se descartó un campo del `brief` por esquema, probablemente por longitud. Después se añadieron límites explícitos de caracteres al prompt; no se volvió a probar.
 
-El usuario autorizó **una** consulta con `anthropic/claude-sonnet-5.5`, sin búsqueda ni reintentos, con tope de USD 0.50. Esa autorización ya se utilizó.
-
-- Cuenta local sintética Pro; sesión, admisión, reserva persistente y endpoint reales. No hubo cambios en Production ni correo real.
-- Datos vivos de Riot 16.20.1 y habilidades de ambos campeones disponibles.
-- Política vigente de Sonnet: razonamiento bajo, hasta 7000 tokens de salida, esquema estricto, sin proveedores alternativos.
-- Un solo POST a OpenRouter. HTTP 400 en aproximadamente 1.85 segundos, diagnóstico `invalid_request`; sin consejo ni motivo más específico confirmado.
-- El coste no vino confirmado ni hubo identificador de generación. Se conservó `UNKNOWN` con **reserva de USD 0.454** en la base local. No es un cargo confirmado ni prueba de gratuidad.
-- Se retiraron las sesiones y el acceso Pro de prueba; se conservaron la cuenta sintética y su contabilidad. No borrar o liberar esa reserva sin evidencia.
-
-Esto no permite concluir que Sonnet sea mejor o peor coach. No cambiar el predeterminado ni repetir la llamada por iniciativa propia para intentar obtener una comparación.
+Lectura táctica de Darius–Yorick (una persona, no la rúbrica completa): Opus fue el más específico y correcto en interacciones del matchup; Sonnet, sólido pero más genérico; Gemini, correcto y más escueto. No es una evaluación estadística.
 
 ### Continuación recomendada
 
-1. Precisar los diagnósticos de habilidades con códigos finitos que distingan prioridad/formato y progresión, sin registrar textos rechazados, prompts o razonamiento.
-2. Evaluar un formato estructurado para la prioridad de habilidades, manteniendo lectura del historial anterior y las reglas de rangos legales. No quitar controles para aceptar un resultado.
-3. Investigar el HTTP 400 de Sonnet: restricciones de esquema y parámetros del proveedor. La compatibilidad anunciada por el modelo puede variar entre endpoints; todavía no se conoce la causa exacta.
-4. Reproducir esos casos con proveedores simulados. Cualquier comparación real posterior requiere autorización nueva, un tope y un número de llamadas explícitos.
-5. Evaluar la calidad táctica con [la rúbrica](coaching-quality.md): hechos, condiciones del intercambio, utilidad y concisión. Formato válido y seguridad no acreditan buen coaching.
+1. Añadir un identificador finito de la regla de seguridad que bloquea una salida, sin registrar el texto, para distinguir falsos positivos.
+2. Decidir el modelo predeterminado con el usuario. Opus reserva USD 1.008 por consulta frente al presupuesto diario Pro de USD 2; `pnpm db:seed --enable-opus` lo añade a Pro existente; se aplicó a la base local, no a Production.
+3. Evaluar con [la rúbrica](coaching-quality.md) más casos y revisores. Cualquier llamada real adicional requiere autorización con tope y número de llamadas.
+
+La reserva incierta de USD 0.454 de la prueba anterior de Sonnet sigue sin cambios.
 
 ## Archivos que conviene leer
 

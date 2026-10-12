@@ -13,6 +13,7 @@ import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
 export const DEFAULT_MODEL = GEMINI_PRO_MODEL;
+export const OPUS_MODEL = "anthropic/claude-opus-5.5";
 export type ModelPolicy = {
   prompt: number;
   completion: number;
@@ -29,7 +30,25 @@ export const MODEL_POLICIES = {
   "openai/gpt-5.6-luna": { prompt: 0.2, completion: 1.2, reasoning: false },
   "anthropic/claude-haiku-5.5": { prompt: 0.5, completion: 2.5, reasoning: false },
   "openai/gpt-6-luna": { prompt: 0.2, completion: 0.75, reasoning: false },
-  "anthropic/claude-sonnet-5.5": { prompt: 2, completion: 10, reasoning: true },
+  // A complete coach plan is ~3-5k output tokens; the caps leave room for adaptive
+  // thinking at medium effort without truncating the JSON.
+  "anthropic/claude-sonnet-5.5": {
+    prompt: 2,
+    completion: 10,
+    reasoning: true,
+    reasoningEffort: "medium",
+    coachCompletionTokens: 12_000,
+    draftCompletionTokens: 4_000,
+  },
+  // Opus 5.5 cannot disable thinking; effort is the only depth control.
+  [OPUS_MODEL]: {
+    prompt: 4,
+    completion: 20,
+    reasoning: true,
+    reasoningEffort: "medium",
+    coachCompletionTokens: 12_000,
+    draftCompletionTokens: 4_000,
+  },
   [GEMINI_PRO_MODEL]: {
     prompt: 2,
     completion: 12,

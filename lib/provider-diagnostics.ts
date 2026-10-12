@@ -53,7 +53,7 @@ export function parameterErrorCategory(error: unknown): ParameterErrorCategory |
   const categories: [ParameterErrorCategory, RegExp][] = [
     [
       "schema_complexity",
-      /\bschema (?:is )?too complex\b|\b(?:too many|exceeds?|maximum).{0,80}\bunion(?:s| types)?\b/i,
+      /\bschema (?:is )?too complex\b|\bgrammar\b.{0,80}\btoo (?:large|big|complex)\b|\b(?:too many|exceeds?|maximum).{0,80}\b(?:union(?:s| types)?|optional param(?:eter)?s)\b/i,
     ],
     [
       "unsupported_schema_regex",
