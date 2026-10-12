@@ -12,6 +12,9 @@ importers:
 
   .:
     dependencies:
+      '@next/env':
+        specifier: 16.4.0
+        version: 16.4.0
       '@prisma/adapter-pg':
         specifier: 7.10.0
         version: 7.10.0

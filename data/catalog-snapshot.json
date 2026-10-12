@@ -2994,5 +2994,627 @@
       "description": "50 de Daño de Ataque 10 de Letalidad 25% de Probabilidad de Golpe Crítico Muerte Tu daño ejecuta a los campeones que están por debajo de un 5% de Vida. Impuestos Los asesinatos de campeones otorgan 25 de oro adicional .",
       "gold": 3000
     }
+  ],
+  "runeStyles": [
+    {
+      "key": "Domination",
+      "name": "Dominación",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7200_Domination.png",
+      "slots": [
+        [
+          "Electrocute",
+          "DarkHarvest",
+          "HailOfBlades"
+        ],
+        [
+          "CheapShot",
+          "TasteOfBlood",
+          "SuddenImpact"
+        ],
+        [
+          "SixthSense",
+          "GrislyMementos",
+          "DeepWard"
+        ],
+        [
+          "TreasureHunter",
+          "RelentlessHunter",
+          "UltimateHunter"
+        ]
+      ]
+    },
+    {
+      "key": "Inspiration",
+      "name": "Inspiración",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7203_Whimsy.png",
+      "slots": [
+        [
+          "GlacialAugment",
+          "UnsealedSpellbook",
+          "FirstStrike"
+        ],
+        [
+          "HextechFlashtraption",
+          "MagicalFootwear",
+          "CashBack"
+        ],
+        [
+          "PerfectTiming",
+          "TimeWarpTonic",
+          "BiscuitDelivery"
+        ],
+        [
+          "CosmicInsight",
+          "ApproachVelocity",
+          "JackOfAllTrades"
+        ]
+      ]
+    },
+    {
+      "key": "Precision",
+      "name": "Precisión",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7201_Precision.png",
+      "slots": [
+        [
+          "PressTheAttack",
+          "LethalTempo",
+          "FleetFootwork",
+          "Conqueror"
+        ],
+        [
+          "AbsorbLife",
+          "Triumph",
+          "PresenceOfMind"
+        ],
+        [
+          "LegendAlacrity",
+          "LegendHaste",
+          "LegendBloodline"
+        ],
+        [
+          "CoupDeGrace",
+          "CutDown",
+          "LastStand"
+        ]
+      ]
+    },
+    {
+      "key": "Resolve",
+      "name": "Valor",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7204_Resolve.png",
+      "slots": [
+        [
+          "GraspOfTheUndying",
+          "Aftershock",
+          "Guardian"
+        ],
+        [
+          "Demolish",
+          "FontOfLife",
+          "ShieldBash"
+        ],
+        [
+          "Conditioning",
+          "SecondWind",
+          "BonePlating"
+        ],
+        [
+          "Overgrowth",
+          "Revitalize",
+          "Unflinching"
+        ]
+      ]
+    },
+    {
+      "key": "Sorcery",
+      "name": "Brujería",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/7202_Sorcery.png",
+      "slots": [
+        [
+          "SummonAery",
+          "ArcaneComet",
+          "PhaseRush",
+          "DeathfireTouch"
+        ],
+        [
+          "NullifyingOrb",
+          "ManaflowBand",
+          "NimbusCloak"
+        ],
+        [
+          "Transcendence",
+          "Celerity",
+          "AbsoluteFocus"
+        ],
+        [
+          "Scorch",
+          "Waterwalking",
+          "GatheringStorm"
+        ]
+      ]
+    }
+  ],
+  "runes": [
+    {
+      "key": "Electrocute",
+      "name": "Electrocutar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/Electrocute/Electrocute.png",
+      "style": "Domination",
+      "slot": 0
+    },
+    {
+      "key": "DarkHarvest",
+      "name": "Cosecha Oscura",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/DarkHarvest/DarkHarvest.png",
+      "style": "Domination",
+      "slot": 0
+    },
+    {
+      "key": "HailOfBlades",
+      "name": "Lluvia de Espadas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/HailOfBlades/HailOfBlades.png",
+      "style": "Domination",
+      "slot": 0
+    },
+    {
+      "key": "CheapShot",
+      "name": "Golpe Bajo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/CheapShot/CheapShot.png",
+      "style": "Domination",
+      "slot": 1
+    },
+    {
+      "key": "TasteOfBlood",
+      "name": "Sabor a Sangre",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/TasteOfBlood/GreenTerror_TasteOfBlood.png",
+      "style": "Domination",
+      "slot": 1
+    },
+    {
+      "key": "SuddenImpact",
+      "name": "Impacto Súbito",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/SuddenImpact/SuddenImpact.png",
+      "style": "Domination",
+      "slot": 1
+    },
+    {
+      "key": "SixthSense",
+      "name": "Sexto Sentido",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/SixthSense/SixthSense.png",
+      "style": "Domination",
+      "slot": 2
+    },
+    {
+      "key": "GrislyMementos",
+      "name": "Recuerdos Macabros",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/GrislyMementos/GrislyMementos.png",
+      "style": "Domination",
+      "slot": 2
+    },
+    {
+      "key": "DeepWard",
+      "name": "Centinela profundo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/DeepWard/DeepWard.png",
+      "style": "Domination",
+      "slot": 2
+    },
+    {
+      "key": "TreasureHunter",
+      "name": "Cazador de Tesoros",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/TreasureHunter/TreasureHunter.png",
+      "style": "Domination",
+      "slot": 3
+    },
+    {
+      "key": "RelentlessHunter",
+      "name": "Cazador Implacable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/RelentlessHunter/RelentlessHunter.png",
+      "style": "Domination",
+      "slot": 3
+    },
+    {
+      "key": "UltimateHunter",
+      "name": "Cazador Definitivo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Domination/UltimateHunter/UltimateHunter.png",
+      "style": "Domination",
+      "slot": 3
+    },
+    {
+      "key": "GlacialAugment",
+      "name": "Aumento Glacial",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/GlacialAugment/GlacialAugment.png",
+      "style": "Inspiration",
+      "slot": 0
+    },
+    {
+      "key": "UnsealedSpellbook",
+      "name": "Libro de Hechizos Abierto",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/UnsealedSpellbook/UnsealedSpellbook.png",
+      "style": "Inspiration",
+      "slot": 0
+    },
+    {
+      "key": "FirstStrike",
+      "name": "Primer Golpe",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/FirstStrike/FirstStrike.png",
+      "style": "Inspiration",
+      "slot": 0
+    },
+    {
+      "key": "HextechFlashtraption",
+      "name": "Destello Hextech",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/HextechFlashtraption/HextechFlashtraption.png",
+      "style": "Inspiration",
+      "slot": 1
+    },
+    {
+      "key": "MagicalFootwear",
+      "name": "Calzado Mágico",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/MagicalFootwear/MagicalFootwear.png",
+      "style": "Inspiration",
+      "slot": 1
+    },
+    {
+      "key": "CashBack",
+      "name": "Reembolso",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/CashBack/CashBack2.png",
+      "style": "Inspiration",
+      "slot": 1
+    },
+    {
+      "key": "PerfectTiming",
+      "name": "Tónico Triple",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/PerfectTiming/AlchemistCabinet.png",
+      "style": "Inspiration",
+      "slot": 2
+    },
+    {
+      "key": "TimeWarpTonic",
+      "name": "Tónico de Distorsión Temporal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/TimeWarpTonic/TimeWarpTonic.png",
+      "style": "Inspiration",
+      "slot": 2
+    },
+    {
+      "key": "BiscuitDelivery",
+      "name": "Entrega de Galletas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/BiscuitDelivery/BiscuitDelivery.png",
+      "style": "Inspiration",
+      "slot": 2
+    },
+    {
+      "key": "CosmicInsight",
+      "name": "Perspicacia Cósmica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/CosmicInsight/CosmicInsight.png",
+      "style": "Inspiration",
+      "slot": 3
+    },
+    {
+      "key": "ApproachVelocity",
+      "name": "Velocidad de Aproximación",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/ApproachVelocity/ApproachVelocity.png",
+      "style": "Inspiration",
+      "slot": 3
+    },
+    {
+      "key": "JackOfAllTrades",
+      "name": "Comodín",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Inspiration/JackOfAllTrades/JackofAllTrades2.png",
+      "style": "Inspiration",
+      "slot": 3
+    },
+    {
+      "key": "PressTheAttack",
+      "name": "Estrategia Ofensiva",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PressTheAttack/PressTheAttack.png",
+      "style": "Precision",
+      "slot": 0
+    },
+    {
+      "key": "LethalTempo",
+      "name": "Cadencia Letal",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LethalTempo/LethalTempoTemp.png",
+      "style": "Precision",
+      "slot": 0
+    },
+    {
+      "key": "FleetFootwork",
+      "name": "Sobre la Marcha",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/FleetFootwork/FleetFootwork.png",
+      "style": "Precision",
+      "slot": 0
+    },
+    {
+      "key": "Conqueror",
+      "name": "Conquistador",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Conqueror/Conqueror.png",
+      "style": "Precision",
+      "slot": 0
+    },
+    {
+      "key": "AbsorbLife",
+      "name": "Absorber Vida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/AbsorbLife/AbsorbLife.png",
+      "style": "Precision",
+      "slot": 1
+    },
+    {
+      "key": "Triumph",
+      "name": "Triunfo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/Triumph.png",
+      "style": "Precision",
+      "slot": 1
+    },
+    {
+      "key": "PresenceOfMind",
+      "name": "Concentración Profunda",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/PresenceOfMind/PresenceOfMind.png",
+      "style": "Precision",
+      "slot": 1
+    },
+    {
+      "key": "LegendAlacrity",
+      "name": "Leyenda: Celeridad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendAlacrity/LegendAlacrity.png",
+      "style": "Precision",
+      "slot": 2
+    },
+    {
+      "key": "LegendHaste",
+      "name": "Leyenda: Aceleración",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendHaste/LegendHaste.png",
+      "style": "Precision",
+      "slot": 2
+    },
+    {
+      "key": "LegendBloodline",
+      "name": "Leyenda: Linaje",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/LegendBloodline/LegendBloodline.png",
+      "style": "Precision",
+      "slot": 2
+    },
+    {
+      "key": "CoupDeGrace",
+      "name": "Golpe de Gracia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/CoupDeGrace/CoupDeGrace.png",
+      "style": "Precision",
+      "slot": 3
+    },
+    {
+      "key": "CutDown",
+      "name": "Corte",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Precision/CutDown/CutDown.png",
+      "style": "Precision",
+      "slot": 3
+    },
+    {
+      "key": "LastStand",
+      "name": "La Última Batalla",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/LastStand/LastStand.png",
+      "style": "Precision",
+      "slot": 3
+    },
+    {
+      "key": "GraspOfTheUndying",
+      "name": "Agarre del Perpetuo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/GraspOfTheUndying/GraspOfTheUndying.png",
+      "style": "Resolve",
+      "slot": 0
+    },
+    {
+      "key": "Aftershock",
+      "name": "Réplica",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/VeteranAftershock/VeteranAftershock.png",
+      "style": "Resolve",
+      "slot": 0
+    },
+    {
+      "key": "Guardian",
+      "name": "Guardián",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/Guardian/Guardian.png",
+      "style": "Resolve",
+      "slot": 0
+    },
+    {
+      "key": "Demolish",
+      "name": "Demolición",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/Demolish/Demolish.png",
+      "style": "Resolve",
+      "slot": 1
+    },
+    {
+      "key": "FontOfLife",
+      "name": "Fuente de Vida",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/FontOfLife/FontOfLife.png",
+      "style": "Resolve",
+      "slot": 1
+    },
+    {
+      "key": "ShieldBash",
+      "name": "Golpe de Escudo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/MirrorShell/MirrorShell.png",
+      "style": "Resolve",
+      "slot": 1
+    },
+    {
+      "key": "Conditioning",
+      "name": "Acondicionamiento",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/Conditioning/Conditioning.png",
+      "style": "Resolve",
+      "slot": 2
+    },
+    {
+      "key": "SecondWind",
+      "name": "Segundo Aire",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/SecondWind/SecondWind.png",
+      "style": "Resolve",
+      "slot": 2
+    },
+    {
+      "key": "BonePlating",
+      "name": "Coraza Ósea",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/BonePlating/BonePlating.png",
+      "style": "Resolve",
+      "slot": 2
+    },
+    {
+      "key": "Overgrowth",
+      "name": "Crecimiento Excesivo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/Overgrowth/Overgrowth.png",
+      "style": "Resolve",
+      "slot": 3
+    },
+    {
+      "key": "Revitalize",
+      "name": "Revitalizar",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Resolve/Revitalize/Revitalize.png",
+      "style": "Resolve",
+      "slot": 3
+    },
+    {
+      "key": "Unflinching",
+      "name": "Inquebrantable",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/Unflinching/Unflinching.png",
+      "style": "Resolve",
+      "slot": 3
+    },
+    {
+      "key": "SummonAery",
+      "name": "Invocación: Aery",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/SummonAery/SummonAery.png",
+      "style": "Sorcery",
+      "slot": 0
+    },
+    {
+      "key": "ArcaneComet",
+      "name": "Cometa Arcano",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/ArcaneComet/ArcaneComet.png",
+      "style": "Sorcery",
+      "slot": 0
+    },
+    {
+      "key": "PhaseRush",
+      "name": "Arrebato del Cabalgatormentas",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/PhaseRush/StormraidersSurgeRuneIcon2.png",
+      "style": "Sorcery",
+      "slot": 0
+    },
+    {
+      "key": "DeathfireTouch",
+      "name": "Toque de la Muerte Ígnea",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/DeathfireTouch/DEATHFIRE_TOUCH_KEYSTONE.png",
+      "style": "Sorcery",
+      "slot": 0
+    },
+    {
+      "key": "NullifyingOrb",
+      "name": "Arcanista Axiomático",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/NullifyingOrb/Axiom_Arcanist.png",
+      "style": "Sorcery",
+      "slot": 1
+    },
+    {
+      "key": "ManaflowBand",
+      "name": "Anillo de Flujo de Maná",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/ManaflowBand/ManaflowBand.png",
+      "style": "Sorcery",
+      "slot": 1
+    },
+    {
+      "key": "NimbusCloak",
+      "name": "Capa del Nimbo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/NimbusCloak/6361.png",
+      "style": "Sorcery",
+      "slot": 1
+    },
+    {
+      "key": "Transcendence",
+      "name": "Trascendencia",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/Transcendence/Transcendence.png",
+      "style": "Sorcery",
+      "slot": 2
+    },
+    {
+      "key": "Celerity",
+      "name": "Celeridad",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/Celerity/CelerityTemp.png",
+      "style": "Sorcery",
+      "slot": 2
+    },
+    {
+      "key": "AbsoluteFocus",
+      "name": "Concentración Absoluta",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/AbsoluteFocus/AbsoluteFocus.png",
+      "style": "Sorcery",
+      "slot": 2
+    },
+    {
+      "key": "Scorch",
+      "name": "Quemadura",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/Scorch/Scorch.png",
+      "style": "Sorcery",
+      "slot": 3
+    },
+    {
+      "key": "Waterwalking",
+      "name": "Caminata Sobre Agua",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/Waterwalking/Waterwalking.png",
+      "style": "Sorcery",
+      "slot": 3
+    },
+    {
+      "key": "GatheringStorm",
+      "name": "Tormenta Creciente",
+      "image": "https://ddragon.leagueoflegends.com/cdn/img/perk-images/Styles/Sorcery/GatheringStorm/GatheringStorm.png",
+      "style": "Sorcery",
+      "slot": 3
+    }
+  ],
+  "summoners": [
+    {
+      "id": "SummonerBarrier",
+      "name": "Barrera",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerBarrier.png"
+    },
+    {
+      "id": "SummonerBoost",
+      "name": "Purificación",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerBoost.png"
+    },
+    {
+      "id": "SummonerDot",
+      "name": "Ignición",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerDot.png"
+    },
+    {
+      "id": "SummonerExhaust",
+      "name": "Extenuación",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerExhaust.png"
+    },
+    {
+      "id": "SummonerFlash",
+      "name": "Destello",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerFlash.png"
+    },
+    {
+      "id": "SummonerHaste",
+      "name": "Fantasma",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerHaste.png"
+    },
+    {
+      "id": "SummonerHeal",
+      "name": "Curación",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerHeal.png"
+    },
+    {
+      "id": "SummonerSmite",
+      "name": "Castigo",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerSmite.png"
+    },
+    {
+      "id": "SummonerTeleport",
+      "name": "Teleportación",
+      "image": "https://ddragon.leagueoflegends.com/cdn/16.20.1/img/spell/SummonerTeleport.png"
+    }
   ]
 }

@@ -3,6 +3,7 @@ import { randomBytes, randomUUID } from "node:crypto";
 import { spawn } from "node:child_process";
 import { startQaMailpit, startQaPostgres } from "./qa-support";
 import type { getDb as DatabaseFactory } from "../lib/db";
+import type { Prisma } from "../generated/prisma/client";
 
 const origin = "http://localhost:3000";
 const password = "Cholo-qa-password-7391";
@@ -11,7 +12,7 @@ async function migrate(databaseUrl: string) {
   await new Promise<void>((resolve, reject) => {
     const child = spawn("pnpm", ["exec", "prisma", "migrate", "deploy"], {
       cwd: process.cwd(),
-      env: { ...process.env, DATABASE_URL: databaseUrl },
+      env: { ...process.env, DATABASE_URL: databaseUrl, DIRECT_URL: databaseUrl },
       stdio: ["ignore", "pipe", "pipe"],
     });
     let diagnostic = "";
@@ -40,6 +41,8 @@ async function main() {
   const mailbox = await startQaMailpit(0);
   (process.env as Record<string, string | undefined>).NODE_ENV = "test";
   process.env.DATABASE_URL = database.url;
+  // CLI precedence must never select an inherited or dotenv-hosted administrative URL.
+  process.env.DIRECT_URL = database.url;
   process.env.BETTER_AUTH_SECRET = randomBytes(32).toString("hex");
   process.env.BETTER_AUTH_URL = origin;
   process.env.AUTH_MAILPIT_URL = mailbox.url;
@@ -49,6 +52,7 @@ async function main() {
   delete process.env.OPENROUTER_API_KEY;
   delete process.env.RESEND_API_KEY;
   delete process.env.RIOT_API_KEY;
+  process.env.OPENROUTER_MODEL = "openai/gpt-5.6-luna";
 
   let cleanupDb: ReturnType<typeof DatabaseFactory> | undefined;
   try {
@@ -93,7 +97,7 @@ async function main() {
         monthlyBudgetUsd: "0.50",
         dailyBudgetUsd: "0.20",
         minuteRequestLimit: 5,
-        allowedModels: ["anthropic/claude-haiku-5.5"],
+        allowedModels: ["openai/gpt-5.6-luna", "anthropic/claude-haiku-5.5"],
         webSearchAllowed: false,
       },
     });
@@ -107,7 +111,7 @@ async function main() {
         monthlyBudgetUsd: "3.00",
         dailyBudgetUsd: "0.50",
         minuteRequestLimit: 5,
-        allowedModels: ["anthropic/claude-haiku-5.5"],
+        allowedModels: ["openai/gpt-5.6-luna", "anthropic/claude-haiku-5.5"],
         webSearchAllowed: true,
       },
     });
@@ -311,7 +315,12 @@ async function main() {
     console.info("PASS · invitación Pro de cortesía, correo vinculado y rol sin escalamiento");
 
     const model = "anthropic/claude-haiku-5.5";
-    const reserve = (userId: string, key = randomUUID(), hash = "qa-input-hash", amount = "0.05") =>
+    const reserve = (
+      userId: string,
+      key: string = randomUUID(),
+      hash: string = randomUUID(),
+      amount = "0.05",
+    ) =>
       usage.reserveGeneration({
         userId,
         key,
@@ -346,8 +355,14 @@ async function main() {
     const unknown = await db.aiRequest.findUniqueOrThrow({ where: { id: unknownId } });
     assert.equal(unknown.status, "UNKNOWN");
     assert.equal(unknown.actualCostUsd, null, "Missing billing cost never becomes zero");
-    assert.equal((await usage.getAccountUsage(alice.user.id)).pending, 1);
-    await assert.rejects(reserve(alice.user.id), (error: unknown) => status(error) === 429);
+    assert.equal((await usage.getAccountUsage(alice.user.id)).pending, 0);
+    assert.equal((await usage.getAccountUsage(alice.user.id)).uncertain, 1);
+    const sameUnknown = await reserve(alice.user.id, randomUUID(), unknown.inputHash);
+    assert.equal(sameUnknown.request.id, unknownId);
+    assert.equal(sameUnknown.replay, true, "A new key cannot duplicate the same uncertain intent");
+    const distinctIntent = await reserve(alice.user.id);
+    assert.notEqual(distinctIntent.request.id, unknownId);
+    await usage.finishGeneration(distinctIntent.request.id, {});
     const beforeUnknownRepeat = await db.usageBucket.findMany({
       where: { scope: "USER", scopeId: alice.user.id },
       orderBy: { period: "asc" },
@@ -378,8 +393,9 @@ async function main() {
     );
 
     const idempotencyKey = randomUUID();
+    const idempotencyHash = randomUUID();
     const repeated = await Promise.all(
-      Array.from({ length: 12 }, () => reserve(bob.user.id, idempotencyKey)),
+      Array.from({ length: 12 }, () => reserve(bob.user.id, idempotencyKey, idempotencyHash)),
     );
     assert.equal(new Set(repeated.map((entry) => entry.request.id)).size, 1);
     assert.equal(repeated.filter((entry) => !entry.replay).length, 1);
@@ -576,10 +592,297 @@ async function main() {
         },
         ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
       });
+
+    const preferenceRoute = await import("../app/api/champion-preferences/route");
+    const preferences = await import("../lib/champion-preferences");
+    const usageBeforePreferences = await db.usageBucket.findMany({ orderBy: { id: "asc" } });
+    const aiBeforePreferences = await db.aiRequest.findMany({ orderBy: { id: "asc" } });
+    const beforePreferenceFetch = globalThis.fetch;
+    let preferenceCatalogCalls = 0;
+    // Public catalog fallback is deterministic here: this suite contacts no Riot service.
+    globalThis.fetch = async () => {
+      preferenceCatalogCalls++;
+      throw new Error("QA uses the bundled public catalog");
+    };
+    const preferencePath = "/api/champion-preferences";
+    const putPreference = (cookie: string, body: unknown) =>
+      preferenceRoute.PUT(privateRequest(preferencePath, cookie, "PUT", body));
+    try {
+      const emptyResponse = await preferenceRoute.GET(privateRequest(preferencePath, alice.cookie));
+      assert.equal(emptyResponse.status, 200);
+      assert.equal(emptyResponse.headers.get("cache-control"), "private, no-store");
+      assert.deepEqual(await emptyResponse.json(), preferences.emptyChampionPreferences());
+      assert.equal(preferenceCatalogCalls, 0, "Reading preferences needs no upstream catalog");
+
+      for (const invalid of [
+        { role: "INVALID", champions: ["Ahri"], version: 0 },
+        { role: "MID", champions: ["Ahri", "Ahri"], version: 0 },
+        { role: "MID", champions: ["Ahri"], version: -1 },
+        { role: "MID", champions: ["Ahri"], version: 0, userId: bob.user.id },
+        {
+          role: "MID",
+          champions: Array.from({ length: 13 }, (_, index) => `Champion${index}`),
+          version: 0,
+        },
+      ]) {
+        assert.equal((await putPreference(alice.cookie, invalid)).status, 400);
+      }
+      assert.equal(
+        preferenceCatalogCalls,
+        0,
+        "Malformed preferences are rejected before catalog calls",
+      );
+      assert.equal(
+        (
+          await putPreference(alice.cookie, {
+            role: "MID",
+            champions: ["UnknownChampion"],
+            version: 0,
+          })
+        ).status,
+        400,
+      );
+      assert.equal(await db.championPreference.count(), 0, "Invalid writes persist no preferences");
+
+      assert.equal(
+        (await putPreference(alice.cookie, { role: "MID", champions: ["Ahri", "Lux"], version: 0 }))
+          .status,
+        200,
+      );
+      assert.equal(
+        (await putPreference(bob.cookie, { role: "MID", champions: ["Yasuo"], version: 0 })).status,
+        200,
+      );
+      assert.equal(
+        (await putPreference(alice.cookie, { role: "SUPPORT", champions: ["Yasuo"], version: 0 }))
+          .status,
+        200,
+        "The server allows an off-role favorite without an artificial role restriction",
+      );
+      const alicePreferences = await (
+        await preferenceRoute.GET(
+          privateRequest(`${preferencePath}?userId=${bob.user.id}`, alice.cookie),
+        )
+      ).json();
+      assert.deepEqual(alicePreferences.favorites.MID, ["Ahri", "Lux"]);
+      assert.deepEqual(alicePreferences.favorites.SUPPORT, ["Yasuo"]);
+      assert.equal(alicePreferences.versions.MID, 1);
+      assert.deepEqual(
+        (await (await preferenceRoute.GET(privateRequest(preferencePath, bob.cookie))).json())
+          .favorites.MID,
+        ["Yasuo"],
+        "A forged query cannot read or change the other account's choices",
+      );
+
+      const competingUpdates = await Promise.all([
+        putPreference(alice.cookie, { role: "MID", champions: ["Lux", "Ahri"], version: 1 }),
+        putPreference(alice.cookie, { role: "MID", champions: ["Ahri", "Zed"], version: 1 }),
+      ]);
+      assert.deepEqual(competingUpdates.map((response) => response.status).sort(), [200, 409]);
+      const winningUpdate = await competingUpdates
+        .find((response) => response.status === 200)!
+        .json();
+      assert.equal(winningUpdate.versions.MID, 2);
+      assert.deepEqual(
+        await preferences.getChampionPreferences(alice.user.id),
+        winningUpdate,
+        "Only one concurrent edit can replace a given version",
+      );
+      for (const staleVersion of [0, 1])
+        assert.equal(
+          (await putPreference(alice.cookie, { role: "MID", champions: [], version: staleVersion }))
+            .status,
+          409,
+        );
+      const competingCreates = await Promise.all([
+        putPreference(bob.cookie, { role: "JUNGLE", champions: ["Rengar"], version: 0 }),
+        putPreference(bob.cookie, { role: "JUNGLE", champions: ["LeeSin"], version: 0 }),
+      ]);
+      assert.deepEqual(competingCreates.map((response) => response.status).sort(), [200, 409]);
+      assert.equal(
+        await db.championPreference.count({ where: { userId: bob.user.id, role: "JUNGLE" } }),
+        1,
+      );
+      const cleared = await putPreference(alice.cookie, { role: "MID", champions: [], version: 2 });
+      assert.equal(cleared.status, 200);
+      assert.deepEqual((await cleared.json()).favorites.MID, []);
+      assert.equal((await preferences.getChampionPreferences(alice.user.id)).versions.MID, 3);
+
+      const unauthorizedPut = privateRequest(preferencePath, "", "PUT", { invalid: true });
+      let unauthorizedBodyReads = 0;
+      Object.defineProperty(unauthorizedPut.body!, "getReader", {
+        value: () => {
+          unauthorizedBodyReads++;
+          throw new Error("Unauthenticated body must not be read");
+        },
+      });
+      assert.equal((await preferenceRoute.PUT(unauthorizedPut)).status, 401);
+      assert.equal(unauthorizedBodyReads, 0, "Authentication precedes body consumption");
+      assert.equal((await preferenceRoute.GET(privateRequest(preferencePath, ""))).status, 401);
+      const foreignPut = privateRequest(preferencePath, alice.cookie, "PUT", {});
+      foreignPut.headers.set("origin", "https://foreign.example");
+      assert.equal((await preferenceRoute.PUT(foreignPut)).status, 403);
+      await db.user.update({ where: { id: alice.user.id }, data: { emailVerified: false } });
+      assert.equal(
+        (await preferenceRoute.GET(privateRequest(preferencePath, alice.cookie))).status,
+        403,
+      );
+      assert.equal(
+        (await putPreference(alice.cookie, { role: "TOP", champions: ["Sett"], version: 0 }))
+          .status,
+        403,
+      );
+      await db.user.update({ where: { id: alice.user.id }, data: { emailVerified: true } });
+
+      const oversized = new Request(`${origin}${preferencePath}`, {
+        method: "PUT",
+        headers: { origin, cookie: alice.cookie, "content-type": "application/json" },
+        body: " ".repeat(4097),
+      });
+      assert.equal((await preferenceRoute.PUT(oversized)).status, 413);
+      assert.deepEqual(
+        await db.usageBucket.findMany({ orderBy: { id: "asc" } }),
+        usageBeforePreferences,
+      );
+      assert.deepEqual(
+        await db.aiRequest.findMany({ orderBy: { id: "asc" } }),
+        aiBeforePreferences,
+      );
+      const limiterKey = `grietapro-champion-preferences:user:${alice.user.id}`;
+      const currentPreferenceMinute = BigInt(Math.floor(Date.now() / 60_000) * 60_000);
+      await db.rateLimit.update({
+        where: { key: limiterKey },
+        data: { count: 30, lastRequest: currentPreferenceMinute },
+      });
+      const limited = privateRequest(preferencePath, alice.cookie, "PUT", {});
+      let limitedBodyReads = 0;
+      Object.defineProperty(limited.body!, "getReader", {
+        value: () => {
+          limitedBodyReads++;
+          throw new Error("Rate-limited body must not be read");
+        },
+      });
+      const globalCount = (
+        await db.rateLimit.findUniqueOrThrow({
+          where: { key: "grietapro-champion-preferences:global" },
+        })
+      ).count;
+      assert.equal((await preferenceRoute.PUT(limited)).status, 429);
+      assert.equal(limitedBodyReads, 0, "Persistent write admission precedes body consumption");
+      assert.equal(
+        (
+          await db.rateLimit.findUniqueOrThrow({
+            where: { key: "grietapro-champion-preferences:global" },
+          })
+        ).count,
+        globalCount,
+      );
+      const nextPreferenceMinute = new Date(Number(currentPreferenceMinute) + 60_000);
+      await db.rateLimit.update({
+        where: { key: limiterKey },
+        data: { count: 29, lastRequest: BigInt(nextPreferenceMinute.getTime()) },
+      });
+      const finalPreferenceSlot = await Promise.allSettled([
+        preferences.limitChampionPreferenceWrites(alice.user.id, nextPreferenceMinute),
+        preferences.limitChampionPreferenceWrites(alice.user.id, nextPreferenceMinute),
+      ]);
+      assert.equal(finalPreferenceSlot.filter((result) => result.status === "fulfilled").length, 1);
+      assert.equal(
+        finalPreferenceSlot.filter(
+          (result) => result.status === "rejected" && status(result.reason) === 429,
+        ).length,
+        1,
+        "Only one concurrent write can take the final preference slot",
+      );
+      const preferenceRateRows = await db.rateLimit.count({
+        where: { key: { startsWith: "grietapro-champion-preferences:" } },
+      });
+      for (let offset = 1; offset <= 6; offset++)
+        await preferences.limitChampionPreferenceWrites(
+          alice.user.id,
+          new Date(nextPreferenceMinute.getTime() + offset * 60_000),
+        );
+      assert.equal(
+        await db.rateLimit.count({
+          where: { key: { startsWith: "grietapro-champion-preferences:" } },
+        }),
+        preferenceRateRows,
+        "Preference admission uses fixed rows rather than a new row for every minute",
+      );
+      const newestPreferenceBucket = await db.rateLimit.findUniqueOrThrow({
+        where: { key: limiterKey },
+      });
+      await assert.rejects(
+        preferences.limitChampionPreferenceWrites(alice.user.id, nextPreferenceMinute),
+        (error: unknown) => status(error) === 429,
+      );
+      assert.deepEqual(
+        await db.rateLimit.findUniqueOrThrow({ where: { key: limiterKey } }),
+        newestPreferenceBucket,
+      );
+      assert.deepEqual(
+        await db.usageBucket.findMany({ orderBy: { id: "asc" } }),
+        usageBeforePreferences,
+      );
+      const cascadeOwner = await db.user.create({
+        data: {
+          id: randomUUID(),
+          email: "preferences-delete@example.test",
+          name: "Delete preferences QA",
+        },
+      });
+      await preferences.saveChampionPreferences(cascadeOwner.id, {
+        role: "TOP",
+        champions: ["Sett"],
+        version: 0,
+      });
+      await db.user.delete({ where: { id: cascadeOwner.id } });
+      assert.equal(await db.championPreference.count({ where: { userId: cascadeOwner.id } }), 0);
+    } finally {
+      globalThis.fetch = beforePreferenceFetch;
+    }
+    console.info(
+      "PASS · favoritos por rol aislados, límite independiente, IDs válidos y conflictos de edición sin gastar cuota IA",
+    );
+
     const bobHistory = await historyList.GET(privateRequest("/api/history", bob.cookie));
     assert.equal(bobHistory.status, 200);
     assert.match(bobHistory.headers.get("cache-control") || "", /no-store/);
-    assert.equal((await bobHistory.json()).records.length, 1);
+    const currentHistory = await bobHistory.json();
+    assert.equal(currentHistory.records.length, 1);
+    assert.equal(currentHistory.records[0].result.meta.formatVersion, 2);
+    // A pre-redesign record remains intact and is explicitly marked for its legacy renderer.
+    const legacyPlan = {
+      headline: "Plan anterior",
+      difficulty: "Orientativo",
+      winCondition: "Conserva una salida.",
+      levels: [{ level: "1", action: "Empieza Q." }],
+      mechanics: [{ trigger: "Usa el muro", response: "Espera." }],
+      build: {
+        label: "Build sugerida",
+        starting: ["1056"],
+        core: [],
+        situational: [],
+        runes: ["Electrocutar"],
+        summoners: ["Destello", "Ignición"],
+        skillOrder: "Q → W → E",
+      },
+      macro: ["Revisa visión."],
+      avoid: ["No persigas."],
+    };
+    await db.coachRecord.update({ where: { id: records[0].id }, data: { plan: legacyPlan } });
+    const legacyHistory = await historyList.GET(privateRequest("/api/history", bob.cookie));
+    const legacy = (await legacyHistory.json()).records[0];
+    assert.equal(legacy.result.meta.formatVersion, 1);
+    assert.deepEqual(
+      legacy.result.plan,
+      legacyPlan,
+      "Old advice is never replaced with invented new fields",
+    );
+    await db.coachRecord.update({
+      where: { id: records[0].id },
+      data: { plan: result.plan as unknown as Prisma.InputJsonValue },
+    });
     const aliceHistory = await historyList.GET(
       privateRequest(`/api/history?userId=${bob.user.id}`, alice.cookie),
     );
@@ -670,11 +973,8 @@ async function main() {
       notes: "Quiero esquivar el tornado de Yasuo",
       apiKey: undefined,
     };
-    const routePlan = structuredClone(result.plan);
-    routePlan.levels = ["1", "2", "3-5", "6"].map((level) => ({
-      level,
-      action: "Conserva una salida y castiga cuando termine el muro.",
-    }));
+    const { fixturePlan } = await import("../tests/coach-fixtures");
+    const routePlan = structuredClone(fixturePlan);
     process.env.OPENROUTER_API_KEY = "sk-or-qa-fake-NEVER-FOR-NETWORK";
     globalThis.fetch = async (resource, init) => {
       externalCalls++;
@@ -699,7 +999,10 @@ async function main() {
       if (redirected) throw new TypeError("QA-only rejected redirect");
       const payload = JSON.parse(String(init?.body));
       const extracting = payload.response_format.json_schema.name === "league_draft_extraction";
-      assert.equal(payload.max_completion_tokens, extracting ? 1600 : 4200);
+      assert.equal(
+        payload.max_completion_tokens,
+        extracting ? usage.MAX_DRAFT_COMPLETION_TOKENS : usage.MAX_COACH_COMPLETION_TOKENS,
+      );
       assert.equal(payload.provider.allow_fallbacks, false);
       assert.ok(payload.provider.max_price);
       assert.ok(!JSON.stringify(payload.messages).includes("sk-or-qa-fake"));
@@ -983,6 +1286,17 @@ async function main() {
       "Reset tokens are single use",
     );
     assert.equal((await auth("sign-out", {}, cookies(newSignin))).status, 200);
+    assert.equal(
+      (await preferenceRoute.GET(privateRequest(preferencePath, cookies(newSignin)))).status,
+      401,
+      "A revoked session cannot read private champion preferences",
+    );
+    assert.equal(
+      (await putPreference(cookies(newSignin), { role: "MID", champions: ["Ahri"], version: 1 }))
+        .status,
+      401,
+      "A revoked session cannot mutate private champion preferences",
+    );
     await assert.rejects(
       requireVerifiedUser(privateRequest("/api/account", cookies(newSignin))),
       (error: unknown) => status(error) === 401,
@@ -1104,6 +1418,71 @@ async function main() {
     console.info(
       "PASS · admisión concurrente por usuario/global, renovación y almacenamiento acotado sin gastar cuota IA",
     );
+
+    const customFree = await db.plan.update({
+      where: { id: free.id },
+      data: { name: "Free personalizado QA", allowedModels: ["anthropic/claude-haiku-5.5"] },
+    });
+    const unchangedPro = await db.plan.findUniqueOrThrow({ where: { id: pro.id } });
+    const requestsBeforeSeed = await db.aiRequest.findMany({ orderBy: { id: "asc" } });
+    const bucketsBeforeSeed = await db.usageBucket.findMany({ orderBy: { id: "asc" } });
+    const { seedPlans } = await import("./seed-plans");
+    await seedPlans();
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: free.id } }), customFree);
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), unchangedPro);
+    await seedPlans({ enableDefaultModel: true });
+    const enabledFree = await db.plan.findUniqueOrThrow({ where: { id: free.id } });
+    const {
+      allowedModels: enabledModels,
+      version: enabledVersion,
+      updatedAt: enabledAt,
+      ...enabledPolicy
+    } = enabledFree;
+    const {
+      allowedModels: originalModels,
+      version: originalVersion,
+      updatedAt: originalAt,
+      ...originalPolicy
+    } = customFree;
+    assert.deepEqual(enabledModels, [...originalModels, "openai/gpt-5.6-luna"]);
+    assert.equal(enabledVersion, originalVersion + 1);
+    assert.deepEqual(
+      enabledPolicy,
+      originalPolicy,
+      "Enabling Luna preserves all custom quotas, budgets, permissions and name",
+    );
+    assert.ok(enabledAt >= originalAt);
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), unchangedPro);
+    await seedPlans({ enableDefaultModel: true });
+    assert.deepEqual(
+      await db.plan.findUniqueOrThrow({ where: { id: free.id } }),
+      enabledFree,
+      "An already enabled model is never duplicated or versioned again",
+    );
+    assert.deepEqual(await db.aiRequest.findMany({ orderBy: { id: "asc" } }), requestsBeforeSeed);
+    assert.deepEqual(await db.usageBucket.findMany({ orderBy: { id: "asc" } }), bucketsBeforeSeed);
+    console.info(
+      "PASS · activación opt-in de Luna conserva planes personalizados, cuotas y reservas inciertas sin duplicar el modelo",
+    );
+
+    await resetRegistrationFixtureLimits();
+    const registrationBeforeReconciliation = process.env.APP_REGISTRATION_MODE;
+    process.env.APP_REGISTRATION_MODE = "open";
+    const reconciliationUser = await createVerifiedUser("reconcile@example.test");
+    const reconciliationOther = await createVerifiedUser("reconcile-other@example.test");
+    if (registrationBeforeReconciliation === undefined) delete process.env.APP_REGISTRATION_MODE;
+    else process.env.APP_REGISTRATION_MODE = registrationBeforeReconciliation;
+    const { runReconciliationQa } = await import("./reconciliation-qa");
+    await runReconciliationQa({
+      db,
+      user: reconciliationUser,
+      other: reconciliationOther,
+      proPlanId: pro.id,
+      result,
+      input: safeInput,
+      origin,
+      privateRequest,
+    });
 
     const overBudget = await reserve(
       friend.user.id,

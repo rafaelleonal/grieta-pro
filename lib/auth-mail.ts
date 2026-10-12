@@ -1,5 +1,7 @@
 import type { AuthConfig } from "./auth-config";
 
+const AUTH_MAIL_ERROR = "No pudimos enviar el correo. Inténtalo nuevamente.";
+
 function escapeHtml(value: string): string {
   return value.replace(
     /[&<>"']/g,
@@ -15,9 +17,23 @@ export async function sendAuthEmail(
   url: string,
   purpose: "verify" | "reset",
 ) {
+  try {
+    await deliverAuthEmail(config, recipient, url, purpose);
+  } catch {
+    // Dependencies may log non-API errors. Never let transport errors or their
+    // causes carry recipients, signed links or credentials beyond this boundary.
+    throw new Error(AUTH_MAIL_ERROR);
+  }
+}
+
+async function deliverAuthEmail(
+  config: AuthConfig,
+  recipient: string,
+  url: string,
+  purpose: "verify" | "reset",
+) {
   const link = new URL(url);
-  if (link.origin !== config.baseUrl)
-    throw new Error("No pudimos enviar el correo. Inténtalo nuevamente.");
+  if (link.origin !== config.baseUrl) throw new Error(AUTH_MAIL_ERROR);
   const subject =
     purpose === "verify"
       ? "Confirma tu correo · GrietaPro"
@@ -60,5 +76,5 @@ export async function sendAuthEmail(
     ),
     signal: AbortSignal.timeout(10_000),
   });
-  if (!response.ok) throw new Error("No pudimos enviar el correo. Inténtalo nuevamente.");
+  if (!response.ok) throw new Error(AUTH_MAIL_ERROR);
 }

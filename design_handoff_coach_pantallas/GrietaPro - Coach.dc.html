@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-87d988fd-cab1-477f-b3a2-a3e2da980d9a/styles.css">
+<script src="_ds/nocturne-87d988fd-cab1-477f-b3a2-a3e2da980d9a/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<style>body{margin:0;background:var(--color-bg)}a{color:var(--color-accent)}a:hover{color:var(--color-accent-300)}button{font-family:inherit}</style>
+</helmet>
+<div onMouseEnter="{{ onEnter }}" onMouseLeave="{{ onLeave }}" style="width:1920px;height:1080px;display:flex;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body);overflow:hidden;position:relative;font-size:15px;line-height:1.5">
+
+  <aside style="width:218px;flex:none;height:100%;display:flex;flex-direction:column;padding:26px 14px 18px;position:relative;box-sizing:border-box">
+    <div style="position:absolute;top:0;right:0;bottom:0;width:1px;background:linear-gradient(to bottom, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent)"></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:0 8px">
+      <div style="width:32px;height:34px;display:grid;place-items:center;border:1px solid var(--color-accent);border-radius:10px 10px 10px 3px;transform:rotate(-5deg);color:var(--color-accent)"><i class="ph ph-sword" style="font-size:19px;transform:rotate(5deg)"></i></div>
+      <div style="font-size:18px;font-weight:500;letter-spacing:-0.02em">Grieta<span style="color:var(--color-accent-300)">Pro</span></div>
+    </div>
+    <p style="margin:38px 10px 10px;font-size:10px;letter-spacing:0.14em;color:var(--color-neutral-500)">TU ESPACIO DE JUEGO</p>
+    <nav style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-md);background:var(--color-accent-900);color:var(--color-accent-200);font-size:13px"><i class="ph ph-crosshair" style="font-size:17px;color:var(--color-accent)"></i><span>Coach de partida</span><span style="margin-left:auto;width:5px;height:5px;border-radius:50%;background:var(--color-accent)"></span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-md);color:var(--color-neutral-400);font-size:13px"><i class="ph ph-clock-counter-clockwise" style="font-size:17px"></i><span>Mis sesiones</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-md);color:var(--color-neutral-400);font-size:13px"><i class="ph ph-book-open" style="font-size:17px"></i><span>Cómo funciona</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-md);color:var(--color-neutral-400);font-size:13px"><i class="ph ph-plus" style="font-size:17px"></i><span>Nueva preparación</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:10px 10px;border-radius:var(--radius-md);color:var(--color-neutral-400);font-size:13px"><i class="ph ph-download-simple" style="font-size:17px"></i><span>Instalar app</span></div>
+    </nav>
+    <div style="margin:28px 6px 0;padding:14px 13px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm)">
+      <i class="ph ph-target" style="font-size:20px;color:var(--color-accent)"></i>
+      <div style="font-size:12px;font-weight:500;margin:10px 0 5px">Cada decisión cuenta.</div>
+      <p style="margin:0;font-size:11.5px;line-height:1.6;color:var(--color-neutral-500)">Un buen plan no gana la partida por ti. Te ayuda a tomar la siguiente decisión.</p>
+    </div>
+    <div style="margin-top:auto">
+      <div style="display:flex;align-items:center;gap:8px;margin:0 8px 14px;font-size:11px;color:var(--color-neutral-500)"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-neutral-700)"></span>OpenRouter · sin configurar</div>
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 6px 0;background:linear-gradient(to right, transparent, var(--color-divider) 24px, var(--color-divider) calc(100% - 24px), transparent) no-repeat top / 100% 1px">
+        <div style="width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:var(--color-neutral-800);color:var(--color-neutral-300);font-size:11px;font-weight:600">GG</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:500">Tu espacio personal</div>
+          <div style="font-size:10.5px;color:var(--color-neutral-500)">Entrar o crear cuenta</div>
+        </div>
+        <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+      </div>
+    </div>
+  </aside>
+
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column">
+    <header style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat bottom / 100% 1px">
+      <div style="display:flex;align-items:center;gap:10px;font-size:12px;color:var(--color-neutral-500)"><span>Tu espacio</span><i class="ph ph-caret-right" style="font-size:11px"></i><span style="color:var(--color-neutral-300)">League of Legends</span></div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <span style="display:inline-flex;align-items:center;gap:7px;font-size:11px;color:var(--color-neutral-400);padding:5px 9px;border-radius:6px;box-shadow:var(--shadow-sm)"><i class="ph ph-sparkle" style="font-size:12px"></i>anthropic/claude-haiku-4.5<i class="ph ph-caret-down" style="font-size:11px"></i></span>
+        <span style="display:inline-flex;align-items:center;gap:7px;font-size:10.5px;letter-spacing:0.04em;color:var(--color-neutral-300);padding:5px 9px;border-radius:6px;background:var(--color-neutral-900)"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-accent)"></span>RIOT 16.20.1</span>
+        <button class="btn btn-secondary btn-icon" aria-label="Conexión y modelo" style="width:34px;height:34px"><i class="ph ph-sliders-horizontal" style="font-size:16px"></i></button>
+      </div>
+    </header>
+
+    <main style="flex:1;min-height:0;display:flex;gap:16px;padding:20px">
+
+      <sc-if value="{{ formOpen }}" hint-placeholder-val="{{ false }}">
+        <section style="width:340px;flex:none;display:flex;flex-direction:column;background:var(--color-surface);border-radius:var(--radius-lg);padding:18px;box-sizing:border-box;overflow-y:auto">
+          <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px">
+            <i class="ph ph-sliders-horizontal" style="font-size:16px;color:var(--color-accent)"></i>
+            <span style="font-size:15px;font-weight:500">Tu partida</span>
+            <span style="margin-left:auto;font-size:10px;letter-spacing:0.08em;color:var(--color-neutral-500)">01 / CONTEXTO</span>
+            <button class="btn btn-ghost btn-icon" onClick="{{ toggleForm }}" aria-label="Contraer formulario" title="Contraer formulario" style="width:28px;height:28px;color:var(--color-neutral-400)"><i class="ph ph-caret-double-left" style="font-size:14px"></i></button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--color-divider);border-radius:var(--radius-md);overflow:hidden;margin-bottom:16px">
+            <div style="display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 6px;font-size:12px;color:var(--color-accent);box-shadow:inset 0 0 0 1px var(--color-accent);border-radius:var(--radius-md);white-space:nowrap"><i class="ph ph-sword" style="font-size:13px"></i>Selección manual</div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:7px;padding:8px 6px;font-size:12px;color:var(--color-neutral-400);white-space:nowrap"><i class="ph ph-image" style="font-size:13px"></i>Foto, captura o texto</div>
+          </div>
+          <div style="font-size:12px;color:var(--color-neutral-400);margin-bottom:6px">Tu campeón</div>
+          <div style="display:flex;align-items:center;gap:11px;padding:7px 10px 7px 7px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-sm)">
+            <img src="https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ahri.png" alt="" style="width:40px;height:40px;border-radius:6px">
+            <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:500">Ahri</div><div style="font-size:11px;color:var(--color-neutral-500)">la Vastaya de Nueve Colas</div></div>
+            <i class="ph ph-caret-down" style="font-size:13px;color:var(--color-neutral-500)"></i>
+          </div>
+          <div style="display:flex;align-items:center;gap:9px;margin:9px 0;font-size:9.5px;letter-spacing:0.1em;color:var(--color-neutral-600)"><span style="flex:1;height:1px;background:linear-gradient(to right, transparent, var(--color-divider))"></span>VS<span style="flex:1;height:1px;background:linear-gradient(to left, transparent, var(--color-divider))"></span></div>
+          <div style="font-size:12px;color:var(--color-neutral-400);margin-bottom:6px">Tu rival de línea</div>
+          <div style="display:flex;align-items:center;gap:11px;padding:7px 10px 7px 7px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-sm)">
+            <img src="https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yasuo.png" alt="" style="width:40px;height:40px;border-radius:6px">
+            <div style="flex:1;min-width:0"><div style="font-size:13.5px;font-weight:500">Yasuo</div><div style="font-size:11px;color:var(--color-neutral-500)">el Imperdonable</div></div>
+            <i class="ph ph-caret-down" style="font-size:13px;color:var(--color-neutral-500)"></i>
+          </div>
+          <div style="font-size:12px;color:var(--color-neutral-400);margin:18px 0 6px">¿Dónde juegas?</div>
+          <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 7px;border-radius:7px;box-shadow:var(--shadow-sm);font-size:10px;color:var(--color-neutral-500)"><i class="ph ph-shield" style="font-size:17px"></i>Top</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 7px;border-radius:7px;box-shadow:var(--shadow-sm);font-size:10px;color:var(--color-neutral-500)"><i class="ph ph-leaf" style="font-size:17px"></i>Jungla</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 7px;border-radius:7px;box-shadow:inset 0 0 0 1px var(--color-accent);background:var(--color-accent-900);font-size:10px;color:var(--color-accent-200)"><i class="ph ph-crosshair" style="font-size:17px;color:var(--color-accent)"></i>Mid</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 7px;border-radius:7px;box-shadow:var(--shadow-sm);font-size:10px;color:var(--color-neutral-500)"><i class="ph ph-sword" style="font-size:17px"></i>ADC</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:5px;padding:9px 2px 7px;border-radius:7px;box-shadow:var(--shadow-sm);font-size:10px;color:var(--color-neutral-500)"><i class="ph ph-flag" style="font-size:17px"></i>Support</div>
+          </div>
+          <div style="font-size:12px;color:var(--color-neutral-400);margin:18px 0 6px">Tu rango</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-sm);font-size:13px">Oro<i class="ph ph-caret-down" style="font-size:12px;color:var(--color-neutral-500)"></i></div>
+          <div style="height:1px;margin:18px 0;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent)"></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-neutral-200)"><i class="ph ph-users" style="font-size:14px;color:var(--color-accent)"></i>Composición y contexto<span style="margin-left:auto;color:var(--color-accent-300)">8 de 8</span><i class="ph ph-caret-up" style="font-size:12px;color:var(--color-neutral-500)"></i></div>
+          <div style="display:flex;align-items:center;gap:7px;margin:14px 0 7px;font-size:10.5px;color:var(--color-neutral-400)"><span style="width:6px;height:6px;border-radius:50%;background:var(--color-accent)"></span>Tus otros aliados</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <sc-for list="{{ formAllies }}" as="c" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-sm)"><img src="{{ c.img }}" alt="" style="width:26px;height:26px;border-radius:5px"><span style="font-size:11.5px;font-weight:500">{{ c.name }}</span></div>
+            </sc-for>
+          </div>
+          <div style="display:flex;align-items:center;gap:7px;margin:12px 0 7px;font-size:10.5px;color:var(--color-neutral-400)"><span style="width:6px;height:6px;border-radius:50%;background:oklch(0.74 0.11 75)"></span>Los otros rivales</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+            <sc-for list="{{ formEnemies }}" as="c" hint-placeholder-count="4">
+              <div style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:var(--radius-md);background:var(--color-bg);box-shadow:var(--shadow-sm)"><img src="{{ c.img }}" alt="" style="width:26px;height:26px;border-radius:5px"><span style="font-size:11.5px;font-weight:500">{{ c.name }}</span></div>
+            </sc-for>
+          </div>
+          <div style="height:1px;margin:18px 0;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent)"></div>
+          <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-neutral-300)"><i class="ph ph-arrow-line-down" style="font-size:14px"></i>Importar partida con Riot ID<i class="ph ph-caret-down" style="font-size:12px;color:var(--color-neutral-500);margin-left:auto"></i></div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin:18px 0">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-neutral-300)"><i class="ph ph-globe" style="font-size:14px;color:var(--color-accent)"></i><div>Consultar fuentes actuales<div style="font-size:10.5px;color:var(--color-neutral-500)">Las fuentes dependen de tu plan</div></div></div>
+            <div style="width:34px;height:20px;border-radius:20px;padding:3px;box-sizing:border-box;display:flex;justify-content:flex-end;box-shadow:inset 0 0 0 1px var(--color-accent)"><span style="width:14px;height:14px;border-radius:50%;background:var(--color-accent)"></span></div>
+          </div>
+          <button class="btn btn-primary" style="width:100%;padding:11px 14px;font-size:13px;white-space:nowrap;flex:none"><i class="ph ph-sparkle" style="font-size:15px"></i>Generar plan de partida<i class="ph ph-arrow-right" style="font-size:14px;margin-left:auto"></i></button>
+          <p style="margin:9px 0 0;text-align:center;font-size:10.5px;color:var(--color-neutral-500)">Conciso. Específico. Hecho para tu siguiente partida.</p>
+        </section>
+      </sc-if>
+      <sc-if value="{{ formClosed }}" hint-placeholder-val="{{ true }}">
+        <section style="width:60px;flex:none;display:flex;flex-direction:column;align-items:center;gap:10px;background:var(--color-surface);border-radius:var(--radius-lg);padding:14px 0;box-sizing:border-box">
+          <button class="btn btn-ghost btn-icon" onClick="{{ toggleForm }}" aria-label="Abrir formulario" title="Abrir formulario" style="width:34px;height:34px;color:var(--color-neutral-400)"><i class="ph ph-caret-double-right" style="font-size:15px"></i></button>
+          <div style="width:28px;height:1px;background:var(--color-divider)"></div>
+          <img src="https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ahri.png" alt="Ahri" style="width:36px;height:36px;border-radius:8px">
+          <span style="font-size:10px;color:var(--color-neutral-500)">vs</span>
+          <img src="https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yasuo.png" alt="Yasuo" style="width:36px;height:36px;border-radius:8px">
+          <i class="ph ph-crosshair" title="Mid" style="font-size:17px;color:var(--color-accent);margin-top:4px"></i>
+          <span style="font-size:10px;color:var(--color-neutral-400)">Oro</span>
+          <span title="Composición completa" style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:var(--color-accent-300)"><i class="ph ph-users" style="font-size:13px"></i>8</span>
+          <button class="btn btn-ghost btn-icon" onClick="{{ toggleForm }}" aria-label="Editar partida" title="Editar partida" style="margin-top:auto;width:34px;height:34px"><i class="ph ph-pencil-simple" style="font-size:16px"></i></button>
+        </section>
+      </sc-if>
+
+      <section style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--color-surface);border-radius:var(--radius-lg);padding:18px 26px 22px;position:relative;box-sizing:border-box">
+        <div style="display:flex;align-items:center;gap:12px">
+          <div role="tablist" aria-label="Pantalla" style="display:inline-flex;gap:3px;padding:3px;border-radius:var(--radius-md);background:var(--color-bg);margin-right:10px">
+            <sc-for list="{{ screens }}" as="sc" hint-placeholder-count="2">
+              <button role="tab" aria-selected="{{ sc.active }}" onClick="{{ sc.onClick }}" style="display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border:0;border-radius:6px;background:{{ sc.bg }};color:{{ sc.fg }};box-shadow:{{ sc.ring }};font-size:13.5px;font-weight:500;cursor:pointer;white-space:nowrap"><i class="ph {{ sc.icon }}" style="font-size:15px"></i>{{ sc.label }}<span style="font-size:10.5px;font-weight:400;line-height:1;padding:3px 5px;border-radius:4px;background:var(--color-surface);color:var(--color-neutral-500)">{{ sc.key }}</span></button>
+            </sc-for>
+          </div>
+          <img src="https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Ahri.png" alt="" style="width:30px;height:30px;border-radius:7px">
+          <span style="font-size:15px;font-weight:500">Ahri</span>
+          <span style="font-size:12px;color:var(--color-neutral-500)">vs.</span>
+          <img src="https://ddragon.leagueoflegends.com/cdn/16.20.1/img/champion/Yasuo.png" alt="" style="width:30px;height:30px;border-radius:7px">
+          <span style="font-size:15px;font-weight:500">Yasuo</span>
+          <span style="font-size:13px;color:var(--color-neutral-400);margin-left:4px">Mid · Oro</span>
+          <button onClick="{{ toggleWarn }}" title="Ver advertencia" style="display:inline-flex;align-items:center;gap:6px;padding:4px 9px;border:1px solid oklch(0.45 0.07 75);border-radius:6px;background:oklch(0.27 0.035 75);color:oklch(0.85 0.08 78);font-size:11.5px;cursor:pointer;white-space:nowrap"><i class="ph ph-warning" style="font-size:13px"></i>Ejemplo<i class="ph ph-caret-down" style="font-size:11px"></i></button>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:14px">
+            <sc-if value="{{ isGame }}" hint-placeholder-val="{{ false }}"><div role="tablist" aria-label="Fase de la partida" style="display:inline-flex;border:1px solid var(--color-divider);border-radius:var(--radius-md);overflow:hidden">
+              <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+                <button role="tab" aria-selected="{{ t.active }}" onClick="{{ t.onClick }}" style="display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border:0;border-left:{{ t.sep }};background:{{ t.bg }};color:{{ t.fg }};box-shadow:{{ t.ring }};cursor:pointer;font-size:14px;font-weight:500;white-space:nowrap">{{ t.label }}<span style="font-size:12px;font-weight:400;color:var(--color-neutral-500)">{{ t.sub }}</span><span style="font-size:10.5px;font-weight:400;line-height:1;padding:3px 5px;border-radius:4px;background:var(--color-bg);color:var(--color-neutral-500)">{{ t.key }}</span></button>
+              </sc-for>
+            </div></sc-if>
+            <div style="display:flex;align-items:center;gap:2px">
+              <button class="btn btn-ghost btn-icon" onClick="{{ toggleFollowup }}" title="Preguntar al coach (/)" style="color:var(--color-neutral-400)"><i class="ph ph-chat-circle-text" style="font-size:18px"></i></button>
+              <button class="btn btn-ghost btn-icon" onClick="{{ copyPlan }}" title="{{ copyLabel }}" style="color:var(--color-neutral-400)"><i class="ph {{ copyIcon }}" style="font-size:18px"></i></button>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ warnOpen }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:10px 0 0;font-size:12.5px;color:oklch(0.85 0.08 78)">Esta es una demostración escrita de Ahri vs. Yasuo. No fue generada por IA ni verificada para el parche actual.</p>
+        </sc-if>
+
+        <div style="display:flex;align-items:center;gap:48px;margin-top:18px">
+          <div style="flex:1;min-width:0">
+            <h2 style="margin:0;font-size:30px;font-weight:500;letter-spacing:-0.02em;line-height:1.15">Haz que Yasuo se acerque en tus términos.</h2>
+            <p style="margin:8px 0 0;font-size:16px;line-height:1.5;color:var(--color-neutral-300);max-width:720px;text-wrap:pretty">Juega fuera de tu oleada, conserva E y castiga después de su muro. Tu ventaja viene de intercambios cortos y una entrada segura a nivel 6.</p>
+          </div>
+          <div style="flex:none;display:grid;grid-template-columns:auto auto;gap:8px 16px;align-items:start">
+            <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500);padding-top:12px">Tu equipo</span>
+            <div style="display:flex;gap:12px">
+              <sc-for list="{{ allies }}" as="c" hint-placeholder-count="5">
+                <div title="{{ c.title }}" style="width:52px;display:flex;flex-direction:column;align-items:center;gap:4px;opacity:{{ c.op }}">
+                  <img src="{{ c.img }}" alt="{{ c.name }}" style="width:40px;height:40px;border-radius:8px;box-shadow:0 0 0 2px {{ c.ring }}">
+                  <span style="font-size:11px;line-height:1.2;text-align:center;white-space:nowrap;color:{{ c.fg }}">{{ c.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500);padding-top:12px">Rivales</span>
+            <div style="display:flex;gap:12px">
+              <sc-for list="{{ enemies }}" as="c" hint-placeholder-count="5">
+                <div title="{{ c.title }}" style="width:52px;display:flex;flex-direction:column;align-items:center;gap:4px;opacity:{{ c.op }}">
+                  <img src="{{ c.img }}" alt="{{ c.name }}" style="width:40px;height:40px;border-radius:8px;box-shadow:0 0 0 2px {{ c.ring }}">
+                  <span style="font-size:11px;line-height:1.2;text-align:center;white-space:nowrap;color:{{ c.fg }}">{{ c.label }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+<sc-if value="{{ isSelect }}" hint-placeholder-val="{{ true }}">
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:14px;margin-top:18px">
+          <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr) minmax(0,1fr);gap:14px">
+            <div style="grid-row:1 / span 2;background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0;padding:18px 26px 20px">
+              <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-circles-three-plus" style="font-size:22px;color:var(--color-accent)"></i>¿Qué runas?<span style="font-size:13px;font-weight:400;color:var(--color-neutral-500);margin-left:4px">Página recomendada</span></div>
+              <div style="display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:36px;margin-top:22px">
+                <div style="min-width:0">
+                  <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--color-neutral-300)"><img src="{{ primary.icon }}" alt="" style="width:28px;height:28px">{{ primary.name }}</div>
+                  <div style="display:flex;align-items:center;gap:18px;margin-top:18px">
+                    <img src="{{ keystone.icon }}" alt="" style="width:80px;height:80px;flex:none;border-radius:50%;background:var(--color-surface);box-shadow:0 0 0 2px var(--color-accent)">
+                    <div style="min-width:0"><div style="font-size:28px;font-weight:500;line-height:1.15">{{ keystone.name }}</div><p style="margin:6px 0 0;font-size:14.5px;line-height:1.45;color:var(--color-neutral-400);text-wrap:pretty">{{ keystoneWhy }}</p></div>
+                  </div>
+                  <div style="display:flex;flex-direction:column;gap:12px;margin-top:22px">
+                    <sc-for list="{{ minors }}" as="r" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:14px"><img src="{{ r.icon }}" alt="" style="width:44px;height:44px;border-radius:50%;background:var(--color-surface)"><span style="font-size:17px;font-weight:500">{{ r.name }}</span></div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="min-width:0">
+                  <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--color-neutral-300)"><img src="{{ secondary.icon }}" alt="" style="width:28px;height:28px">{{ secondary.name }}</div>
+                  <div style="display:flex;flex-direction:column;gap:12px;margin-top:18px">
+                    <sc-for list="{{ secMinors }}" as="r" hint-placeholder-count="2">
+                      <div style="display:flex;align-items:center;gap:14px"><img src="{{ r.icon }}" alt="" style="width:44px;height:44px;border-radius:50%;background:var(--color-surface)"><span style="font-size:17px;font-weight:500">{{ r.name }}</span></div>
+                    </sc-for>
+                  </div>
+                  <div style="margin-top:26px"><div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500)">Fragmentos</div></div>
+                  <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+                    <sc-for list="{{ shards }}" as="f" hint-placeholder-count="3">
+                      <div style="display:flex;align-items:center;gap:10px;font-size:15px;color:var(--color-neutral-200)"><span style="width:26px;height:26px;display:grid;place-items:center;border-radius:50%;background:var(--color-surface);color:var(--color-accent-300)"><i class="ph {{ f.icon }}" style="font-size:14px"></i></span>{{ f.name }}</div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:auto;padding-top:16px;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px">
+                <div style="display:flex;align-items:center;gap:8px"><div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500)">Alternativa</div><span style="display:inline-flex;align-items:center;gap:6px;margin-left:6px;font-size:13.5px;color:oklch(0.85 0.08 78)"><sc-for list="{{ altRune.champs }}" as="m" hint-placeholder-count="0"><img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:22px;height:22px;border-radius:5px;box-shadow:0 0 0 1.5px {{ m.ring }}"></sc-for>{{ altRune.when }}</span></div>
+                <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+                  <img src="{{ altRune.icon }}" alt="" style="width:52px;height:52px;flex:none;border-radius:50%;background:var(--color-surface);box-shadow:0 0 0 1.5px var(--color-neutral-700)">
+                  <div style="min-width:0"><div style="font-size:18px;font-weight:500">{{ altRune.name }} <span style="font-size:13px;font-weight:400;color:var(--color-neutral-500)">{{ altRune.tree }}</span></div><div style="font-size:14px;color:var(--color-neutral-400)">{{ altRune.why }}</div></div>
+                </div>
+              </div>
+            </div>
+            <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0">
+              <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-magic-wand" style="font-size:22px;color:var(--color-accent)"></i>¿Qué hechizos?</div>
+              <div style="display:flex;align-items:center;gap:18px;margin-top:16px">
+                <div style="display:flex;gap:10px">
+                  <sc-for list="{{ spells }}" as="sp" hint-placeholder-count="2">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;width:76px"><img src="{{ sp.icon }}" alt="" style="width:60px;height:60px;border-radius:9px;box-shadow:0 0 0 2px var(--color-accent)"><span style="font-size:14px;font-weight:500;white-space:nowrap">{{ sp.name }}</span></div>
+                  </sc-for>
+                </div>
+                <p style="margin:0;font-size:15px;line-height:1.45;color:var(--color-neutral-300);text-wrap:pretty">{{ spellsWhy }}</p>
+              </div>
+              <div style="margin-top:auto;padding-top:14px;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px">
+                <div style="display:flex;align-items:center;gap:8px"><div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500)">Alternativa</div><span style="display:inline-flex;align-items:center;gap:6px;margin-left:6px;font-size:13.5px;color:oklch(0.85 0.08 78)"><sc-for list="{{ altSpells.champs }}" as="m" hint-placeholder-count="0"><img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:22px;height:22px;border-radius:5px;box-shadow:0 0 0 1.5px {{ m.ring }}"></sc-for>{{ altSpells.when }}</span></div>
+                <div style="display:flex;align-items:center;gap:14px;margin-top:10px">
+                  <div style="display:flex;gap:6px">
+                    <sc-for list="{{ altSpells.list }}" as="sp" hint-placeholder-count="2"><img src="{{ sp.icon }}" alt="{{ sp.name }}" title="{{ sp.name }}" style="width:42px;height:42px;border-radius:7px"></sc-for>
+                  </div>
+                  <div style="min-width:0"><div style="font-size:16px;font-weight:500">{{ altSpells.names }}</div><div style="font-size:14px;color:var(--color-neutral-400)">{{ altSpells.why }}</div></div>
+                </div>
+              </div>
+            </div>
+            <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0">
+              <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-flag-banner" style="font-size:22px;color:var(--color-accent)"></i>¿Con qué salgo?</div>
+              <div style="margin-top:14px"><div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500)">Habilidades · nivel 1 a 6</div></div>
+              <div style="display:flex;align-items:center;gap:8px;margin-top:10px">
+                <sc-for list="{{ skills }}" as="k" hint-placeholder-count="6">
+                  <div style="width:52px;display:flex;flex-direction:column;align-items:center;gap:4px"><span style="width:44px;height:44px;display:grid;place-items:center;border-radius:8px;font-size:18px;font-weight:600;background:{{ k.bg }};color:{{ k.fg }};box-shadow:{{ k.ring }}">{{ k.key }}</span><span style="font-size:11.5px;color:var(--color-neutral-500)">{{ k.lv }}</span></div>
+                </sc-for>
+                <span style="margin-left:14px;font-size:15px;color:var(--color-neutral-300)">Después: máximo <span style="font-weight:500;color:var(--color-text)">Q → W → E</span></span>
+              </div>
+              <div style="margin-top:auto;padding-top:14px;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px">
+                <div style="display:flex;align-items:center;gap:8px"><div style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500)">Compra inicial</div><span style="font-size:13px;color:var(--color-neutral-500);margin-left:4px">{{ startTotal }}</span></div>
+                <div style="display:flex;gap:18px;margin-top:10px">
+                  <sc-for list="{{ start }}" as="it" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:12px"><img src="{{ it.img }}" alt="" style="width:48px;height:48px;border-radius:8px;box-shadow:0 0 0 2px var(--color-accent)"><div><div style="font-size:15px;font-weight:500">{{ it.name }}</div><div style="font-size:13px;color:var(--color-neutral-500)">{{ it.gold }}</div></div></div>
+                  </sc-for>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-500);margin-right:4px;white-space:nowrap">Por su composición</span>
+            <sc-for list="{{ compNotes }}" as="n" hint-placeholder-count="3">
+              <div style="display:inline-flex;align-items:center;gap:9px;padding:9px 14px;border-radius:var(--radius-md);background:var(--color-bg);white-space:nowrap">
+                <div style="display:flex;gap:4px"><sc-for list="{{ n.champs }}" as="m" hint-placeholder-count="0"><img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:24px;height:24px;border-radius:5px;box-shadow:0 0 0 1.5px {{ m.ring }}"></sc-for></div>
+                <span style="font-size:14px;font-weight:500;color:{{ n.fg }}">{{ n.k }}</span>
+                <i class="ph ph-arrow-right" style="font-size:13px;color:var(--color-neutral-600)"></i>
+                <span style="font-size:14px;color:var(--color-neutral-300)">{{ n.t }}</span>
+              </div>
+            </sc-for>
+            <button class="btn btn-primary" onClick="{{ goGame }}" style="margin-left:auto;font-size:14px;padding:10px 14px;white-space:nowrap">Empezó la partida<i class="ph ph-arrow-right" style="font-size:15px"></i><span style="font-size:10.5px;line-height:1;padding:3px 5px;border-radius:4px;background:var(--color-bg);color:var(--color-neutral-400)">P</span></button>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ isGame }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:minmax(0,1.32fr) minmax(0,1fr);gap:14px;margin-top:18px">
+          <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-stack" style="font-size:22px;color:var(--color-accent)"></i>¿Qué hago?<span style="font-size:13px;font-weight:400;color:var(--color-neutral-500);margin-left:4px">{{ stepsTitle }}</span>
+              <div style="margin-left:auto;display:flex;align-items:center;gap:14px;font-size:12px;font-weight:400;color:var(--color-neutral-400)">
+                <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:5px;border-radius:3px;background:var(--color-accent)"></span>Tu ventana</span>
+                <span style="display:inline-flex;align-items:center;gap:6px"><span style="width:12px;height:5px;border-radius:3px;background:oklch(0.74 0.11 75)"></span>Cuidado</span>
+              </div>
+            </div>
+            <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:minmax(0,1fr);gap:2px 26px;margin-top:10px">
+              <sc-for list="{{ steps }}" as="s" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;align-items:start;padding:6px 0;background:linear-gradient(to bottom, {{ s.bar }}, {{ s.bar }}) no-repeat 0 6px / 3px 40px">
+                  <div style="padding-left:12px;font-size:28px;font-weight:500;line-height:40px;color:{{ s.numFg }}">{{ s.num }}</div>
+                  <div style="min-width:0">
+                    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                      <span style="font-size:19px;font-weight:500;line-height:1.25">{{ s.cue }}</span>
+                      <sc-if value="{{ s.hasSkill }}"><span style="font-size:12px;font-weight:600;line-height:1;padding:4px 6px;border-radius:4px;background:var(--color-accent-900);color:var(--color-accent-300)">{{ s.skill }}</span></sc-if>
+                      <sc-for list="{{ s.champs }}" as="m" hint-placeholder-count="0">
+                        <img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:24px;height:24px;border-radius:6px;box-shadow:0 0 0 1.5px {{ m.ring }}">
+                      </sc-for>
+                    </div>
+                    <sc-if value="{{ s.showText }}" hint-placeholder-val="{{ true }}"><p style="margin:4px 0 0;font-size:14.5px;line-height:1.45;color:var(--color-neutral-400);text-wrap:pretty">{{ s.text }}</p></sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-shopping-bag" style="font-size:22px;color:var(--color-accent)"></i>¿Qué compro?<span style="font-size:13px;font-weight:400;color:var(--color-neutral-500);margin-left:4px">Build orientativa</span></div>
+            <div style="display:flex;align-items:flex-start;gap:16px;margin-top:18px">
+              <sc-for list="{{ start }}" as="it" hint-placeholder-count="2">
+                <div style="width:96px;display:flex;flex-direction:column;gap:7px;opacity:{{ it.op }}">
+                  <img src="{{ it.img }}" alt="" style="width:64px;height:64px;border-radius:9px;box-shadow:0 0 0 2px {{ it.ring }}">
+                  <div style="font-size:14px;line-height:1.3">{{ it.name }}</div>
+                  <div style="font-size:13px;color:var(--color-neutral-500)">{{ it.gold }}</div>
+                </div>
+              </sc-for>
+              <i class="ph ph-arrow-right" style="font-size:20px;color:var(--color-neutral-600);margin-top:22px"></i>
+              <sc-for list="{{ order }}" as="it" hint-placeholder-count="3">
+                <div style="width:118px;display:flex;flex-direction:column;gap:7px;opacity:{{ it.op }}">
+                  <div style="position:relative;width:64px;height:64px">
+                    <img src="{{ it.img }}" alt="" style="width:64px;height:64px;border-radius:9px;box-shadow:0 0 0 2px {{ it.ring }}">
+                    <span style="position:absolute;top:-8px;left:-8px;width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:var(--color-surface);box-shadow:var(--shadow-sm);font-size:12px;font-weight:600">{{ it.n }}</span>
+                  </div>
+                  <div style="font-size:14.5px;font-weight:500;line-height:1.3">{{ it.name }}</div>
+                  <div style="font-size:13px;color:var(--color-neutral-500)">{{ it.gold }}</div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:16px;padding-top:14px;background:linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px">
+              <sc-for list="{{ situ }}" as="it" hint-placeholder-count="2">
+                <div style="display:flex;gap:12px;align-items:flex-start;opacity:{{ it.op }}">
+                  <img src="{{ it.img }}" alt="" style="width:48px;height:48px;border-radius:8px;box-shadow:0 0 0 2px {{ it.ring }}">
+                  <div style="min-width:0">
+                    <div style="font-size:14px;font-weight:500;line-height:1.3">{{ it.name }}</div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:5px;flex-wrap:wrap">
+                      <span style="font-size:13px;color:var(--color-neutral-400)">{{ it.reason }}</span>
+                      <sc-for list="{{ it.champs }}" as="m" hint-placeholder-count="0">
+                        <img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:22px;height:22px;border-radius:5px;box-shadow:0 0 0 1.5px {{ m.ring }}">
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-crosshair" style="font-size:22px;color:var(--color-accent)"></i>¿Cómo respondo?</div>
+            <div style="display:flex;flex-direction:column;margin-top:6px">
+              <sc-for list="{{ reactions }}" as="r" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;padding:9px 0;background:linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 9%, transparent) 48px, color-mix(in srgb, var(--color-text) 9%, transparent) calc(100% - 48px), transparent) no-repeat bottom / 100% 1px">
+                  <div style="display:flex;gap:4px;padding-top:2px">
+                    <sc-for list="{{ r.champs }}" as="m" hint-placeholder-count="0">
+                      <img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:32px;height:32px;border-radius:7px;box-shadow:0 0 0 1.5px {{ m.ring }}">
+                    </sc-for>
+                  </div>
+                  <div style="min-width:0">
+                    <div style="font-size:17px;font-weight:500;line-height:1.3">{{ r.trigger }}</div>
+                    <p style="margin:2px 0 0;font-size:14.5px;line-height:1.45;color:var(--color-neutral-400)">{{ r.response }}</p>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:var(--color-bg);border-radius:var(--radius-md);padding:16px 22px;display:flex;flex-direction:column;min-height:0">
+            <div style="display:flex;align-items:center;gap:10px;font-size:21px;font-weight:500"><i class="ph ph-timer" style="font-size:22px;color:var(--color-accent)"></i>¿Cuándo pego?<span style="font-size:13px;font-weight:400;color:var(--color-neutral-500);margin-left:4px">Claves de Yasuo · nv. 1</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 22px;margin-top:8px">
+              <sc-for list="{{ keys }}" as="k" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start;padding:7px 0">
+                  <span style="width:36px;height:34px;display:grid;place-items:center;border-radius:7px;background:var(--color-surface);font-size:13px;font-weight:600;color:var(--color-accent-300)">{{ k.key }}</span>
+                  <div style="min-width:0">
+                    <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:16px;font-weight:500">{{ k.name }}</span><span style="margin-left:auto;font-size:17px;font-weight:500;font-variant-numeric:tabular-nums;color:var(--color-neutral-200)">{{ k.cd }}</span></div>
+                    <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:1px">
+                      <span style="font-size:13.5px;color:var(--color-neutral-400);line-height:1.35">{{ k.note }}</span>
+                      <sc-for list="{{ k.champs }}" as="m" hint-placeholder-count="0">
+                        <img src="{{ m.img }}" alt="{{ m.name }}" title="{{ m.name }}" style="width:22px;height:22px;border-radius:5px;box-shadow:0 0 0 1.5px {{ m.ring }}">
+                      </sc-for>
+                    </div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="margin-top:auto;display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:var(--radius-md);background:oklch(0.25 0.03 75)">
+              <i class="ph ph-shield-warning" style="font-size:18px;color:oklch(0.85 0.08 78);margin-top:1px"></i>
+              <div><span style="font-size:15px;font-weight:500;color:oklch(0.85 0.08 78)">Evita · </span><span style="font-size:15px;color:var(--color-neutral-200)">{{ avoidNow }}</span></div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ followupOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;top:58px;right:26px;width:520px;z-index:5;padding:14px 16px;border-radius:var(--radius-md);background:var(--color-surface);box-shadow:var(--shadow-lg)">
+            <label style="display:block;font-size:13px;color:var(--color-neutral-300);margin-bottom:8px">¿Algo cambia en tu partida?</label>
+            <div style="display:flex;gap:8px">
+              <input class="input" ref="{{ inputRef }}" value="{{ followup }}" onChange="{{ onFollowupChange }}" placeholder="¿Y si me campean?" maxlength="1000" style="flex:1;min-width:0;background:var(--color-bg)">
+              <button class="btn btn-primary" disabled="{{ askDisabled }}" style="font-size:13px;white-space:nowrap">Preguntar<i class="ph ph-arrow-up" style="font-size:14px"></i></button>
+            </div>
+            <p style="margin:8px 0 0;font-size:12px;color:var(--color-neutral-500)">Cada pregunta genera un nuevo análisis. · Esc para cerrar</p>
+          </div>
+        </sc-if>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1920,&quot;height&quot;:1080},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;select&quot;,&quot;game&quot;],&quot;default&quot;:&quot;select&quot;,&quot;tsType&quot;:&quot;'select' | 'game'&quot;,&quot;section&quot;:&quot;Diseño&quot;},&quot;phase&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;linea&quot;,&quot;mid&quot;,&quot;late&quot;],&quot;default&quot;:&quot;linea&quot;,&quot;tsType&quot;:&quot;'linea' | 'mid' | 'late'&quot;,&quot;section&quot;:&quot;Diseño&quot;},&quot;form&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;colapsado&quot;,&quot;abierto&quot;],&quot;default&quot;:&quot;colapsado&quot;,&quot;tsType&quot;:&quot;'colapsado' | 'abierto'&quot;,&quot;section&quot;:&quot;Diseño&quot;}}">
+const IMG = 'https://ddragon.leagueoflegends.com/cdn/16.20.1/img/';
+const ITEMS = {
+  '1056': ['Sortija de Doran', 400],
+  '2003': ['Poción de Vida', 50],
+  '3020': ['Botas del Hechicero', 1100],
+  '6655': ['Eco de Luden', 2750],
+  '3089': ['Sombrero Mortífero de Rabadon', 3500],
+  '3157': ['Reloj de Arena de Zhonya', 3250],
+  '3135': ['Báculo del Vacío', 3000],
+};
+const CHAMPS = { Ornn: 'Ornn', Vi: 'Vi', Ahri: 'Ahri', Jinx: 'Jinx', Lulu: 'Lulu', Malphite: 'Malphite', LeeSin: 'Lee Sin', Yasuo: 'Yasuo', Kaisa: "Kai'Sa", Rakan: 'Rakan' };
+const AMBER = { fg: 'oklch(0.85 0.08 78)', bar: 'oklch(0.74 0.11 75)' };
+const MARK = {
+  ojo: { ring: AMBER.bar, fg: AMBER.fg },
+  sin: { ring: 'var(--color-accent)', fg: 'var(--color-accent-300)' },
+  you: { ring: 'var(--color-neutral-500)', fg: 'var(--color-neutral-300)' },
+  none: { ring: 'transparent', fg: 'var(--color-neutral-500)' },
+};
+// mark: ojo = amenaza, sin = sinergia u objetivo
+const ROLE = { ojo: 'ojo', sin: 'sin' };
+const ALLIES = [
+  { id: 'Ornn', label: 'Top' },
+  { id: 'Vi', mark: 'sin', label: 'Picks', note: 'Su R + tu E aseguran picks.' },
+  { id: 'Ahri', mark: 'you', label: 'Tú' },
+  { id: 'Jinx', label: 'ADC' },
+  { id: 'Lulu', label: 'Support' },
+];
+const ENEMIES = [
+  { id: 'Malphite', mark: 'ojo', label: 'Activa R', note: 'Su R lanza a tu equipo: Yasuo usa R después.' },
+  { id: 'LeeSin', mark: 'ojo', label: 'Gank nv. 3', note: 'Puede llegar a mid desde nivel 3.' },
+  { id: 'Yasuo', mark: 'you', label: 'Rival' },
+  { id: 'Kaisa', mark: 'sin', label: 'Objetivo', note: 'Tu objetivo en peleas: E sobre ella.' },
+  { id: 'Rakan', mark: 'ojo', label: 'Activa R', note: 'Su W lanza: Yasuo usa R después.' },
+];
+const markOf = (id) => {
+  const c = [...ALLIES, ...ENEMIES].find((x) => x.id === id);
+  return MARK[(c && c.mark) || 'none'];
+};
+const mini = (ids) => (ids || []).map((id) => ({ img: IMG + 'champion/' + id + '.png', name: CHAMPS[id], ring: markOf(id).ring }));
+
+const EDGE = {
+  tu: { bar: 'var(--color-accent)', numFg: 'var(--color-accent-300)' },
+  par: { bar: 'var(--color-neutral-800)', numFg: 'var(--color-text)' },
+  ojo: { bar: AMBER.bar, numFg: AMBER.fg },
+};
+const PHASES = [
+  { id: 'linea', label: 'Línea', sub: 'Nv. 1–6', key: '1', title: 'Por nivel', now: ['1056', '2003', '3020', '6655'],
+    avoid: 'Gastar E sin motivo cuando Yasuo puede entrar.',
+    steps: [
+      { num: '1', skill: 'Q', edge: 'par', cue: 'Q a la oleada y a Yasuo', text: 'Empieza Q. Golpea la oleada y a Yasuo en la misma línea; no le regales vida por disputar un súbdito.' },
+      { num: '2', skill: 'W', edge: 'tu', cue: 'Auto + W y retrocede', text: 'Con W, activa velocidad para salir del alcance de su Q. Busca auto + W y retrocede; evita alargar el intercambio.' },
+      { num: '3', skill: 'E', edge: 'ojo', champs: ['LeeSin'], cue: 'Guarda E, sal de la oleada', text: 'Aprende E y resérvala. Sepárate de la oleada para reducir sus ángulos; Lee Sin puede llegar desde este nivel.' },
+      { num: '4', skill: 'Q', edge: 'par', cue: 'Espera su muro', text: 'No tires E de frente al muro. Amaga una amenaza, espera el bloqueo y busca el intercambio cuando termine.' },
+      { num: '5', skill: 'Q', edge: 'par', cue: 'Oleada cerca de tu torre', text: 'Controla la oleada cerca de tu torre sin dejar que entre. Guarda vida y maná para tu ventana de nivel 6.' },
+      { num: '6', skill: 'R', edge: 'tu', champs: ['Vi'], cue: 'R para cambiar el ángulo', text: 'Usa R para cambiar el ángulo de E o esquivar el tornado. Si Vi viene a mid, tu E y su R aseguran a Yasuo.' },
+    ],
+    reactions: [
+      { champs: ['Yasuo'], trigger: 'Yasuo prepara tornado (Q3)', response: 'Muévete de lado, evita alinearte con tus súbditos y guarda una carga de R si ya la tienes.' },
+      { champs: ['Yasuo'], trigger: 'Yasuo usa Muro de viento', response: 'No gastes E contra el muro. Cambia de ángulo o espera a que termine antes de comprometer R.' },
+      { champs: ['LeeSin'], trigger: 'Lee Sin desaparece del mapa', response: 'Retrocede hasta tener visión del río; sin E ni Flash no busques el intercambio.' },
+    ] },
+  { id: 'mid', label: 'Mid game', sub: 'Rotaciones', key: '2', title: 'Rotaciones', now: ['6655', '3089'],
+    avoid: 'Cruzar el río sin visión cuando no sabes dónde está Lee Sin.',
+    steps: [
+      { num: '1', edge: 'par', champs: ['LeeSin'], cue: 'Empuja antes de rotar', text: 'Antes de salir de línea, empuja una oleada segura y revisa dónde está Lee Sin.' },
+      { num: '2', edge: 'tu', champs: ['Vi'], cue: 'Picks con Vi', text: 'Busca picks junto a Vi: tu E y su R ofrecen más valor con seguimiento que entrando sola.' },
+      { num: '3', edge: 'par', cue: 'Entra por el lateral', text: 'En objetivos, amenaza desde un ángulo lateral y conserva una ruta de salida.' },
+      { num: '4', edge: 'ojo', champs: ['Yasuo'], cue: 'No persigas su split', text: 'Si Yasuo empuja una línea lateral, presiona mid y avisa a tu equipo en lugar de ir a buscarlo.' },
+    ],
+    reactions: [
+      { champs: ['Malphite', 'Rakan'], trigger: 'Malphite o Rakan lanzan a tu equipo', response: 'Yasuo usará R enseguida: no te quedes junto a aliados que estén en el aire.' },
+      { champs: ['LeeSin'], trigger: 'Lee Sin aparece en el lado contrario', response: 'Tienes una ventana para invadir o tomar objetivo con Vi.' },
+      { champs: ['Yasuo'], trigger: 'Yasuo se va a una línea lateral', response: 'Empuja mid y presiona torre; no lo persigas sola.' },
+    ] },
+  { id: 'late', label: 'Late', sub: 'Peleas', key: '3', title: 'Peleas', now: ['3089', '3157', '3135'],
+    avoid: 'Usar las tres cargas de R para iniciar sin visión del resto del equipo.',
+    steps: [
+      { num: '1', edge: 'ojo', champs: ['Malphite', 'Rakan'], cue: 'Espera su inicio', text: 'Malphite o Rakan abren la pelea y Yasuo los sigue con R. No lances E antes de ese momento.' },
+      { num: '2', edge: 'ojo', cue: 'No inicies con R', text: 'Usar las tres cargas de R para iniciar sin visión del resto del equipo te deja sin salida.' },
+      { num: '3', edge: 'tu', champs: ['Kaisa'], cue: 'E sobre Kai’Sa', text: 'Entra desde el flanco cuando Yasuo ya esté comprometido; tu E sobre Kai’Sa decide la pelea.' },
+      { num: '4', edge: 'par', cue: 'Llega con mid empujado', text: 'Empuja la oleada de mid antes de Barón o Alma para que tu equipo llegue primero.' },
+    ],
+    reactions: [
+      { champs: ['Malphite'], trigger: 'Malphite entra con R', response: 'Espera a que Yasuo gaste su R; después busca a Kai’Sa con E.' },
+      { champs: ['Kaisa'], trigger: 'Kai’Sa salta sobre ti', response: 'Usa Zhonya y guarda E para cuando salga del sigilo.' },
+      { champs: ['Rakan'], trigger: 'Rakan entra con W', response: 'Retrocede en diagonal; no quedes junto a Jinx para que no os lance a las dos.' },
+    ] },
+];
+const START = ['1056', '2003'];
+const ORDER = ['3020', '6655', '3089'];
+const SITU = [
+  { id: '3157', reason: 'Si te buscan', champs: ['Yasuo', 'LeeSin', 'Kaisa'] },
+  { id: '3135', reason: 'Si compran RM', champs: ['Malphite', 'Rakan'] },
+];
+const KEYS = [
+  { key: 'W', name: 'Muro de viento', cd: '26 s', note: 'Si lo gasta, tu E queda libre.' },
+  { key: 'Q3', name: 'Tornado', cd: '3.ª Q', note: 'A la tercera Q, muévete de lado.' },
+  { key: 'P', name: 'Escudo', cd: 'Al moverse', note: 'Rómpelo con Q antes de tradear.' },
+  { key: 'R', name: 'Último aliento', cd: '70 s', note: 'Solo si te lanzan:', champs: ['Malphite', 'Rakan', 'LeeSin'] },
+];
+const DD = 'https://ddragon.leagueoflegends.com/cdn/';
+const RUNE_FB = {
+  Domination: ['Dominación', 'perk-images/Styles/7200_Domination.png'],
+  Sorcery: ['Brujería', 'perk-images/Styles/7202_Sorcery.png'],
+  Electrocute: ['Electrocutar', 'perk-images/Styles/Domination/Electrocute/Electrocute.png'],
+  TasteOfBlood: ['Sabor a sangre', 'perk-images/Styles/Domination/TasteOfBlood/GreenTerror_TasteOfBlood.png'],
+  EyeballCollection: ['Colección de globos oculares', 'perk-images/Styles/Domination/EyeballCollection/EyeballCollection.png'],
+  UltimateHunter: ['Cazador definitivo', 'perk-images/Styles/Domination/UltimateHunter/UltimateHunter.png'],
+  ManaflowBand: ['Banda de flujo de maná', 'perk-images/Styles/Sorcery/ManaflowBand/ManaflowBand.png'],
+  Transcendence: ['Trascendencia', 'perk-images/Styles/Sorcery/Transcendence/Transcendence.png'],
+  PhaseRush: ['Fase súbita', 'perk-images/Styles/Sorcery/PhaseRush/PhaseRush.png'],
+};
+const PAGE = {
+  primary: 'Domination', keystone: 'Electrocute',
+  minors: [['TasteOfBlood', 'CheapShot'], ['EyeballCollection', 'GrislyMementos', 'SixthSense'], ['UltimateHunter', 'TreasureHunter']],
+  secondary: 'Sorcery', secMinors: [['ManaflowBand'], ['Transcendence', 'GatheringStorm']],
+};
+const SPELL_FB = { SummonerFlash: 'Destello', SummonerDot: 'Ignición', SummonerTeleport: 'Teleportación' };
+const COMP_NOTES = [
+  { champs: ['LeeSin'], mark: 'ojo', k: 'Gank desde nv. 3', t: 'Fase súbita o Teleportación' },
+  { champs: ['Malphite', 'Rakan'], mark: 'ojo', k: 'Activan la R de Yasuo', t: 'Zhonya como segundo objeto' },
+  { champs: ['Vi'], mark: 'sin', k: 'Picks a nivel 6', t: 'Ignición para rematar' },
+];
+const SKILLS = ['Q', 'W', 'E', 'Q', 'Q', 'R'];
+let INSTANCES = 0;
+
+class Component extends DCLogic {
+  state = { screen: null, runes: null, spells: null, phase: null, form: null, followupOpen: false, followup: '', warnOpen: false, copied: false };
+  inputRef = React.createRef();
+  hover = false;
+
+  componentDidMount() {
+    INSTANCES++;
+    fetch(DD + '16.20.1/data/es_MX/runesReforged.json').then((r) => r.json()).then((trees) => {
+      const map = {};
+      trees.forEach((t) => { map[t.key] = { name: t.name, icon: DD + 'img/' + t.icon }; t.slots.forEach((s) => s.runes.forEach((r) => { map[r.key] = { name: r.name, icon: DD + 'img/' + r.icon }; })); });
+      this.setState({ runes: map });
+    }).catch(() => {});
+    fetch(DD + '16.20.1/data/es_MX/summoner.json').then((r) => r.json()).then((j) => {
+      const map = {};
+      Object.values(j.data || {}).forEach((s) => { map[s.id] = s.name; });
+      this.setState({ spells: map });
+    }).catch(() => {});
+    this.onKey = (e) => {
+      if (INSTANCES > 1 && !this.hover) return;
+      if (e.key === 'Escape') { this.setState({ followupOpen: false }); return; }
+      const t = e.target;
+      if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+      const p = PHASES.find((x) => x.key === e.key);
+      if (p) this.setState({ phase: p.id, screen: 'game' });
+      else if (e.key === 's' || e.key === 'S') this.setState({ screen: 'select' });
+      else if (e.key === 'p' || e.key === 'P') this.setState({ screen: 'game' });
+      else if (e.key === '/') { e.preventDefault(); this.openFollowup(); }
+    };
+    window.addEventListener('keydown', this.onKey);
+  }
+  componentWillUnmount() {
+    INSTANCES--;
+    window.removeEventListener('keydown', this.onKey);
+    clearTimeout(this.copyTimer);
+  }
+  openFollowup() {
+    this.setState({ followupOpen: true }, () => this.inputRef.current && this.inputRef.current.focus());
+  }
+  item(id, extra, nowSet) {
+    const [name, gold] = ITEMS[id];
+    const isNow = nowSet.includes(id);
+    return { id, name, gold: String(gold), img: IMG + 'item/' + id + '.png', op: isNow ? 1 : 0.5,
+      ring: isNow ? 'var(--color-accent)' : 'var(--color-neutral-800)', ...extra };
+  }
+  team(list) {
+    return list.map((c) => {
+      const m = MARK[c.mark || 'none'];
+      return { name: CHAMPS[c.id], img: IMG + 'champion/' + c.id + '.png', label: c.label, ring: m.ring, fg: m.fg,
+        op: c.mark ? 1 : 0.6, title: CHAMPS[c.id] + (c.note ? ' · ' + c.note : '') };
+    });
+  }
+  copyText() {
+    const name = (id) => ITEMS[id][0];
+    return [
+      'EJEMPLO LOCAL · SIN IA · SIN VERIFICAR',
+      'Haz que Yasuo se acerque en tus términos.',
+      'SELECCIÓN DE CAMPEONES\nRunas: ' + [PAGE.keystone, ...PAGE.minors].map((c) => this.rune(c).name).join(', ') + ' · ' + PAGE.secMinors.map((c) => this.rune(c).name).join(', ') + '\nHechizos: ' + ['SummonerFlash', 'SummonerDot'].map((s) => this.spell(s).name).join(' + ') + ' (alternativa: ' + this.spell('SummonerTeleport').name + ' si Lee Sin te campea)\nHabilidades: ' + SKILLS.join(' ') + ', después máximo Q → W → E',
+      'COMPOSICIÓN\nTu equipo: ' + ALLIES.map((c) => CHAMPS[c.id]).join(', ') + '\nRivales: ' + ENEMIES.map((c) => CHAMPS[c.id] + (c.note ? ' (' + c.note + ')' : '')).join(', '),
+      ...PHASES.map((p) => p.label.toUpperCase() + '\n' + p.steps.map((s) => s.num + ' · ' + s.cue + ': ' + s.text).join('\n') + '\n' + p.reactions.map((r) => r.trigger + ': ' + r.response).join('\n') + '\nEvita: ' + p.avoid),
+      'COMPRAS\nInicio: ' + START.map(name).join(', ') + '\nOrden: ' + ORDER.map(name).join(' → ') + '\n' + SITU.map((s) => name(s.id) + ': ' + s.reason + ' (' + s.champs.map((c) => CHAMPS[c]).join(', ') + ')').join('\n'),
+      'CLAVES DE YASUO\n' + KEYS.map((k) => k.key + ' ' + k.name + ' (' + k.cd + '): ' + k.note + (k.champs ? ' ' + k.champs.map((c) => CHAMPS[c]).join(', ') : '')).join('\n'),
+    ].join('\n\n');
+  }
+
+  rune(cands) {
+    const live = this.state.runes;
+    const key = (Array.isArray(cands) ? cands : [cands]).find((k) => (live ? live[k] : RUNE_FB[k])) || (Array.isArray(cands) ? cands[0] : cands);
+    if (live && live[key]) return { key, ...live[key] };
+    const fb = RUNE_FB[key];
+    return { key, name: fb ? fb[0] : key, icon: fb ? DD + 'img/' + fb[1] : '' };
+  }
+  spell(id) {
+    return { id, name: (this.state.spells && this.state.spells[id]) || SPELL_FB[id], icon: DD + '16.20.1/img/spell/' + id + '.png' };
+  }
+  renderVals() {
+    const screen = this.state.screen ?? this.props.screen ?? 'select';
+    const formOpen = this.state.form ?? (this.props.form === 'abierto');
+    const phase = PHASES.find((p) => p.id === (this.state.phase ?? this.props.phase ?? 'linea')) || PHASES[0];
+    const nowSet = phase.now;
+
+    const tabs = PHASES.map((p, i) => {
+      const active = p.id === phase.id;
+      return { label: p.label, sub: p.sub, key: p.key, active: active ? 'true' : 'false',
+        bg: active ? 'color-mix(in srgb, var(--color-accent) 10%, transparent)' : 'transparent',
+        fg: active ? 'var(--color-accent-200)' : 'var(--color-neutral-400)',
+        ring: active ? 'inset 0 0 0 1px var(--color-accent)' : 'none',
+        sep: i === 0 ? '0' : '1px solid var(--color-divider)',
+        onClick: () => this.setState({ phase: p.id }) };
+    });
+
+    return {
+      isSelect: screen === 'select', isGame: screen === 'game',
+      goGame: () => this.setState({ screen: 'game' }),
+      screens: [
+        { id: 'select', label: 'Selección de campeones', icon: 'ph-users-three', key: 'S' },
+        { id: 'game', label: 'En partida', icon: 'ph-sword', key: 'P' },
+      ].map((s) => {
+        const on = s.id === screen;
+        return { ...s, active: on ? 'true' : 'false', onClick: () => this.setState({ screen: s.id }),
+          bg: on ? 'var(--color-surface)' : 'transparent', fg: on ? 'var(--color-accent-200)' : 'var(--color-neutral-400)',
+          ring: on ? 'inset 0 0 0 1px var(--color-accent)' : 'none' };
+      }),
+      primary: this.rune(PAGE.primary), keystone: this.rune(PAGE.keystone),
+      keystoneWhy: 'Auto + W + Q a nivel 2 la activan: ganas el intercambio corto y retrocedes.',
+      minors: PAGE.minors.map((c) => this.rune(c)),
+      secondary: this.rune(PAGE.secondary), secMinors: PAGE.secMinors.map((c) => this.rune(c)),
+      shards: [{ icon: 'ph-lightning', name: 'Fuerza adaptable' }, { icon: 'ph-lightning', name: 'Fuerza adaptable' }, { icon: 'ph-heart', name: 'Vida' }],
+      altRune: { ...this.rune('PhaseRush'), tree: this.rune('Sorcery').name, champs: mini(['LeeSin']), when: 'Si Lee Sin juega a mid desde nivel 3', why: 'Más velocidad para salir de su entrada y del tornado.' },
+      spells: [this.spell('SummonerFlash'), this.spell('SummonerDot')],
+      spellsWhy: 'Ignición te da el remate en tus ventanas de nivel 2 y nivel 6.',
+      altSpells: (() => { const list = [this.spell('SummonerFlash'), this.spell('SummonerTeleport')];
+        return { list, names: list.map((s) => s.name).join(' + '), champs: mini(['LeeSin']), when: 'Si Lee Sin te campea', why: 'Vuelves a línea sin perder oleadas ni experiencia.' }; })(),
+      skills: SKILLS.map((k, i) => ({ key: k, lv: 'Nv. ' + (i + 1),
+        bg: k === 'R' ? 'var(--color-accent-900)' : 'var(--color-surface)', fg: k === 'R' ? 'var(--color-accent-200)' : 'var(--color-text)',
+        ring: k === 'R' ? 'inset 0 0 0 1px var(--color-accent)' : 'none' })),
+      startTotal: START.reduce((a, id) => a + ITEMS[id][1], 0) + ' oro',
+      compNotes: COMP_NOTES.map((n) => ({ ...n, champs: mini(n.champs), fg: MARK[n.mark].fg })),
+      formOpen, formClosed: !formOpen,
+      toggleForm: () => this.setState({ form: !formOpen }),
+      formAllies: ALLIES.filter((c) => c.id !== 'Ahri').map((c) => ({ name: CHAMPS[c.id], img: IMG + 'champion/' + c.id + '.png' })),
+      formEnemies: ENEMIES.filter((c) => c.id !== 'Yasuo').map((c) => ({ name: CHAMPS[c.id], img: IMG + 'champion/' + c.id + '.png' })),
+      allies: this.team(ALLIES), enemies: this.team(ENEMIES),
+      tabs, stepsTitle: phase.title,
+      steps: phase.steps.map((s) => ({ ...s, hasSkill: !!s.skill, champs: mini(s.champs), showText: !formOpen, bar: EDGE[s.edge].bar, numFg: EDGE[s.edge].numFg })),
+      reactions: phase.reactions.map((r) => ({ ...r, champs: mini(r.champs) })),
+      start: START.map((id) => this.item(id, {}, nowSet)),
+      order: ORDER.map((id, i) => this.item(id, { n: String(i + 1) }, nowSet)),
+      situ: SITU.map((s) => this.item(s.id, { reason: s.reason, champs: mini(s.champs) }, nowSet)),
+      keys: KEYS.map((k) => ({ ...k, champs: mini(k.champs) })),
+      avoidNow: phase.avoid,
+      warnOpen: this.state.warnOpen,
+      toggleWarn: () => this.setState((s) => ({ warnOpen: !s.warnOpen })),
+      followupOpen: this.state.followupOpen,
+      toggleFollowup: () => (this.state.followupOpen ? this.setState({ followupOpen: false }) : this.openFollowup()),
+      followup: this.state.followup,
+      onFollowupChange: (e) => this.setState({ followup: e.target.value }),
+      askDisabled: !this.state.followup.trim(),
+      inputRef: this.inputRef,
+      copyIcon: this.state.copied ? 'ph-check' : 'ph-copy',
+      copyLabel: this.state.copied ? 'Copiado' : 'Copiar plan',
+      copyPlan: async () => {
+        try { await navigator.clipboard.writeText(this.copyText()); } catch (err) { /* sin permiso de portapapeles */ }
+        this.setState({ copied: true });
+        clearTimeout(this.copyTimer);
+        this.copyTimer = setTimeout(() => this.setState({ copied: false }), 2200);
+      },
+      onEnter: () => { this.hover = true; },
+      onLeave: () => { this.hover = false; },
+    };
+  }
+}
+</script>
+</body>
+</html>

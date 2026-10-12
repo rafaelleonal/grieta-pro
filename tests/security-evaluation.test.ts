@@ -1,6 +1,6 @@
 import { strict as assert } from "node:assert";
 import test from "node:test";
-import snapshot from "../data/catalog-snapshot.json";
+
 import { POST as coachPost } from "../app/api/coach/route";
 import { POST as draftPost } from "../app/api/draft/route";
 import { ApiError } from "../lib/http";
@@ -12,11 +12,12 @@ import {
   validateCoachInputStructure,
   validateDraftInput,
 } from "../lib/validation";
+import { fixtureCatalog, fixturePlan } from "./coach-fixtures";
 import type { Catalog, CoachInput, CoachPlan, DraftResult } from "../lib/types";
 
 // These fixtures evaluate deterministic application boundaries. Mocked model
 // decisions cannot establish a real model's resistance to visual or novel attacks.
-const catalog: Catalog = { ...snapshot, source: "snapshot" };
+const catalog: Catalog = { ...fixtureCatalog, source: "snapshot" };
 const input: CoachInput = {
   champion: "Ahri",
   enemy: "Yasuo",
@@ -28,33 +29,11 @@ const input: CoachInput = {
   webSearch: false,
   apiKey: "evaluation-personal-key",
 };
-const plan: CoachPlan = {
-  headline: "Espera el muro antes de usar E",
-  difficulty: "Exigente",
-  winCondition: "Castiga a Yasuo cuando termine su muro y conserva una salida.",
-  levels: ["1", "2", "3-5", "6"].map((level) => ({
-    level,
-    action: "Cuida la distancia de la oleada y guarda E para responder al avance de Yasuo.",
-  })),
-  mechanics: [
-    { trigger: "Yasuo prepara el tornado", response: "Muévete lateralmente y conserva E." },
-    {
-      trigger: "Yasuo usa W",
-      response: "Espera a que termine su muro y busca un ángulo libre para E.",
-    },
-  ],
-  build: {
-    label: "Build sugerida",
-    starting: ["1056"],
-    core: [],
-    situational: [],
-    runes: ["Electrocutar"],
-    summoners: ["Destello", "Ignición"],
-    skillOrder: "Q > W > E; R en 6",
-  },
-  macro: ["Coordina el empuje con Lee Sin antes de entrar al río."],
-  avoid: ["No persigas a Yasuo a través de su oleada."],
-};
+const plan: CoachPlan = structuredClone(fixturePlan);
+plan.composition.push(
+  { champion: "LeeSin", team: "ally", label: "Jungla" },
+  { champion: "Lux", team: "enemy", label: "Support" },
+);
 const draft: DraftResult = {
   champion: "Ahri",
   enemy: "Yasuo",
@@ -237,7 +216,7 @@ test("security evaluation: schema-valid responses with leaked instructions, secr
   for (const [name, content] of corruptions)
     await context.test(name, async () => {
       const maliciousPlan = structuredClone(plan);
-      maliciousPlan.levels[0].action = content;
+      maliciousPlan.levels[0].text = content;
       assert.throws(() => sanitizeCoachPlan(maliciousPlan, catalog), hasStatus(502));
       await assert.rejects(
         generateCoach(input, catalog, undefined, async () =>
@@ -333,9 +312,7 @@ test("security evaluation: encoded protected prompt fragments are rejected, not 
             .find((line) => line.startsWith("Eres un coach experto"));
           assert.ok(protectedLine);
           const maliciousPlan = structuredClone(plan);
-          maliciousPlan.levels[0].action = Buffer.from(protectedLine.slice(0, 80)).toString(
-            encoding,
-          );
+          maliciousPlan.levels[0].text = Buffer.from(protectedLine.slice(0, 80)).toString(encoding);
           return provider({ decision: "coach", plan: maliciousPlan });
         }),
         hasStatus(502),

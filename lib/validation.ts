@@ -64,39 +64,157 @@ export const draftInputSchema = z
   });
 
 const shortText = z.string().trim().min(1).max(240);
+const cueText = z.string().trim().min(1).max(72);
+const catalogKey = z.string().regex(/^[A-Za-z][A-Za-z0-9]{0,59}$/);
 const itemId = z.string().regex(/^\d{1,7}$/);
+const skill = z.enum(["Q", "W", "E", "R"]);
+const championReferences = z.array(championId).max(5);
+const mark = z.enum(["threat", "synergy", "target"]);
+const stepFields = {
+  cue: cueText,
+  text: shortText,
+  edge: z.enum(["tu", "par", "ojo"]),
+  skill: skill.optional(),
+  champions: championReferences.optional(),
+};
+const stepSchema = z.object(stepFields).strict();
+const reactionSchema = z
+  .object({
+    trigger: z.string().trim().min(1).max(120),
+    response: shortText,
+    champions: championReferences,
+  })
+  .strict();
+const alternatives = {
+  when: z.string().trim().min(1).max(120),
+  why: shortText,
+  champions: championReferences.optional(),
+};
+const summonerPair = z.tuple([catalogKey, catalogKey]);
 export const coachPlanSchema = z
   .object({
     headline: z.string().trim().min(1).max(100),
     difficulty: z.string().trim().min(1).max(60),
     winCondition: shortText,
     levels: z
+      .array(z.object({ ...stepFields, level: z.enum(["1", "2", "3", "4", "5", "6"]) }).strict())
+      .length(6),
+    phases: z
+      .object({
+        mid: z.array(stepSchema).min(3).max(4),
+        late: z.array(stepSchema).min(3).max(4),
+      })
+      .strict(),
+    reactions: z
+      .object({
+        linea: z.array(reactionSchema).min(2).max(3),
+        mid: z.array(reactionSchema).min(2).max(3),
+        late: z.array(reactionSchema).min(2).max(3),
+      })
+      .strict(),
+    avoid: z.object({ linea: shortText, mid: shortText, late: shortText }).strict(),
+    enemyKeys: z
       .array(
         z
           .object({
-            level: z.enum(["1", "2", "3-5", "6"]),
-            action: shortText,
+            key: z.enum(["Q", "Q3", "W", "E", "R", "P"]),
+            name: z.string().trim().min(1).max(80),
+            cooldown: z.string().trim().min(1).max(40),
+            note: z.string().trim().min(1).max(140),
+            champions: championReferences.optional(),
           })
           .strict(),
       )
-      .length(4),
-    mechanics: z
-      .array(z.object({ trigger: shortText, response: shortText }).strict())
       .min(2)
       .max(4),
+    composition: z
+      .array(
+        z
+          .object({
+            champion: championId,
+            team: z.enum(["ally", "enemy"]),
+            mark: mark.optional(),
+            label: z.string().trim().min(1).max(32),
+            note: z.string().trim().min(1).max(140).optional(),
+          })
+          .strict(),
+      )
+      .min(2)
+      .max(10),
+    compNotes: z
+      .array(
+        z
+          .object({
+            champions: championReferences.min(1),
+            mark,
+            title: z.string().trim().min(1).max(60),
+            action: z.string().trim().min(1).max(120),
+          })
+          .strict(),
+      )
+      .max(3),
     build: z
       .object({
         label: z.string().trim().min(1).max(100),
         starting: z.array(itemId).max(3),
         core: z.array(itemId).max(3),
-        situational: z.array(z.object({ item: itemId, reason: shortText }).strict()).max(3),
-        runes: z.array(z.string().trim().min(1).max(80)).min(1).max(6),
-        summoners: z.array(z.string().trim().min(1).max(40)).length(2),
-        skillOrder: z.string().trim().min(1).max(100),
+        situational: z
+          .array(
+            z
+              .object({ item: itemId, reason: shortText, champions: championReferences.optional() })
+              .strict(),
+          )
+          .max(3),
+        nowByPhase: z
+          .object({
+            linea: z.array(itemId).max(6),
+            mid: z.array(itemId).max(6),
+            late: z.array(itemId).max(6),
+          })
+          .strict(),
+        runes: z
+          .object({
+            primary: z
+              .object({
+                style: catalogKey,
+                keystone: catalogKey,
+                minors: z.tuple([catalogKey, catalogKey, catalogKey]),
+              })
+              .strict(),
+            secondary: z
+              .object({ style: catalogKey, minors: z.tuple([catalogKey, catalogKey]) })
+              .strict(),
+            shards: z.tuple([
+              z.string().trim().min(1).max(40),
+              z.string().trim().min(1).max(40),
+              z.string().trim().min(1).max(40),
+            ]),
+            why: shortText,
+            alternative: z
+              .object({ style: catalogKey, keystone: catalogKey, ...alternatives })
+              .strict()
+              .optional(),
+          })
+          .strict(),
+        summoners: z
+          .object({
+            pick: summonerPair,
+            why: shortText,
+            alternative: z
+              .object({ pick: summonerPair, ...alternatives })
+              .strict()
+              .optional(),
+          })
+          .strict(),
+        skillOrder: z
+          .object({
+            first6: z.array(skill.nullable()).length(6),
+            max: z.string().trim().min(1).max(80),
+          })
+          .strict(),
       })
       .strict(),
     macro: z.array(shortText).min(1).max(3),
-    avoid: z.array(shortText).min(1).max(3),
   })
   .strict();
 
@@ -208,47 +326,155 @@ function coherentTeams(
   );
 }
 
-const comparableText = (value: string) =>
-  value
-    .normalize("NFKC")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("es");
+export const COACH_PLAN_VALIDATION_CATEGORIES = [
+  "schema",
+  "levels",
+  "composition",
+  "composition_context",
+  "champion_references",
+  "enemy_keys",
+  "primary_runes",
+  "secondary_runes",
+  "alternative_runes",
+  "summoner_spells",
+  "skill_order",
+  // Retained for historical diagnostics; orphan phase highlights are now omitted with a warning.
+  "phase_items",
+] as const;
+export type CoachPlanValidationCategory = (typeof COACH_PLAN_VALIDATION_CATEGORIES)[number];
 
-function uniqueText(values: string[]): string[] {
-  const seen = new Set<string>();
-  return values.filter((value) => {
-    const key = comparableText(value);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+/** A finite rule identifier for server diagnostics; never carries model values or Zod issues. */
+export class CoachPlanValidationError extends ApiError {
+  readonly category: CoachPlanValidationCategory;
+  constructor(category: CoachPlanValidationCategory) {
+    super(
+      502,
+      "La IA devolvió un plan incompleto o incoherente. Tu selección sigue guardada; puedes volver a consultar.",
+    );
+    this.name = "CoachPlanValidationError";
+    this.category = COACH_PLAN_VALIDATION_CATEGORIES.includes(category) ? category : "schema";
+  }
 }
 
-/** A real Riot item ID is required before displaying any model-proposed item. */
+/** Validate every referenced resource before displaying any model-proposed plan. */
 export function sanitizeCoachPlan(
   input: unknown,
   catalog: Catalog,
+  context?: Pick<CoachInput, "champion" | "enemy" | "allies" | "enemies">,
 ): { plan: CoachPlan; warnings: string[] } {
   const result = coachPlanSchema.safeParse(input);
-  if (!result.success || new Set(result.data.levels.map((level) => level.level)).size !== 4) {
-    throw new ApiError(
-      502,
-      "La IA devolvió un plan incompleto. Tu selección sigue guardada; puedes volver a consultar.",
-    );
-  }
+  const invalid = (category: CoachPlanValidationCategory) => new CoachPlanValidationError(category);
+  if (!result.success) throw invalid("schema");
+  if (new Set(result.data.levels.map((level) => level.level)).size !== 6) throw invalid("levels");
   const plan = result.data;
   assertSafeOutput(plan);
-  // Aphelios levels attack attributes instead of choosing Q/W/E/R ranks.
-  const hasAbilityOrder =
-    /\b[QWER]\b|\b(?:AD|AS|daño de ataque|velocidad de ataque|letalidad)\b/i.test(
-      plan.build.skillOrder,
+  const championIds = new Set(catalog.champions.map((champion) => champion.id));
+  const composition = new Map(plan.composition.map((entry) => [entry.champion, entry.team]));
+  if (
+    composition.size !== plan.composition.length ||
+    plan.composition.some((entry) => !championIds.has(entry.champion)) ||
+    plan.composition.filter((entry) => entry.team === "ally").length > 5 ||
+    plan.composition.filter((entry) => entry.team === "enemy").length > 5
+  )
+    throw invalid("composition");
+  if (context) {
+    const expected = new Map<string, "ally" | "enemy">([
+      ...[context.champion, ...context.allies].map((id) => [id, "ally"] as const),
+      ...[context.enemy, ...context.enemies].map((id) => [id, "enemy"] as const),
+    ]);
+    if (
+      composition.size !== expected.size ||
+      [...expected].some(([id, team]) => composition.get(id) !== team)
+    )
+      throw invalid("composition_context");
+  }
+  const checkReferences = (ids: string[] | undefined) => {
+    if (ids && (new Set(ids).size !== ids.length || ids.some((id) => !composition.has(id))))
+      throw invalid("champion_references");
+  };
+  [
+    ...plan.levels,
+    ...plan.phases.mid,
+    ...plan.phases.late,
+    ...Object.values(plan.reactions).flat(),
+    ...plan.enemyKeys,
+    ...plan.compNotes,
+    ...plan.build.situational,
+    plan.build.runes.alternative,
+    plan.build.summoners.alternative,
+  ].forEach((entry) => {
+    if (entry) checkReferences(entry.champions);
+  });
+  if (new Set(plan.enemyKeys.map((entry) => entry.key)).size !== plan.enemyKeys.length)
+    throw invalid("enemy_keys");
+  const styles = new Map(catalog.runeStyles.map((style) => [style.key, style]));
+  const runes = new Map(catalog.runes.map((rune) => [rune.key, rune]));
+  const inSlot = (key: string, style: string, slot: number) =>
+    runes.get(key)?.style === style &&
+    runes.get(key)?.slot === slot &&
+    Boolean(styles.get(style)?.slots[slot]?.includes(key));
+  const { primary, secondary, alternative } = plan.build.runes;
+  if (
+    !styles.has(primary.style) ||
+    !styles.has(secondary.style) ||
+    primary.style === secondary.style ||
+    !inSlot(primary.keystone, primary.style, 0) ||
+    primary.minors.some((key, index) => !inSlot(key, primary.style, index + 1))
+  )
+    throw invalid(
+      styles.has(primary.style) &&
+        (!styles.has(secondary.style) || primary.style === secondary.style)
+        ? "secondary_runes"
+        : "primary_runes",
     );
-  if (uniqueText(plan.build.summoners).length !== 2 || !hasAbilityOrder) {
-    throw new ApiError(
-      502,
-      "La IA devolvió un plan incoherente de habilidades o hechizos. Tu selección sigue guardada; puedes volver a consultar.",
-    );
+  const secondarySlots = secondary.minors.map((key) => runes.get(key)?.slot);
+  if (
+    new Set(secondarySlots).size !== 2 ||
+    secondary.minors.some((key, index) => {
+      const slot = secondarySlots[index];
+      return (
+        typeof slot !== "number" || slot < 1 || slot > 3 || !inSlot(key, secondary.style, slot)
+      );
+    })
+  )
+    throw invalid("secondary_runes");
+  if (alternative && !inSlot(alternative.keystone, alternative.style, 0))
+    throw invalid("alternative_runes");
+  const spells = new Set(catalog.summoners.map((spell) => spell.id));
+  for (const pick of [plan.build.summoners.pick, plan.build.summoners.alternative?.pick]) {
+    if (pick && (new Set(pick).size !== 2 || pick.some((id) => !spells.has(id))))
+      throw invalid("summoner_spells");
+  }
+  const { first6, max } = plan.build.skillOrder;
+  if (context?.champion === "Aphelios") {
+    const attributes = max.split(/\s*(?:→|>)\s*/);
+    if (
+      !first6.every((rank) => rank === null) ||
+      attributes.length !== 3 ||
+      new Set(attributes).size !== 3 ||
+      attributes.some((attribute) => !["AD", "AS", "Letalidad"].includes(attribute))
+    )
+      throw invalid("skill_order");
+  } else {
+    const priority = max.split(/\s*(?:→|>)\s*/);
+    const basicSkills = context?.champion === "Udyr" ? ["Q", "W", "E", "R"] : ["Q", "W", "E"];
+    if (
+      first6.some((rank) => rank === null) ||
+      priority.length !== 3 ||
+      new Set(priority).size !== 3 ||
+      priority.some((rank) => !basicSkills.includes(rank))
+    )
+      throw invalid("skill_order");
+    const ranks = { Q: 0, W: 0, E: 0, R: 0 };
+    first6.forEach((rank, index) => {
+      if (!rank) throw invalid("skill_order");
+      ranks[rank]++;
+      const level = index + 1;
+      if (rank === "R" && context?.champion !== "Udyr") {
+        // Jayce transforms automatically; Nidalee and Elise can upgrade R at level 6.
+        if (context?.champion === "Jayce" || level < 6 || ranks.R > 1) throw invalid("skill_order");
+      } else if (ranks[rank] > Math.ceil(level / 2)) throw invalid("skill_order");
+    });
   }
   const itemIds = new Set(catalog.items.map((item) => item.id));
   const warnings: string[] = [];
@@ -260,9 +486,7 @@ export function sanitizeCoachPlan(
       );
     return false;
   };
-  plan.levels.sort(
-    (a, b) => ["1", "2", "3-5", "6"].indexOf(a.level) - ["1", "2", "3-5", "6"].indexOf(b.level),
-  );
+  plan.levels.sort((a, b) => Number(a.level) - Number(b.level));
   plan.build.starting = [...new Set(plan.build.starting)].filter(keep);
   plan.build.core = [...new Set(plan.build.core)].filter(keep);
   const situationalItems = new Set<string>();
@@ -271,7 +495,24 @@ export function sanitizeCoachPlan(
     situationalItems.add(item.item);
     return true;
   });
-  plan.build.runes = uniqueText(plan.build.runes);
+  const suggestedItems = new Set([
+    ...plan.build.starting,
+    ...plan.build.core,
+    ...plan.build.situational.map((entry) => entry.item),
+  ]);
+  let omittedPhaseItems = false;
+  for (const phase of ["linea", "mid", "late"] as const) {
+    plan.build.nowByPhase[phase] = [...new Set(plan.build.nowByPhase[phase])].filter((id) => {
+      if (!keep(id)) return false;
+      if (!suggestedItems.has(id)) {
+        omittedPhaseItems = true;
+        return false;
+      }
+      return true;
+    });
+  }
+  if (omittedPhaseItems)
+    warnings.push("Se omitieron compras por fase que no coincidían con la build sugerida.");
   return { plan, warnings };
 }
 

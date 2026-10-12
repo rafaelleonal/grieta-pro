@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-87d988fd-cab1-477f-b3a2-a3e2da980d9a/styles.css">
+<script src="_ds/nocturne-87d988fd-cab1-477f-b3a2-a3e2da980d9a/_ds_bundle.js"></script>
+<style>body{margin:0;background:#0f101a}a{color:var(--color-accent)}a:hover{color:var(--color-accent-300)}</style>
+</helmet>
+<section data-screen-label="Pantallas" style="padding:64px;font-family:var(--font-body);color:var(--color-text)">
+  <h1 style="margin:0;font-size:32px;font-weight:500">GrietaPro · Coach de partida (1920×1080)</h1>
+  <p style="margin:8px 0 0;font-size:15px;color:var(--color-neutral-400);max-width:1100px">Dos pantallas del mismo plan. Para cambiar de pantalla: teclas S y P. Para cambiar de fase: 1, 2 y 3. La tecla / abre “Preguntar al coach”.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:56px;margin-top:40px">
+    <div id="1" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:12px"><span style="font-size:13px;font-weight:600;padding:3px 9px;border-radius:6px;box-shadow:inset 0 0 0 1px var(--color-accent);color:var(--color-accent-300)">1</span><span style="font-size:20px;font-weight:500">Selección de campeones</span><span style="font-size:14px;color:var(--color-neutral-400)">Runas, hechizos, habilidades y compra inicial.</span></div>
+      <dc-import name="GrietaPro - Coach" screen="select" hint-size="1920px,1080px" style="width:1920px;height:1080px;display:block;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-md)"></dc-import>
+    </div>
+    <div id="2" style="display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:12px"><span style="font-size:13px;font-weight:600;padding:3px 9px;border-radius:6px;box-shadow:inset 0 0 0 1px var(--color-accent);color:var(--color-accent-300)">2</span><span style="font-size:20px;font-weight:500">En partida</span><span style="font-size:14px;color:var(--color-neutral-400)">Cuatro preguntas por fase: Línea, Mid game y Late.</span></div>
+      <dc-import name="GrietaPro - Coach" screen="game" hint-size="1920px,1080px" style="width:1920px;height:1080px;display:block;border-radius:10px;overflow:hidden;box-shadow:var(--shadow-md)"></dc-import>
+    </div>
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

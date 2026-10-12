@@ -30,17 +30,27 @@ Las claves de esta guía son variables del servidor. No añadas `NEXT_PUBLIC_` n
 
 ```dotenv
 OPENROUTER_API_KEY=
-OPENROUTER_MODEL=anthropic/claude-haiku-5.5
+OPENROUTER_MODEL=openai/gpt-5.6-luna
 ```
 
 El campo de clave vacío debe contener tu clave real. El modelo es un ID exacto de la política del servidor, no un nombre libre. Las políticas iniciales permiten:
 
-| Plan | Modelos                                           |
-| ---- | ------------------------------------------------- |
-| Free | `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
-| Pro  | Los anteriores y `anthropic/claude-sonnet-5.5`    |
+| Plan | Modelos                                                                  |
+| ---- | ------------------------------------------------------------------------ |
+| Free | `openai/gpt-5.6-luna`, `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
+| Pro  | Los anteriores y `anthropic/claude-sonnet-5.5`                           |
 
-El catálogo público oficial incluyó estos tres IDs y anunció entrada de imágenes y salidas estructuradas al consultarlo en la fecha de esta guía. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
+GPT 5.6 Luna es el modelo predeterminado; su ID, entrada de imágenes y salidas estructuradas se verificaron el 11 de octubre de 2026 en el catálogo público. Los otros modelos permanecen disponibles según el plan. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
+
+La política de Luna limita la entrada a USD 0.20 y la salida a USD 1.20 por millón de tokens, con razonamiento desactivado. Un análisis manual sin imagen ni búsqueda reserva como máximo USD 0.0468; el coste final procede del consumo informado por OpenRouter. Las reservas pendientes de consultas anteriores conservan su modelo e importe. Consulta [cuentas y consumo](accounts-and-usage.md#coste-orientativo-de-50-análisis) para los límites de contexto y escenarios de precio.
+
+Las semillas incluyen Luna al crear planes nuevos. En una base existente, `pnpm db:seed` conserva la política administrada. Después de revisar que la conexión corresponde al entorno local elegido, este comando añade únicamente el modelo predeterminado a Free y Pro si falta e incrementa la versión de esos planes; conserva las demás opciones, cuotas, presupuestos y solicitudes:
+
+```sh
+pnpm db:seed --enable-default-model
+```
+
+No hace falta una migración para habilitar el modelo. Reinicia Next.js después de cambiar `OPENROUTER_MODEL` para que use la nueva configuración.
 
 Para incorporar otro modelo hace falta revisar `lib/usage.ts`, las políticas de los planes y las pruebas de imágenes, salida y gasto. No sustituyas el ID por un alias o una variante `:free` esperando que evite esos controles.
 
@@ -115,6 +125,8 @@ Esto comprueba entrega y consultas reales únicamente cuando tú realices esos p
 | Aparece límite de consultas o presupuesto         | Revisa el cupo del usuario, el fondo Free/Pro y los presupuestos globales; tienen ventanas separadas. Si existe consumo pendiente, concílialo desde administración. No liberes una reserva incierta sólo para seguir probando.                |
 
 ## Llevarlo a un despliegue
+
+La [guía de Prisma Postgres y migraciones](database-deployment.md) explica cómo crear la base en tu propia cuenta, conectar Vercel y conservar la opción de un VPS. Distingue la conexión pooled de la aplicación y la directa de administración; no sustituye tu configuración local.
 
 Usa base de datos, claves y secreto separados del desarrollo. Configura las variables privadas en Vercel o Netlify, `BETTER_AUTH_URL` con el origen público HTTPS y sólo los orígenes adicionales necesarios. Usa `APP_REGISTRATION_MODE=open` para el registro público; selecciona `invite` únicamente si quieres una beta cerrada. Ambos modos exigen verificar el correo y mantienen las cuotas. Aplica migraciones y semillas a la base de ese entorno y vuelve a desplegar después de cambiar variables. No uses Mailpit ni credenciales locales en producción.
 

@@ -42,25 +42,45 @@ enum UsageScope {
   IP
 }
 
+enum ChampionPosition {
+  TOP
+  JUNGLE
+  MID
+  ADC
+  SUPPORT
+}
+
 model User {
-  id            String        @id
-  name          String
-  email         String        @unique
-  emailVerified Boolean       @default(false)
-  image         String?
-  role          UserRole      @default(USER)
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  records       CoachRecord[]
-  aiRequests    AiRequest[]
-  accessGrants  AccessGrant[] @relation("GrantedUser")
-  grantsIssued  AccessGrant[] @relation("GrantAdmin")
-  invitesIssued Invitation[]  @relation("InviteAdmin")
-  invitesUsed   Invitation[]  @relation("InviteUser")
+  id                  String               @id
+  name                String
+  email               String               @unique
+  emailVerified       Boolean              @default(false)
+  image               String?
+  role                UserRole             @default(USER)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  sessions            Session[]
+  accounts            Account[]
+  records             CoachRecord[]
+  aiRequests          AiRequest[]
+  accessGrants        AccessGrant[]        @relation("GrantedUser")
+  grantsIssued        AccessGrant[]        @relation("GrantAdmin")
+  invitesIssued       Invitation[]         @relation("InviteAdmin")
+  invitesUsed         Invitation[]         @relation("InviteUser")
+  championPreferences ChampionPreference[]
 
   @@map("user")
+}
+
+model ChampionPreference {
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      ChampionPosition
+  champions String[]
+  version   Int              @default(1)
+  updatedAt DateTime         @updatedAt
+
+  @@id([userId, role])
 }
 
 model Session {

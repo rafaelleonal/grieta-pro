@@ -60,33 +60,62 @@ Referencia: [Better Auth con Next.js](https://better-auth.com/docs/integrations/
 
 Estados: `RESERVED`, `DISPATCHED`, `SETTLED`, `VOID`, `UNKNOWN`. `VOID` solo libera una operación que se sabe que no consumió saldo. Una respuesta rechazada por seguridad puede haber sido facturada. Si el coste real supera lo reservado, se registra completo, se detienen nuevas solicitudes del ámbito afectado y se corrige el cálculo de reserva.
 
+El plan de las pantallas Selección y En partida permite hasta 7000 tokens de salida; la extracción de capturas conserva 1600. Ambos límites se comparten entre la llamada al proveedor y el cálculo de reserva. El formato ampliado puede reservar más presupuesto por consulta, pero no aumenta los topes de gasto del usuario, del plan ni de la aplicación. El consumo real sigue dependiendo de la respuesta y de las tarifas del modelo.
+
 Las transacciones serializables tienen reintentos acotados para conflictos de base de datos. Esos reintentos no repiten llamadas a OpenRouter. Una clave de idempotencia utilizada con otra entrada se rechazará. Una clave repetida con la misma entrada devolverá el estado o resultado existente.
 
 El límite inicial de concurrencia es una generación activa por usuario. Los límites persistentes de autenticación complementan las cuentas verificadas para reducir abuso de registros. Las cabeceras de IP se confían solo en plataformas conocidas; en otros entornos se aplica un límite compartido. La cuota de IA sigue perteneciendo a cada usuario. Los presupuestos por plan permiten reservar capacidad para Pro. Un presupuesto global protege el saldo total, pero no garantiza disponibilidad si se agota: las cuotas ofrecidas deben dimensionarse según usuarios y saldo disponible. Configurar también un techo en la clave de OpenRouter como segunda protección.
 
 Fuentes: [transacciones Prisma 7](https://www.prisma.io/docs/orm/v7/prisma-client/queries/transactions), [contabilidad OpenRouter](https://openrouter.ai/docs/cookbook/administration/usage-accounting) y [consulta de generaciones](https://openrouter.ai/docs/api/api-reference/generations/get-generation).
 
+## Conciliación automática
+
+Una generación activa (`RESERVED` o `DISPATCHED`) ocupa concurrencia. Un resultado incierto (`UNKNOWN`) conserva su cuota y presupuesto, pero no ocupa ese cupo después de terminar la ejecución de la app. `usage.pending` cuenta trabajo activo y `usage.uncertain` cuenta reservas inciertas. Los presupuestos siguen incluyendo ambas clases: poder iniciar un análisis distinto no devuelve dinero ni cuota de otro intento.
+
+La interfaz comprueba el estado al entrar, recuperar el foco y terminar una consulta. Mientras está visible y tiene pendientes, realiza hasta diez comprobaciones cada treinta segundos. **Comprobar estado** consulta únicamente cargos existentes. Nunca vuelve a generar un plan. Los reintentos del mismo intento conservan su clave en memoria; el servidor también detecta la misma huella pendiente por propietario, incluso si una recarga o una segunda pestaña proporciona otra clave.
+
+`POST /api/account/reconcile` exige sesión verificada, origen permitido, admisión antes del cuerpo y un JSON estricto de hasta 2 KB. No acepta un usuario, cargo ni identificador del proveedor elegidos por el navegador. Cada cuenta tiene un permiso persistente de comprobación cada treinta segundos; la app permite diez lotes por minuto y hasta tres lecturas por lote. La consulta utiliza `GET /api/v1/generation`, espera al menos dos minutos desde el envío y sólo acepta el ID exacto, una señal de finalización y un coste válido. Un 404, un timeout, un cuerpo inválido o la falta de ID conservan la reserva. Las claves personales no se guardan ni se sustituyen por la clave de la app para consultar su consumo.
+
+Los lotes rotan entre solicitudes del propietario mediante un cursor persistente acotado: varias respuestas 404 antiguas no impiden comprobar una posterior. Los costes ya conocidos se cierran primero sin red, incluso cuando se agotó la capacidad de lecturas compartida. Las cuentas sin cargos consultables no consumen esa capacidad. El contrato del proveedor se contrastó con la [referencia de generaciones de OpenRouter](https://openrouter.ai/docs/api/api-reference/generations/get-generation).
+
+Después de cinco minutos, una reserva que nunca llegó a enviarse se cierra atómicamente como `VOID`; el marcador de envío impide que un trabajador tardío pueda enviar tras ese cierre. Un envío abandonado pasa a `UNKNOWN`, manteniendo su consumo reservado. Un resultado validado que llega después de conciliar la contabilidad puede guardarse una vez, sin un segundo cargo. Un historial borrado no se recupera mediante ese resultado tardío.
+
+Para comprobar cuentas aunque sus pestañas estén cerradas, el servidor puede ejecutar el comando portable:
+
+```sh
+pnpm reconcile:usage --max-users=4
+```
+
+Usa la configuración privada del entorno elegido. El comando imprime únicamente contadores y comparte los límites persistentes con la web y la administración. Puede ejecutarse desde un temporizador del VPS o el programador de tareas del alojamiento. No se necesita una herramienta exclusiva de Vercel, una clave de administración de OpenRouter ni un endpoint público de cron. El repositorio incluye el comando; configurar un programador externo sigue siendo un paso del despliegue.
+
+La comparación de modelos y la calidad táctica requieren una evaluación aparte: consulta [cómo evaluar el coaching](coaching-quality.md).
+
 ## Coste orientativo de 50 análisis
 
-Precios consultados el 10 de octubre de 2026, hora de México, para los identificadores exactos, servicio normal y contexto corto. Las tarifas pueden cambiar y tienen tramos distintos para contextos muy grandes.
+Precios consultados el 10 de octubre de 2026, hora de México, y GPT 5.6 Luna el 11 de octubre, para los identificadores exactos, servicio normal y contexto corto. Las tarifas pueden cambiar y tienen tramos distintos para contextos muy grandes.
 
 | Modelo                        | Entrada por millón de tokens | Salida por millón de tokens | 50 análisis con 20 000 tokens de entrada y 2 500 de salida cada uno |
 | ----------------------------- | ---------------------------: | --------------------------: | ------------------------------------------------------------------: |
+| `openai/gpt-5.6-luna`         |                     USD 0.20 |                    USD 1.20 |                                                            USD 0.35 |
 | `openai/gpt-6-luna`           |                     USD 0.10 |                    USD 0.50 |                                                          USD 0.1625 |
 | `anthropic/claude-haiku-5.5`  |                     USD 0.10 |                    USD 0.50 |                                                          USD 0.1625 |
 | `anthropic/claude-sonnet-5.5` |                     USD 2.00 |                   USD 10.00 |                                                            USD 3.25 |
 
 Cálculo: `50 × (20 000 × tarifaEntrada + 2 500 × tarifaSalida) / 1 000 000`.
 
-Es un escenario ilustrativo, no consumo medido. Actualmente cada plan envía 254 objetos; solo sus datos suman aproximadamente 62 254 caracteres en el catálogo guardado. Las políticas, habilidades y esquema agregan contexto. Hace falta medir tokens reales antes de fijar cuotas comerciales.
+Es un escenario ilustrativo, no consumo medido. Cada plan envía el catálogo permitido de objetos, runas y hechizos, las habilidades y el contexto de la partida. Las descripciones de objetos se limitan a 160 caracteres; las políticas y el esquema también agregan contexto. Hace falta medir tokens reales antes de fijar cuotas comerciales.
 
 La estimación excluye extracción de capturas, búsquedas, efectos de caché, razonamiento adicional, recargas, impuestos y alojamiento. Los 2 500 tokens de salida representan el total facturable; si hay más razonamiento, el cálculo aumenta. Una captura seguida de un plan puede hacer dos llamadas. El límite de archivo de 30 MB no define el precio de visión.
 
 La herramienta Exa actualmente configurada cobra USD 0.007 por búsqueda en modo `auto`: 50 búsquedas efectivamente realizadas agregarían USD 0.35, más los tokens de resultados. El precio de búsqueda nativa del proveedor es diferente. Se limita a una búsqueda, tres resultados y 2000 caracteres por resultado; la reserva contempla el contenido extra y otra vuelta de generación. El límite de búsquedas es separado y la interfaz muestra cuántas quedan.
 
-Luna y Haiku son candidatos para la primera versión. Elegir después de comparar consejos mecánicos y reconocimiento de capturas en casos reales. Sonnet queda como opción avanzada; su política de razonamiento requiere configuración específica y comprobación con los límites de salida actuales. Un modelo más caro no asegura consejos correctos ni actualizados.
+GPT 5.6 Luna es el modelo predeterminado, con razonamiento desactivado y topes de tarifa de USD 0.20 de entrada y USD 1.20 de salida por millón. Su tramo desde 272 000 tokens de entrada sube a USD 0.40 y USD 1.80. Los límites actuales reservan hasta 96 000 tokens de texto, 65 536 de imagen y 40 000 de resultados web: 201 536 por vuelta, por debajo del umbral. La reserva duplica la tarifa de entrada y contempla otra vuelta cuando se usa búsqueda; la salida mantiene su tarifa base y su límite de tokens. `provider.max_price` excluye rutas que superan esos topes, sin elevarlos para seleccionar un proveedor más rápido.
 
-Precios: [GPT 6 Luna en OpenRouter](https://openrouter.ai/openai/gpt-6-luna), [Haiku 5.5](https://openrouter.ai/anthropic/claude-haiku-5.5), [Sonnet 5.5](https://openrouter.ai/anthropic/claude-sonnet-5.5) y [catálogo público de tarifas](https://openrouter.ai/api/v1/models). Referencias adicionales: [OpenAI GPT 6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [búsqueda web](https://openrouter.ai/docs/guides/features/server-tools/web-search), [caché](https://openrouter.ai/docs/guides/best-practices/prompt-caching) y [razonamiento](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
+Un análisis manual de Luna sin imagen ni búsqueda reserva USD 0.0468: `96 000 × 0.20 × 2 + 7 000 × 1.20`, dividido entre un millón. Es una reserva conservadora, no un coste medido. Cambiar el predeterminado o los modelos permitidos de un plan no recalcula ni libera solicitudes históricas `UNKNOWN`.
+
+GPT 6 Luna y Haiku siguen siendo opciones. Compara consejos mecánicos y reconocimiento de capturas en casos reales antes de atribuir mejoras de calidad. Sonnet queda como opción avanzada; su política de razonamiento requiere configuración específica y comprobación con los límites de salida actuales. Un modelo más caro no asegura consejos correctos ni actualizados.
+
+Precios: [GPT 5.6 Luna en OpenRouter](https://openrouter.ai/openai/gpt-5.6-luna), [GPT 6 Luna](https://openrouter.ai/openai/gpt-6-luna), [Haiku 5.5](https://openrouter.ai/anthropic/claude-haiku-5.5), [Sonnet 5.5](https://openrouter.ai/anthropic/claude-sonnet-5.5) y [catálogo público de tarifas](https://openrouter.ai/api/v1/models). Referencias adicionales: [OpenAI GPT 6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [búsqueda web](https://openrouter.ai/docs/guides/features/server-tools/web-search), [caché](https://openrouter.ai/docs/guides/best-practices/prompt-caching) y [razonamiento](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
 
 ## Integración con Riot y Porofessor
 
@@ -98,6 +127,18 @@ Una futura detección automática necesita un acompañante en la computadora don
 
 La política de Riot exige registrar productos que sirven a jugadores. Para monetizar exige estado Approved o Acknowledged, acceso gratuito y valor añadido. Antes de publicar, revisar el flujo de asesoría previa y análisis posterior con Riot y evitar información oculta, desanonimización o automatización de decisiones. La aprobación no se da por supuesta. Fuentes: [política LoL](https://developer.riotgames.com/docs/lol#monetization), [claves de API](https://developer.riotgames.com/docs/portal#api-keys) y [política general](https://developer.riotgames.com/policies/general).
 
+## Campeones por rol y favoritos
+
+La preparación empieza por el rol. El selector destaca una lista curada de campeones habituales de esa posición; es orientativa, no una estadística del parche ni una restricción. La pestaña Todos y la búsqueda permiten elegir cualquier campeón. Cambiar el rol conserva las selecciones actuales.
+
+Cada cuenta verificada puede guardar hasta doce favoritos por rol, incluidos campeones poco habituales en esa posición. Las estrellas añaden o retiran favoritos; en la lista de Favoritos puedes ajustar su prioridad. El orden se guarda en PostgreSQL por cuenta y posición. La sesión determina el propietario: el navegador no puede elegir otro usuario. Los guardados tienen un límite persistente independiente de la cuota de IA, y una versión evita sobrescribir cambios de otra pestaña sin avisar.
+
+Las preferencias privadas no se guardan en la caché PWA ni en almacenamiento local y se retiran de la interfaz al cambiar de identidad. La lista completa de favoritos no se envía a OpenRouter: el coach recibe sólo los campeones seleccionados para la partida. Sin sesión se conservan los filtros y la entrada manual.
+
+Riot ofrece **Riot Sign On (RSO)** con OAuth2 y OpenID. Requiere una aplicación de producción aprobada y solicitar un cliente RSO; una API key de desarrollo no habilita ese inicio de sesión. La conexión futura deberá vincular la identidad devuelta por Riot, sin tratar un Riot ID escrito como prueba de propiedad. Referencia: [preguntas oficiales de RSO](https://developer.riotgames.com/docs/faqs#rso-riot-sign-on).
+
+Para una importación opcional, Account V1 resuelve el PUUID desde el Riot ID y Champion Mastery V4 devuelve los campeones con mayor maestría. No aporta su rol ni equivale a partidas recientes jugadas. Match V5 puede aportar `teamPosition` en las partidas consultadas para estimar frecuencia por posición, con muestras y periodos explícitos. La importación de maestría y el login de Riot todavía no están implementados. Referencia: [APIs oficiales de Riot](https://developer.riotgames.com/apis/).
+
 ## Estado y validación
 
 La migración inicial, autenticación, historial privado, limpieza al salir, invitaciones, Pro de cortesía y contabilidad transaccional están implementados. Las versiones están fijadas en pnpm. El PostgreSQL local se puede iniciar con `pnpm db:local`; `pnpm db:setup` aplica migración y semillas sin reiniciar políticas personalizadas. El correo usa Resend, con un buzón local simulado exclusivamente en las pruebas.
@@ -106,6 +147,6 @@ La migración inicial, autenticación, historial privado, limpieza al salir, inv
 
 Antes de publicar falta configurar los servicios del entorno, probar la entrega real de Resend y una consulta de OpenRouter con presupuesto acotado. Las builds y pruebas locales no confirman el comportamiento de esos proveedores en producción. Las migraciones posteriores deben ser archivos versionados.
 
-Los pasos están en la [guía de OpenRouter y Resend](provider-setup.md), con [referencias oficiales](resources.md). La configuración local conserva los nombres históricos de la base y su usuario; cambiar la marca no requiere migrar esos datos.
+Los pasos están en la [guía de OpenRouter y Resend](provider-setup.md) y la [guía de Prisma Postgres y migraciones](database-deployment.md), con [referencias oficiales](resources.md). La configuración local conserva los nombres históricos de la base y su usuario; cambiar la marca no requiere migrar esos datos. Los planes Free/Pro de GrietaPro controlan acceso y consumo de IA; son independientes del plan contratado para alojar PostgreSQL en Prisma.
 
 Los pagos y el acompañante de escritorio son ampliaciones futuras. No hace falta un backend separado de Next.js para esta etapa.

@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+generated
+.git
+.env*
+**/.env*
+.local
+.codex
+.aws
+.agents
+artifacts
+coverage
+design_handoff_coach_pantallas
+*.tsbuildinfo
+.DS_Store

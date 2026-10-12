@@ -14,12 +14,33 @@ export interface GameItem {
   description: string;
   gold: number;
 }
+export interface RuneStyle {
+  key: string;
+  name: string;
+  image: string;
+  slots: string[][];
+}
+export interface GameRune {
+  key: string;
+  name: string;
+  image: string;
+  style: string;
+  slot: number;
+}
+export interface SummonerSpell {
+  id: string;
+  name: string;
+  image: string;
+}
 export interface Catalog {
   version: string;
   source: "live" | "snapshot";
   updatedAt: string;
   champions: Champion[];
   items: GameItem[];
+  runeStyles: RuneStyle[];
+  runes: GameRune[];
+  summoners: SummonerSpell[];
 }
 export interface Credentials {
   apiKey?: string;
@@ -36,7 +57,8 @@ export interface CoachInput extends Credentials {
   notes: string;
   webSearch: boolean;
 }
-export interface CoachPlan {
+/** Stored plans generated before the two-screen design remain readable. */
+export interface LegacyCoachPlan {
   headline: string;
   difficulty: string;
   winCondition: string;
@@ -54,6 +76,67 @@ export interface CoachPlan {
   macro: string[];
   avoid: string[];
 }
+export type Edge = "tu" | "par" | "ojo";
+export type Mark = "threat" | "synergy" | "target";
+export type Skill = "Q" | "W" | "E" | "R";
+export type GamePhase = "linea" | "mid" | "late";
+export interface Step {
+  cue: string;
+  text: string;
+  edge: Edge;
+  skill?: Skill;
+  champions?: string[];
+}
+export interface Reaction {
+  trigger: string;
+  response: string;
+  champions: string[];
+}
+export interface CoachPlan {
+  headline: string;
+  difficulty: string;
+  winCondition: string;
+  levels: (Step & { level: string })[];
+  phases: { mid: Step[]; late: Step[] };
+  reactions: Record<GamePhase, Reaction[]>;
+  avoid: Record<GamePhase, string>;
+  enemyKeys: { key: string; name: string; cooldown: string; note: string; champions?: string[] }[];
+  composition: {
+    champion: string;
+    team: "ally" | "enemy";
+    mark?: Mark;
+    label: string;
+    note?: string;
+  }[];
+  compNotes: { champions: string[]; mark: Mark; title: string; action: string }[];
+  build: {
+    label: string;
+    starting: string[];
+    core: string[];
+    situational: { item: string; reason: string; champions?: string[] }[];
+    nowByPhase: Record<GamePhase, string[]>;
+    runes: {
+      primary: { style: string; keystone: string; minors: [string, string, string] };
+      secondary: { style: string; minors: [string, string] };
+      shards: [string, string, string];
+      why: string;
+      alternative?: {
+        style: string;
+        keystone: string;
+        when: string;
+        why: string;
+        champions?: string[];
+      };
+    };
+    summoners: {
+      pick: [string, string];
+      why: string;
+      alternative?: { pick: [string, string]; when: string; why: string; champions?: string[] };
+    };
+    skillOrder: { first6: (Skill | null)[]; max: string };
+  };
+  macro: string[];
+}
 export interface Source {
   title: string;
   url: string;
@@ -68,7 +151,16 @@ export interface CoachResult {
     sources: Source[];
     generatedAt: string;
     warnings: string[];
+    formatVersion?: 2;
   };
+}
+export interface LegacyCoachResult extends Omit<CoachResult, "plan" | "meta"> {
+  plan: LegacyCoachPlan;
+  meta: Omit<CoachResult["meta"], "formatVersion"> & { formatVersion: 1 };
+}
+export type SavedCoachResult = CoachResult | LegacyCoachResult;
+export function isCurrentCoachResult(result: SavedCoachResult): result is CoachResult {
+  return "phases" in result.plan;
 }
 export interface DraftInput extends Credentials {
   text?: string;

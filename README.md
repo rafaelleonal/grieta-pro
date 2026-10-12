@@ -2,6 +2,10 @@
 
 Coach de League of Legends en español construido con Next.js y OpenRouter. Recibe tu campeón, línea y rival; genera un plan breve de niveles 1 a 6, respuestas mecánicas, build situacional y objetivos de partida. Puedes añadir las composiciones completas, interpretar texto o una captura y, opcionalmente, importar una partida activa con Riot ID.
 
+Los [términos de uso y la política de privacidad](docs/legal-and-riot.md) están disponibles en `/terminos` y `/privacidad`, con enlaces desde el coach y las pantallas de cuenta. Completa los datos públicos del responsable antes de publicar o solicitar acceso de producción a Riot.
+
+Elige primero tu rol para ver campeones habituales. **Todos** y la búsqueda permiten elegir cualquier campeón, incluso fuera de posición. Con una cuenta verificada puedes marcar hasta doce favoritos por rol y ordenar su prioridad; se guardan en tu cuenta. Consulta [favoritos y futura conexión con Riot](docs/accounts-and-usage.md#campeones-por-rol-y-favoritos).
+
 ## Iniciar
 
 Se recomienda Node.js 24 y pnpm 10.33.2. También se admite la rama Node.js 22 desde la versión 22.12; consulta `engines` en `package.json`. Las comprobaciones automáticas utilizan Node.js 24. El proyecto fija la versión de pnpm en `packageManager` y utiliza `pnpm-lock.yaml`.
@@ -27,6 +31,10 @@ Abre [http://127.0.0.1:3000](http://127.0.0.1:3000). Next.js sirve la interfaz y
 
 La migración versionada está en `prisma/migrations`; `db:setup` genera el cliente, aplica migraciones y crea los planes conservando las políticas ya existentes. La arquitectura y sus límites están descritos en [Cuentas, planes y control del gasto](docs/accounts-and-usage.md). Si falta la base, el secreto, la URL o el correo, las consultas privadas se rechazan; no hay acceso anónimo alternativo.
 
+Para probar registro y verificación sin Resend ni dominio, usa [el buzón local](docs/local-testing.md): `pnpm mail:local` recibe los mensajes en tu computadora y muestra los enlaces de confirmación en el navegador.
+
+Para alojar la base en tu propia cuenta de Prisma y conectar Vercel sin depender de su integración de almacenamiento, sigue [Prisma Postgres, migraciones y portabilidad](docs/database-deployment.md). La misma conexión PostgreSQL puede usarse después desde un VPS.
+
 ### Crear tu cuenta de administrador
 
 El registro está abierto por defecto (`APP_REGISTRATION_MODE=open`). Abre **Crear cuenta**, regístrate con tu propio correo y verifica el enlace recibido; no necesitas un código de invitación y empezarás con Free. Después:
@@ -49,6 +57,12 @@ En **Foto, captura o texto**, usa **Elegir foto o captura** para abrir tus fotos
 
 Puedes explorar el ejemplo sin credenciales. El ejemplo es contenido de demostración: no representa una consulta de IA ni una recomendación actualizada. Para generar un plan propio, entra con tu cuenta verificada y configura OpenRouter en el servidor o introduce tu clave personal en **Conexión**.
 
+El modelo predeterminado para las consultas nuevas es `openai/gpt-5.6-luna`. La demostración local sigue siendo contenido fijo; cambiar el modelo no modifica los análisis guardados ni las reservas pendientes.
+
+El plan tiene dos vistas: **Selección de campeones**, con runas, hechizos y preparación, y **En partida**, con decisiones para Línea, Mid y Late. Al recibirlo se contrae el formulario; puedes abrirlo para editar tu selección. Los atajos `S`, `P`, `1`–`3` y `/` funcionan fuera de los campos de texto. Las preguntas generan otro análisis y consumen la cuota correspondiente. Los registros antiguos conservan su información original y muestran un aviso para regenerar las nuevas secciones.
+
+La navegación del plan se guarda en esta pestaña, separada por cuenta y análisis, sin guardar su contenido en `sessionStorage`. Recargar no recupera un resultado privado: ábrelo desde **Mis sesiones**. La referencia visual está en [el handoff](design_handoff_coach_pantallas/README.md); sus archivos exportados no se ejecutan en la aplicación. La fuente Inter se sirve localmente con su [licencia OFL](app/fonts/OFL.txt).
+
 ### Instalar como app (PWA)
 
 Abre **Instalar app** desde el menú. En iPhone/iPad, abre la dirección en Safari y elige **Compartir → Añadir a pantalla de inicio → Añadir**. En Android o computadora, Chrome/Edge ofrecen **Instalar app** o **Añadir a pantalla de inicio**; el botón de instalación de GrietaPro aparece cuando el navegador permite mostrar su diálogo. La app tiene iconos propios y se abre en una ventana independiente.
@@ -63,19 +77,20 @@ Al cambiar los iconos o `offline.html`, incrementa la versión de `CACHE_NAME` e
 
 ## Conexión y secretos
 
-| Variable                                       | Uso                                                                                                                                                                               |
-| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENROUTER_API_KEY`                           | Opcional. Clave de OpenRouter del servidor. Alternativamente, el usuario puede usar su propia clave durante la sesión.                                                            |
-| `OPENROUTER_MODEL`                             | Opcional. ID exacto entre los modelos permitidos por la política del servidor y el plan. Consulta la lista vigente en la guía de proveedores; no admite IDs arbitrarios ni alias. |
-| `DATABASE_URL`                                 | Conexión privada PostgreSQL. El ejemplo incluye una base exclusivamente local; usa una conexión con TLS en producción.                                                            |
-| `BETTER_AUTH_SECRET`                           | Secreto aleatorio privado de al menos 32 caracteres.                                                                                                                              |
-| `BETTER_AUTH_URL`                              | Origen exacto de la app. HTTPS obligatorio en producción.                                                                                                                         |
-| `BETTER_AUTH_TRUSTED_ORIGINS`                  | Opcional. Otros orígenes exactos separados por coma; no admite comodines.                                                                                                         |
-| `APP_REGISTRATION_MODE`                        | `open` es el valor predeterminado: registro público e invitación opcional. `invite` exige código para una beta cerrada elegida explícitamente.                                    |
-| `RESEND_API_KEY`, `AUTH_EMAIL_FROM`            | Clave privada de Resend y remitente de un dominio verificado.                                                                                                                     |
-| `AI_MONTHLY_BUDGET_USD`, `AI_DAILY_BUDGET_USD` | Techo global de saldo compartido; incluye consumo y reservas.                                                                                                                     |
-| `AI_FREE_POOL_USD`, `AI_PRO_POOL_USD`          | Presupuestos mensuales separados para Free y Pro.                                                                                                                                 |
-| `RIOT_API_KEY`                                 | Opcional. Habilita la importación de una partida activa. Se configura exclusivamente en el servidor.                                                                              |
+| Variable                                       | Uso                                                                                                                                                                                                  |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENROUTER_API_KEY`                           | Opcional. Clave de OpenRouter del servidor. Alternativamente, el usuario puede usar su propia clave durante la sesión.                                                                               |
+| `OPENROUTER_MODEL`                             | Opcional. Predeterminado: `openai/gpt-5.6-luna`. ID exacto entre los modelos permitidos por la política del servidor y el plan; consulta la guía de proveedores. No admite IDs arbitrarios ni alias. |
+| `DATABASE_URL`                                 | Conexión privada PostgreSQL del runtime. Local en desarrollo; en Prisma Postgres usa la conexión pooled con TLS.                                                                                     |
+| `DIRECT_URL`                                   | Opcional para la CLI: conexión directa de migraciones y administración. Si está ausente se usa `DATABASE_URL`; no es necesaria en Vercel para servir la app.                                         |
+| `BETTER_AUTH_SECRET`                           | Secreto aleatorio privado de al menos 32 caracteres.                                                                                                                                                 |
+| `BETTER_AUTH_URL`                              | Origen exacto de la app. HTTPS obligatorio en producción.                                                                                                                                            |
+| `BETTER_AUTH_TRUSTED_ORIGINS`                  | Opcional. Otros orígenes exactos separados por coma; no admite comodines.                                                                                                                            |
+| `APP_REGISTRATION_MODE`                        | `open` es el valor predeterminado: registro público e invitación opcional. `invite` exige código para una beta cerrada elegida explícitamente.                                                       |
+| `RESEND_API_KEY`, `AUTH_EMAIL_FROM`            | Clave privada de Resend y remitente de un dominio verificado.                                                                                                                                        |
+| `AI_MONTHLY_BUDGET_USD`, `AI_DAILY_BUDGET_USD` | Techo global de saldo compartido; incluye consumo y reservas.                                                                                                                                        |
+| `AI_FREE_POOL_USD`, `AI_PRO_POOL_USD`          | Presupuestos mensuales separados para Free y Pro.                                                                                                                                                    |
+| `RIOT_API_KEY`                                 | Opcional. Habilita la importación de una partida activa. Se configura exclusivamente en el servidor.                                                                                                 |
 
 Guarda las variables en `.env.local` durante el desarrollo y en el gestor de secretos del alojamiento al desplegar. No uses el prefijo `NEXT_PUBLIC_` para claves o códigos de acceso. No las subas al repositorio.
 
@@ -83,7 +98,7 @@ La sesión verificada protege las llamadas, incluyendo las que usan una clave pe
 
 Los modelos están restringidos por el plan y por una política de tarifas del servidor. Las capturas se vuelven a reducir en el servidor a un máximo de 1024×1024 para impedir que se omita la optimización del navegador. La búsqueda usa Exa con una sola búsqueda, hasta 3 resultados y 2000 caracteres por resultado. Las reservas cubren tarifas de contexto largo, escritura de caché, razonamiento y una vuelta adicional de búsqueda. No son una promesa de precio exacto: se guarda `usage.cost` real y se bloquea el presupuesto afectado si supera la reserva.
 
-Los errores posteriores al envío pueden tener costo. Un timeout o importe desconocido conserva la reserva; la administración puede consultar el identificador de generación en OpenRouter para conciliarlo. Si el proveedor no devuelve identificador, requiere investigación manual y la reserva no se libera automáticamente. El historial guarda únicamente contexto de juego y consejos validados. Borrarlo también elimina la copia de respuesta del registro de consumo, preservando los importes y la protección contra duplicados.
+Los errores posteriores al envío pueden tener costo. Un timeout o importe desconocido conserva la cuota y el presupuesto reservados; la app comprueba automáticamente las generaciones existentes para conciliar el coste. Una reserva incierta se distingue de una generación activa y no ocupa su cupo de concurrencia. La misma intención pendiente no se vuelve a enviar, aunque se recargue la página o cambie la clave del intento. Si el proveedor no devuelve identificador, requiere investigación manual y la reserva no se libera automáticamente. Consulta [conciliación automática](docs/accounts-and-usage.md#conciliación-automática). El historial guarda únicamente contexto de juego y consejos validados. Borrarlo también elimina la copia de respuesta del registro de consumo, preservando los importes y la protección contra duplicados.
 
 El modelo debe poder procesar imágenes para reconocer capturas. Los mensajes y las capturas se envían a OpenRouter y al proveedor del modelo elegido. Sube solo lo que quieras compartir con ellos. Consulta sus [opciones de privacidad](https://openrouter.ai/support#privacy-and-data-logging).
 
@@ -171,19 +186,21 @@ Estas defensas reducen riesgo y pueden tener falsos positivos o dejar pasar ataq
 
 La [guía de contribución](CONTRIBUTING.md) explica el entorno, las comprobaciones y cómo presentar cambios. Para reportar vulnerabilidades, sigue la [política de seguridad](SECURITY.md) y utiliza un canal privado. Hay formularios de errores y mejoras y una plantilla de propuesta de cambios en `.github/`.
 
-Los flujos de GitHub Actions están preparados, pero no se han publicado ni ejecutado en GitHub. El CI revisa formato, lint, tipos, pruebas, integración con PostgreSQL, compilación y dependencias de producción en cada push o propuesta. Otro flujo audita todas las dependencias semanalmente y permite ejecución manual. Las acciones están fijadas a commits comprobados, los permisos son de lectura y las comprobaciones no requieren secretos de producción. Dependabot está configurado para proponer actualizaciones semanales de dependencias y acciones.
+Los flujos de GitHub Actions están configurados; consulta su estado y resultados en la pestaña Actions del repositorio. El CI revisa formato, lint, tipos, pruebas, integración con PostgreSQL, compilación y dependencias de producción en cada push o propuesta. Otro flujo audita todas las dependencias semanalmente y permite ejecución manual. Las acciones están fijadas a commits comprobados, los permisos son de lectura y las comprobaciones no requieren secretos de producción. Dependabot está configurado para proponer actualizaciones semanales de dependencias y acciones.
 
 La licencia aún no se ha elegido. Antes de presentar el proyecto como código abierto o distribuirlo públicamente, decide y añade la licencia, revisa los secretos y los archivos incluidos y habilita un canal privado para reportes de seguridad. Esta preparación no publica el repositorio ni despliega la aplicación.
 
-## Desplegar en Vercel o Netlify
+## Desplegar en Vercel, Netlify o un VPS
+
+La aplicación utiliza Next.js con servicios externos independientes del alojamiento: PostgreSQL, Better Auth, OpenRouter y, para el correo, Resend. La base de Prisma Postgres pertenece a tu propia cuenta y puede conservarse al cambiar el servidor de la app. Para Docker con Node.js 24, migraciones separadas y HTTPS en tu servidor, sigue [Despliegue en un VPS](docs/vps-deployment.md).
 
 1. Sube el proyecto a un repositorio privado o público después de revisar los secretos y la licencia. Conserva `.env.local`, la base local y los datos privados fuera de Git.
 2. Importa el repositorio en Vercel o Netlify con el preset de Next.js y la raíz de este proyecto.
-3. Configura PostgreSQL, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` con HTTPS, Resend y los presupuestos para ese entorno. Aplica la migración y las semillas a la base correspondiente antes de habilitar registro. No reutilices credenciales locales en producción.
+3. Configura PostgreSQL, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` con HTTPS, Resend y los presupuestos para ese entorno. Aplica la migración y las semillas a la base correspondiente antes de habilitar registro. No reutilices credenciales locales en producción. Para Prisma Postgres propio, consulta la [guía de la base alojada](docs/database-deployment.md); las vistas previas usan una base separada de producción.
 4. Configura la instalación con `pnpm install --frozen-lockfile` y la compilación con `pnpm build`. Usa el runtime de Next.js con rutas API; la aplicación necesita servidor y no es una exportación estática.
 5. En una vista previa, verifica la carga del catálogo, la autenticación, una consulta de IA y una captura. Si activaste Riot, comprueba el importador durante una partida activa.
 6. Publica después de esa comprobación. Los cambios de variables requieren un nuevo despliegue.
 
-[Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) detecta Next.js. [Netlify](https://docs.netlify.com/build/frameworks/framework-setup-guides/nextjs/overview/) ofrece un adaptador OpenNext que incluye las rutas API. Revisa los límites de duración de funciones de tu plan para las llamadas de IA. No se ha realizado un despliegue ni una prueba con credenciales reales como parte del código inicial.
+[Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) detecta Next.js. Netlify ofrece OpenNext, pero sus funciones síncronas tienen un [límite de 60 segundos](https://docs.netlify.com/build/functions/configuration/): hay que adaptar y probar la espera actual de OpenRouter de 90 segundos antes de usarlo. La [guía portable](docs/vps-deployment.md) explica estas condiciones. Preparar Docker o publicar una compilación no demuestra el flujo completo de cuentas y proveedores; verifica cada entorno antes de darlo por listo.
 
 GrietaPro no está afiliado ni respaldado por Riot Games. League of Legends y las marcas asociadas pertenecen a Riot Games.

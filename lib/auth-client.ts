@@ -1,6 +1,7 @@
 "use client";
 
 import { createAuthClient } from "better-auth/react";
+import type { GenerationAttempt } from "./generation-intent";
 
 export const authClient = createAuthClient();
 
@@ -22,9 +23,34 @@ export interface AccountStatus {
     webRemaining: number;
     resetsAt: string;
     pending: number;
+    uncertain: number;
     allowedModels: string[];
     webAllowed: boolean;
   };
+}
+
+export interface ReconciliationResult {
+  usage: NonNullable<AccountStatus["usage"]>;
+  checked: number;
+  reconciled: number;
+  attempt?: GenerationAttempt | null;
+}
+
+export async function reconcileAccount(
+  idempotencyKey?: string,
+  signal?: AbortSignal,
+): Promise<ReconciliationResult> {
+  const response = await fetch("/api/account/reconcile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    cache: "no-store",
+    redirect: "error",
+    body: JSON.stringify(idempotencyKey ? { idempotencyKey } : {}),
+    signal,
+  });
+  if (!response.ok)
+    throw new Error("No pudimos comprobar el consumo todavía. No se ha iniciado otro análisis.");
+  return response.json() as Promise<ReconciliationResult>;
 }
 
 export async function readAccount(signal?: AbortSignal): Promise<AccountStatus> {

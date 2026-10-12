@@ -2,6 +2,7 @@ import type { CoachInput, CoachResult, DraftResult } from "./types";
 import { ApiError } from "./http";
 import { requireVerifiedUser } from "./auth-session";
 import type { ProviderExecution } from "./openrouter";
+import { reconcileUserUsage } from "./reconciliation";
 import {
   dispatchGeneration,
   finishGeneration,
@@ -39,9 +40,13 @@ export async function runGeneration<T extends CoachResult | DraftResult>(
     Boolean(args.input.webSearch),
   );
   const hash = inputHash({ operation: args.operation, model, byok, input: args.fingerprint });
+  const key = requestKey(request);
+  // Recovery only looks up previous charges; it never repeats a generation.
+  // Failures keep reservations intact and cannot send an additional model call.
+  await reconcileUserUsage(session.user.id);
   const reservation = await reserveGeneration({
     userId: session.user.id,
-    key: requestKey(request),
+    key,
     inputHash: hash,
     operation: args.operation,
     model,

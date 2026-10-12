@@ -16,13 +16,13 @@ import {
 } from "lucide-react";
 import { Modal } from "@/components/modal";
 import { authClient, authErrorMessage, type AccountStatus } from "@/lib/auth-client";
-import type { Champion, CoachInput, CoachResult } from "@/lib/types";
+import type { Champion, CoachInput, SavedCoachResult } from "@/lib/types";
 import "./account.css";
 
 export type HistoryRecord = {
   id: string;
   input: CoachInput;
-  result: CoachResult;
+  result: SavedCoachResult;
   createdAt: string;
 };
 
@@ -66,10 +66,16 @@ export function AccountAccessNotice({
   account,
   error,
   onRetry,
+  onCheck,
+  checking,
+  consumptionError,
 }: {
   account: AccountStatus | null;
   error: string;
   onRetry: () => void;
+  onCheck: () => void;
+  checking: boolean;
+  consumptionError: string;
 }) {
   if (error)
     return (
@@ -117,6 +123,22 @@ export function AccountAccessNotice({
         </Link>
       </div>
     );
+  if (account.usage?.pending || account.usage?.uncertain || consumptionError)
+    return (
+      <div className="account-access" role="status">
+        <ShieldCheck size={17} />
+        <span>
+          {consumptionError ||
+            (account.usage?.pending
+              ? "Tu consulta sigue en curso. Comprobamos su estado automáticamente."
+              : "Hay una reserva con coste por confirmar. Puedes preparar otro análisis si te queda cuota; esta reserva se conserva.")}
+        </span>
+        <button type="button" onClick={onCheck} disabled={checking}>
+          {checking ? <LoaderCircle size={14} className="spin" /> : null}
+          {checking ? "Comprobando…" : "Comprobar estado"}
+        </button>
+      </div>
+    );
   if (account.usage?.coachRemaining === 0)
     return (
       <div className="account-access">
@@ -143,12 +165,18 @@ export function AccountModal({
   onClear,
   onLoggedOut,
   onRefresh,
+  onCheck,
+  checking,
+  consumptionError,
 }: {
   account: AccountStatus;
   onClose: () => void;
   onClear: () => void;
   onLoggedOut: () => void;
   onRefresh: () => Promise<void>;
+  onCheck: () => void;
+  checking: boolean;
+  consumptionError: string;
 }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -208,7 +236,31 @@ export function AccountModal({
           </p>
           {account.usage.pending ? (
             <p className="account-help">
-              Hay una generación en curso. Espera a que termine antes de comenzar otra.
+              Hay {account.usage.pending} consulta(s) en curso. Comprobamos su estado
+              automáticamente sin iniciar otro análisis.
+            </p>
+          ) : null}
+          {account.usage.uncertain ? (
+            <p className="account-help">
+              Hay {account.usage.uncertain} reserva(s) con coste por confirmar. Su cuota y
+              presupuesto se conservan. Puedes hacer otro análisis si todavía tienes cuota y
+              presupuesto disponible.
+            </p>
+          ) : null}
+          {account.usage.pending || account.usage.uncertain ? (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={onCheck}
+              disabled={checking}
+            >
+              {checking ? <LoaderCircle size={15} className="spin" /> : <ShieldCheck size={15} />}
+              {checking ? "Comprobando…" : "Comprobar estado"}
+            </button>
+          ) : null}
+          {consumptionError ? (
+            <p className="account-help" role="status">
+              {consumptionError}
             </p>
           ) : null}
         </>
@@ -570,10 +622,7 @@ export function AccountHistory({
         </div>
       ) : (
         <>
-          <p className="modal-intro">
-            Tus planes se guardan aquí para consultarlos en cualquier dispositivo. Solo tú puedes
-            verlos o borrarlos.
-          </p>
+          <p className="modal-intro">Abre un plan para volver a consultar tus consejos.</p>
           {error ? (
             <p className="account-error" role="alert">
               {error}
@@ -599,33 +648,62 @@ export function AccountHistory({
               Cargando tus planes...
             </p>
           ) : records.length ? (
-            <div className="account-history-list">
+            <ul className="account-history-list" aria-label="Planes guardados">
               {records.map((record) => {
                 const champion = champions.find((entry) => entry.id === record.input.champion);
+                const enemy = champions.find((entry) => entry.id === record.input.enemy);
+                const championName = champion?.name || record.input.champion;
+                const enemyName = enemy?.name || record.input.enemy;
+                const roleName = {
+                  TOP: "Top",
+                  JUNGLE: "Jungla",
+                  MID: "Mid",
+                  ADC: "ADC",
+                  SUPPORT: "Support",
+                }[record.input.role];
                 return (
-                  <div className="account-history-row" key={record.id}>
+                  <li className="account-history-row" key={record.id}>
                     <button
                       type="button"
                       className="account-history-open"
                       onClick={() => onSelect(record)}
+                      aria-label={`Abrir plan de ${championName} contra ${enemyName} en ${roleName}`}
                     >
-                      {champion ? (
-                        <Image src={champion.image} alt="" width={36} height={36} unoptimized />
-                      ) : null}
-                      <span>
+                      {champion || enemy ? (
+                        <span className="account-history-portraits" aria-hidden="true">
+                          {champion ? (
+                            <Image src={champion.image} alt="" width={36} height={36} unoptimized />
+                          ) : null}
+                          {enemy ? (
+                            <Image src={enemy.image} alt="" width={36} height={36} unoptimized />
+                          ) : null}
+                        </span>
+                      ) : (
+                        <span className="account-history-portraits" aria-hidden="true">
+                          <History size={24} />
+                        </span>
+                      )}
+                      <span className="account-history-matchup">
                         <strong>
-                          {record.input.champion} vs. {record.input.enemy}
+                          {championName} <span className="account-history-vs">vs.</span> {enemyName}
                         </strong>
-                        <small>
-                          {record.input.role} · {record.input.rank} · {formatDate(record.createdAt)}
-                        </small>
+                        <span className="account-history-meta">
+                          {roleName} · {record.input.rank}
+                          <span className="account-history-date">
+                            <span aria-hidden="true"> · </span>
+                            <time dateTime={record.createdAt}>{formatDate(record.createdAt)}</time>
+                          </span>
+                        </span>
                       </span>
-                      <ArrowRight size={16} />
+                      <span className="account-history-action" aria-hidden="true">
+                        Abrir <ArrowRight size={16} />
+                      </span>
                     </button>
                     <button
                       type="button"
                       className="account-history-delete"
-                      aria-label={`Borrar plan de ${record.input.champion} contra ${record.input.enemy}`}
+                      aria-label={`Borrar plan de ${championName} contra ${enemyName}`}
+                      disabled={deleting}
                       onClick={() => setDeleteId(record.id)}
                     >
                       <Trash2 size={16} />
@@ -645,10 +723,10 @@ export function AccountHistory({
                         </button>
                       </div>
                     ) : null}
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           ) : !error ? (
             <div className="account-history-empty">
               <History size={30} />

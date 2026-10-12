@@ -11,12 +11,18 @@ import { ApiError } from "./http";
 import { safeNotesForStorage } from "./coach-safety";
 import type { CoachInput, CoachResult, DraftResult } from "./types";
 
+export const DEFAULT_MODEL = "openai/gpt-5.6-luna";
 export const MODEL_POLICIES = {
+  // GPT 5.6 Luna's higher-context tier starts at 272,000 input tokens. Even
+  // text + one image + web allowances stay below it; max_price keeps base caps.
+  [DEFAULT_MODEL]: { prompt: 0.2, completion: 1.2, reasoning: false },
   "anthropic/claude-haiku-5.5": { prompt: 0.5, completion: 2.5, reasoning: false },
   "openai/gpt-6-luna": { prompt: 0.2, completion: 0.75, reasoning: false },
   "anthropic/claude-sonnet-5.5": { prompt: 2, completion: 10, reasoning: true },
 } as const;
 export const MAX_PROMPT_BYTES = 96_000;
+export const MAX_COACH_COMPLETION_TOKENS = 7000;
+export const MAX_DRAFT_COMPLETION_TOKENS = 1600;
 // One normalized image <=1024x1024. Conservative allowance, separate from text.
 const MAX_IMAGE_TOKENS = 65_536;
 type BucketRef = { scope: UsageScope; scopeId: string; period: string };
@@ -62,7 +68,10 @@ function periods(now: Date) {
     minute: `minute:${now.toISOString().slice(0, 16)}`,
   };
 }
-async function serial<T>(work: (tx: Tx) => Promise<T>): Promise<T> {
+export const ABANDONED_GENERATION_MS = 5 * 60_000;
+
+/** Database-only retries: callers must never send provider requests inside work. */
+export async function withUsageTransaction<T>(work: (tx: Tx) => Promise<T>): Promise<T> {
   for (let attempt = 0; ; attempt++) {
     try {
       return await getDb().$transaction(work, { isolationLevel: "Serializable", timeout: 10_000 });
@@ -99,7 +108,7 @@ async function effectivePlan(
 }
 export async function generationPolicy(userId: string, requestedModel?: string, webSearch = false) {
   const plan = await effectivePlan(getDb(), userId);
-  const model = requestedModel || process.env.OPENROUTER_MODEL || "anthropic/claude-haiku-5.5";
+  const model = requestedModel || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_MODEL;
   if (!(model in MODEL_POLICIES) || !plan.allowedModels.includes(model))
     throw new ApiError(
       403,
@@ -129,7 +138,13 @@ export function maximumCost(
     .mul(policy.prompt)
     .mul(2)
     .mul(turns)
-    .add(new Prisma.Decimal(operation === "COACH" ? 4200 : 1600).mul(policy.completion).mul(turns))
+    .add(
+      new Prisma.Decimal(
+        operation === "COACH" ? MAX_COACH_COMPLETION_TOKENS : MAX_DRAFT_COMPLETION_TOKENS,
+      )
+        .mul(policy.completion)
+        .mul(turns),
+    )
     .div(1_000_000)
     .add(webSearch ? "0.01" : 0);
 }
@@ -171,7 +186,7 @@ export async function reserveGeneration(args: {
   reserveUsd: Prisma.Decimal;
 }) {
   try {
-    return await serial(async (tx) => {
+    return await withUsageTransaction(async (tx) => {
       const existing = await tx.aiRequest.findUnique({
         where: { userId_idempotencyKey: { userId: args.userId, idempotencyKey: args.key } },
       });
@@ -179,6 +194,17 @@ export async function reserveGeneration(args: {
         assertReplay(existing, args.inputHash);
         return { request: existing, replay: true };
       }
+      // A lost client key or another tab must not resend the same unresolved
+      // intention. Its original key and all reservations remain unchanged.
+      const unresolved = await tx.aiRequest.findFirst({
+        where: {
+          userId: args.userId,
+          inputHash: args.inputHash,
+          status: { in: ["RESERVED", "DISPATCHED", "UNKNOWN"] },
+        },
+        orderBy: { createdAt: "asc" },
+      });
+      if (unresolved) return { request: unresolved, replay: true };
       const now = new Date();
       const plan = await effectivePlan(tx, args.userId, now);
       if (
@@ -188,12 +214,12 @@ export async function reserveGeneration(args: {
       )
         throw new ApiError(403, "La configuración solicitada no está incluida en tu plan.");
       const active = await tx.aiRequest.count({
-        where: { userId: args.userId, status: { in: ["RESERVED", "DISPATCHED", "UNKNOWN"] } },
+        where: { userId: args.userId, status: { in: ["RESERVED", "DISPATCHED"] } },
       });
       if (active >= plan.concurrentLimit)
         throw new ApiError(
           429,
-          "Ya tienes una consulta en curso o pendiente de confirmar. Espera a que termine.",
+          "Ya tienes una consulta en curso. Espera a que termine; no se ha enviado otra llamada de IA.",
         );
       const refs = refsFor(args.userId, plan, now);
       const reserve = args.byok ? new Prisma.Decimal(0) : args.reserveUsd;
@@ -322,73 +348,143 @@ export async function observeUsage(id: string, usage: ProviderUsage) {
     },
   });
 }
-export async function finishGeneration(
+type GenerationOutcome = {
+  response?: CoachResult | DraftResult;
+  error?: { status: number; message: string };
+  recordInput?: ReturnType<typeof safeCoachInput>;
+};
+
+async function saveCoachRecord(tx: Tx, row: AiRequest, outcome: GenerationOutcome) {
+  if (outcome.recordInput && outcome.response && "plan" in outcome.response) {
+    const result = outcome.response as CoachResult;
+    await tx.coachRecord.upsert({
+      where: { requestId: row.id },
+      update: {},
+      create: {
+        requestId: row.id,
+        userId: row.userId,
+        input: outcome.recordInput,
+        plan: result.plan as unknown as Prisma.InputJsonValue,
+        meta: result.meta as unknown as Prisma.InputJsonValue,
+      },
+    });
+  }
+}
+
+async function finishGenerationInTransaction(
+  tx: Tx,
   id: string,
-  outcome: {
-    response?: CoachResult | DraftResult;
-    error?: { status: number; message: string };
-    recordInput?: ReturnType<typeof safeCoachInput>;
-  },
+  requestedOutcome: GenerationOutcome,
 ) {
-  return serial(async (tx) => {
-    const row = await tx.aiRequest.findUniqueOrThrow({ where: { id } });
-    if (["SETTLED", "VOID"].includes(row.status)) return row;
-    const neverSent = row.status === "RESERVED";
-    const knownCost = row.actualCostUsd !== null || row.byok;
-    const status = neverSent ? "VOID" : knownCost ? "SETTLED" : "UNKNOWN";
-    if (neverSent || knownCost) {
-      const charged = neverSent || row.byok ? new Prisma.Decimal(0) : row.actualCostUsd!;
-      for (const ref of storedRefs(row))
-        await tx.usageBucket.update({
-          where: { scope_scopeId_period: ref },
-          data: {
-            ...(row.operation === "COACH"
-              ? {
-                  coachReserved: { decrement: 1 },
-                  ...(!neverSent ? { coachUsed: { increment: 1 } } : {}),
-                }
-              : {
-                  draftReserved: { decrement: 1 },
-                  ...(!neverSent ? { draftUsed: { increment: 1 } } : {}),
-                }),
-            costReservedUsd: { decrement: row.reservedCostUsd },
-            costUsedUsd: { increment: charged },
-            activeRequests: { decrement: 1 },
-            ...(row.webSearch
-              ? {
-                  searchReserved: { decrement: 1 },
-                  ...(!neverSent ? { searchUsed: { increment: 1 } } : {}),
-                }
-              : {}),
-            ...(charged.gt(row.reservedCostUsd) ? { blocked: true } : {}),
-          },
-        });
-    }
-    const data: Prisma.AiRequestUpdateInput = {
-      status,
-      settledAt: status === "UNKNOWN" ? null : new Date(),
-      ...(outcome.response
-        ? { response: outcome.response as unknown as Prisma.InputJsonValue }
-        : {}),
-      ...(outcome.error
-        ? { failureStatus: outcome.error.status, failureMessage: outcome.error.message }
-        : {}),
-    };
-    if (outcome.recordInput && outcome.response && "plan" in outcome.response) {
-      const result = outcome.response as CoachResult;
-      await tx.coachRecord.upsert({
-        where: { requestId: id },
-        update: {},
-        create: {
-          requestId: id,
-          userId: row.userId,
-          input: outcome.recordInput,
-          plan: result.plan as unknown as Prisma.InputJsonValue,
-          meta: result.meta as unknown as Prisma.InputJsonValue,
+  const row = await tx.aiRequest.findUniqueOrThrow({ where: { id } });
+  // Deletion is a tombstone in every ledger state, including a saved plan whose
+  // billing is still UNKNOWN. Later settlement cannot restore private content.
+  const outcome: GenerationOutcome = row.failureStatus === 410 ? {} : requestedOutcome;
+  if (row.status === "VOID") return row;
+  if (row.status === "SETTLED") {
+    // A reconciler may settle billing before a validated result is stored.
+    // Save that late result once, without charging any bucket a second time.
+    // A user's explicit history deletion must never be undone.
+    if (!outcome.response || row.response || row.failureStatus === 410) return row;
+    await saveCoachRecord(tx, row, outcome);
+    return tx.aiRequest.update({
+      where: { id },
+      data: {
+        response: outcome.response as unknown as Prisma.InputJsonValue,
+        failureStatus: null,
+        failureMessage: null,
+      },
+    });
+  }
+  const neverSent = row.status === "RESERVED";
+  const knownCost = row.actualCostUsd !== null || row.byok;
+  const status = neverSent ? "VOID" : knownCost ? "SETTLED" : "UNKNOWN";
+  if (neverSent || knownCost) {
+    const charged = neverSent || row.byok ? new Prisma.Decimal(0) : row.actualCostUsd!;
+    for (const ref of storedRefs(row))
+      await tx.usageBucket.update({
+        where: { scope_scopeId_period: ref },
+        data: {
+          ...(row.operation === "COACH"
+            ? {
+                coachReserved: { decrement: 1 },
+                ...(!neverSent ? { coachUsed: { increment: 1 } } : {}),
+              }
+            : {
+                draftReserved: { decrement: 1 },
+                ...(!neverSent ? { draftUsed: { increment: 1 } } : {}),
+              }),
+          costReservedUsd: { decrement: row.reservedCostUsd },
+          costUsedUsd: { increment: charged },
+          activeRequests: { decrement: 1 },
+          ...(row.webSearch
+            ? {
+                searchReserved: { decrement: 1 },
+                ...(!neverSent ? { searchUsed: { increment: 1 } } : {}),
+              }
+            : {}),
+          ...(charged.gt(row.reservedCostUsd) ? { blocked: true } : {}),
         },
       });
+  }
+  const data: Prisma.AiRequestUpdateInput = {
+    status,
+    settledAt: status === "UNKNOWN" ? null : new Date(),
+    ...(outcome.response ? { response: outcome.response as unknown as Prisma.InputJsonValue } : {}),
+    ...(outcome.error
+      ? { failureStatus: outcome.error.status, failureMessage: outcome.error.message }
+      : {}),
+  };
+  await saveCoachRecord(tx, row, outcome);
+  return tx.aiRequest.update({ where: { id }, data });
+}
+
+export async function finishGeneration(id: string, outcome: GenerationOutcome) {
+  return withUsageTransaction((tx) => finishGenerationInTransaction(tx, id, outcome));
+}
+
+/** Recover only abandoned application work; elapsed time never proves a refund. */
+export async function recoverAbandonedGenerations(userId: string, now = new Date()) {
+  const cutoff = new Date(now.getTime() - ABANDONED_GENERATION_MS);
+  return withUsageTransaction(async (tx) => {
+    const rows = await tx.aiRequest.findMany({
+      where: {
+        userId,
+        OR: [
+          { status: "RESERVED", createdAt: { lte: cutoff } },
+          { status: "DISPATCHED", dispatchedAt: { lte: cutoff } },
+        ],
+      },
+      orderBy: { createdAt: "asc" },
+      take: 10,
+    });
+    let voided = 0;
+    let uncertain = 0;
+    for (const row of rows) {
+      if (row.status === "RESERVED") {
+        // Serialization and dispatch's RESERVED compare-and-swap guarantee
+        // that the original process cannot send after this unsent refund.
+        const result = await finishGenerationInTransaction(tx, row.id, {
+          error: {
+            status: 503,
+            message: "La consulta no llegó a enviarse. Puedes iniciar un nuevo análisis.",
+          },
+        });
+        if (result.status === "VOID") voided++;
+      } else {
+        const changed = await tx.aiRequest.updateMany({
+          where: { id: row.id, userId, status: "DISPATCHED", dispatchedAt: { lte: cutoff } },
+          data: {
+            status: "UNKNOWN",
+            failureStatus: 503,
+            failureMessage:
+              "No pudimos confirmar esta consulta. Conservamos su cuota y presupuesto mientras comprobamos el coste.",
+          },
+        });
+        uncertain += changed.count;
+      }
     }
-    return tx.aiRequest.update({ where: { id }, data });
+    return { voided, uncertain };
   });
 }
 export function replayResponse(row: AiRequest): CoachResult | DraftResult {
@@ -407,9 +503,10 @@ export async function getAccountUsage(userId: string) {
   const bucket = await db.usageBucket.findUnique({
     where: { scope_scopeId_period: { scope: "USER", scopeId: userId, period: periods(now).month } },
   });
-  const pending = await db.aiRequest.count({
-    where: { userId, status: { in: ["RESERVED", "DISPATCHED", "UNKNOWN"] } },
-  });
+  const [pending, uncertain] = await Promise.all([
+    db.aiRequest.count({ where: { userId, status: { in: ["RESERVED", "DISPATCHED"] } } }),
+    db.aiRequest.count({ where: { userId, status: "UNKNOWN" } }),
+  ]);
   return {
     plan: plan.code,
     coachRemaining: Math.max(
@@ -428,6 +525,7 @@ export async function getAccountUsage(userId: string) {
       : 0,
     resetsAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString(),
     pending,
+    uncertain,
     allowedModels: plan.allowedModels.filter((model) => model in MODEL_POLICIES),
     webAllowed: plan.webSearchAllowed,
   };

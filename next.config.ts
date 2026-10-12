@@ -24,6 +24,9 @@ for (const value of [
 }
 
 const nextConfig: NextConfig = {
+  output: "standalone",
+  // Verification and password reset URLs contain private authentication tokens.
+  logging: { incomingRequests: false },
   allowedDevOrigins: [...developmentOrigins],
   poweredByHeader: false,
   async headers() {

@@ -1,0 +1,55 @@
+# Requires Docker Compose >= 2.30 for raw env_file values.
+# Keep .env.production private, outside the image, with no surrounding quotes.
+x-operations: &operations
+  image: grieta-pro-tools:local
+  build:
+    context: .
+    target: tooling
+  env_file:
+    - path: .env.production
+      format: raw
+  environment:
+    NODE_ENV: production
+  profiles: [ops]
+  init: true
+  cap_drop: [ALL]
+  security_opt: [no-new-privileges:true]
+
+services:
+  web:
+    image: grieta-pro:local
+    build:
+      context: .
+      target: runner
+    env_file:
+      - path: .env.production
+        format: raw
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: "3000"
+    # Only the HTTPS reverse proxy on the host should reach the app.
+    ports: ["127.0.0.1:3000:3000"]
+    init: true
+    restart: unless-stopped
+    stop_grace_period: 2m
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m
+      - /app/.next/cache:rw,noexec,nosuid,size=128m,uid=1000,gid=1000
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    logging:
+      driver: json-file
+      options:
+        max-size: 10m
+        max-file: "3"
+  migrations:
+    <<: *operations
+    command: [pnpm, db:migrate]
+  seed:
+    <<: *operations
+    command: [pnpm, db:seed]
+  reconcile:
+    <<: *operations
+    command: [pnpm, reconcile:usage, --max-users=4]

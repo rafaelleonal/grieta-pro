@@ -42,7 +42,7 @@ En la revisión local del 10 de octubre de 2026, la auditoría de producción no
 
 La auditoría completa todavía detecta `braces` 3.0.3 en la cadena de desarrollo de ESLint. [GHSA-vfj7-8cjw-p6xm](https://github.com/advisories/GHSA-vfj7-8cjw-p6xm) afecta a patrones profundamente anidados y no indica una versión corregida. Esta dependencia se utiliza con patrones del repositorio al ejecutar ESLint; no interviene en las solicitudes de la aplicación. No se ignora el aviso: `audit:security` y el flujo completo semanal fallan y lo reportan. Mantén controlados los patrones de lint y da seguimiento a una corrección compatible.
 
-Los flujos de GitHub Actions y Dependabot están preparados, sin publicación ni ejecución en GitHub todavía. El CI usa permisos de lectura, acciones fijadas a commits verificados y checkout sin credenciales persistentes. Las propuestas se comprueban sin secretos de producción. La auditoría completa semanal/manual incluye también dependencias de desarrollo; la auditoría de producción forma parte del CI de contribuciones.
+Los flujos de GitHub Actions y Dependabot están configurados; consulta los resultados de cada ejecución en GitHub. El CI usa permisos de lectura, acciones fijadas a commits verificados y checkout sin credenciales persistentes. Las propuestas se comprueban sin secretos de producción. La auditoría completa semanal/manual incluye también dependencias de desarrollo; la auditoría de producción forma parte del CI de contribuciones.
 
 ## Mantener una instalación
 

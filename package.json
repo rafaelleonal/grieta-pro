@@ -22,13 +22,16 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "db:generate": "prisma generate",
     "db:local": "tsx scripts/db-local.ts",
+    "mail:local": "tsx scripts/mail-local.ts",
     "db:migrate": "prisma migrate deploy",
     "db:seed": "tsx scripts/seed-plans.ts",
     "db:setup": "pnpm db:generate && pnpm db:migrate && pnpm db:seed",
     "access": "tsx scripts/manage-access.ts",
+    "reconcile:usage": "tsx scripts/reconcile-usage.ts",
     "test:accounts": "tsx scripts/smoke-accounts.ts"
   },
   "dependencies": {
+    "@next/env": "16.4.0",
     "@prisma/adapter-pg": "7.10.0",
     "@prisma/client": "7.10.0",
     "better-auth": "1.7.7",

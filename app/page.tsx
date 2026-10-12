@@ -24,6 +24,9 @@ import {
   Leaf,
   LoaderCircle,
   Menu,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Pencil,
   Plus,
   Search,
   Settings2,
@@ -36,11 +39,13 @@ import {
   Users,
   WandSparkles,
   X,
-  Zap,
 } from "lucide-react";
 import { ChampionSelect } from "@/components/champion-select";
+import { useChampionPreferences } from "@/components/use-champion-preferences";
 import { CoachingResult } from "@/components/coaching-result";
 import { Modal } from "@/components/modal";
+import { LegalLinks } from "@/components/legal-links";
+import { RiotNotice } from "@/components/riot-notice";
 import { OfflineNotice, PwaInstall } from "@/components/pwa-manager";
 import {
   AccountAccessNotice,
@@ -49,8 +54,9 @@ import {
   AccountModal,
   type HistoryRecord,
 } from "@/components/account-controls";
-import { readAccount, type AccountStatus } from "@/lib/auth-client";
-import { demoResult } from "@/lib/demo";
+import { readAccount, reconcileAccount, type AccountStatus } from "@/lib/auth-client";
+import { GenerationIntents } from "@/lib/generation-intent";
+import { demoInput, demoResult } from "@/lib/demo";
 import { prepareImage } from "@/lib/image-upload";
 import { assertSafeInputText, safeNotesForStorage } from "@/lib/coach-safety";
 import type {
@@ -61,6 +67,7 @@ import type {
   Credentials,
   DraftResult,
   RiotResult,
+  SavedCoachResult,
 } from "@/lib/types";
 
 const STORAGE_KEY = "cholo-coach:draft:v1";
@@ -96,16 +103,22 @@ const emptyInput: CoachInput = {
 };
 type Busy = "coach" | "draft" | "riot" | null;
 
-async function api<T>(path: string, body: unknown, signal: AbortSignal): Promise<T> {
+async function api<T>(
+  path: string,
+  body: unknown,
+  signal: AbortSignal,
+  idempotencyKey = crypto.randomUUID(),
+): Promise<T> {
   if (!navigator.onLine)
     throw new Error(
       "Sin conexión. Conecta internet y vuelve a solicitar el análisis cuando estés listo.",
     );
   const response = await fetch(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
+    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
     body: JSON.stringify(body),
     signal,
+    redirect: "error",
   });
   const data = await response.json().catch(() => null);
   if (!response.ok)
@@ -264,15 +277,18 @@ export default function Home() {
   const [draftOwner, setDraftOwner] = useState<string | null | undefined>(undefined);
   const [account, setAccount] = useState<AccountStatus | null>(null);
   const [accountError, setAccountError] = useState("");
+  const [checkingConsumption, setCheckingConsumption] = useState(false);
+  const [consumptionError, setConsumptionError] = useState("");
   const [mode, setMode] = useState<"manual" | "capture">("manual");
   const [teamOpen, setTeamOpen] = useState(false);
   const [busy, setBusy] = useState<Busy>(null);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [catalogError, setCatalogError] = useState("");
-  const [result, setResult] = useState<CoachResult | null>(null);
+  const [result, setResult] = useState<SavedCoachResult | null>(null);
   const [resultInput, setResultInput] = useState<CoachInput | null>(null);
   const [sample, setSample] = useState(false);
+  const [formOpen, setFormOpen] = useState(true);
   const [modal, setModal] = useState<"settings" | "help" | "history" | "account" | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [draftText, setDraftText] = useState("");
@@ -296,13 +312,21 @@ export default function Home() {
   const resultElement = useRef<HTMLDivElement>(null);
   const accountIdentity = useRef<string | null | undefined>(undefined);
   const accountRequest = useRef(0);
+  const generationIntents = useRef(new GenerationIntents());
+  const reconciliation = useRef<{
+    owner: string;
+    abort: AbortController;
+    promise: Promise<void>;
+  } | null>(null);
+  const reconciliationPolls = useRef(0);
   const accountOwner = account?.authenticated ? account.user?.id || null : null;
+  const verifiedOwner = account?.user?.emailVerified ? accountOwner : null;
+  const hasReservedRequests = Boolean(account?.usage?.pending || account?.usage?.uncertain);
+  const championPreferences = useChampionPreferences(verifiedOwner);
   const champions = catalog?.champions || [];
   const ready = Boolean(status?.configured || credentials.apiKey);
   const champion = champions.find((entry) => entry.id === input.champion);
   const enemy = champions.find((entry) => entry.id === input.enemy);
-  const planChampion = champions.find((entry) => entry.id === resultInput?.champion);
-  const planEnemy = champions.find((entry) => entry.id === resultInput?.enemy);
   const currentRole = roles.find((entry) => entry.id === input.role)!;
   const hasChanged = Boolean(resultInput && JSON.stringify(resultInput) !== JSON.stringify(input));
 
@@ -314,7 +338,7 @@ export default function Home() {
     }
     const abort = new AbortController();
     void Promise.allSettled([
-      fetch("/api/catalog", { signal: abort.signal }).then(async (response) => {
+      fetch("/api/catalog?format=2", { signal: abort.signal }).then(async (response) => {
         if (!response.ok) throw new Error();
         const data: Catalog = await response.json();
         setCatalog(data);
@@ -338,6 +362,7 @@ export default function Home() {
     return () => {
       abort.abort();
       controller.current?.abort();
+      reconciliation.current?.abort.abort();
       imageRequest.current += 1;
     };
   }, []);
@@ -386,8 +411,59 @@ export default function Home() {
     }
   }, []);
 
+  const checkConsumption = useCallback(
+    async (idempotencyKey?: string) => {
+      const owner = accountIdentity.current;
+      if (
+        !owner ||
+        owner !== verifiedOwner ||
+        document.visibilityState !== "visible" ||
+        !navigator.onLine
+      )
+        return;
+      if (reconciliation.current?.owner === owner) return reconciliation.current.promise;
+      const abort = new AbortController();
+      const key = idempotencyKey || generationIntents.current.latest();
+      setCheckingConsumption(true);
+      setConsumptionError("");
+      const promise = (async () => {
+        try {
+          const outcome = await reconcileAccount(key, abort.signal);
+          if (abort.signal.aborted || accountIdentity.current !== owner) return;
+          if (key) generationIntents.current.resolve(key, outcome.attempt);
+          setAccount((previous) =>
+            previous?.authenticated && previous.user?.id === owner
+              ? { ...previous, usage: outcome.usage }
+              : previous,
+          );
+        } catch {
+          if (!abort.signal.aborted && accountIdentity.current === owner)
+            setConsumptionError(
+              "No pudimos confirmar el consumo todavía. Conservamos la reserva y no iniciamos otro análisis.",
+            );
+        } finally {
+          if (reconciliation.current?.abort === abort) {
+            reconciliation.current = null;
+            setCheckingConsumption(false);
+          }
+        }
+      })();
+      reconciliation.current = { owner, abort, promise };
+      return promise;
+    },
+    [verifiedOwner],
+  );
+
   const clearPrivateState = useCallback(() => {
     controller.current?.abort();
+    controller.current = null;
+    reconciliation.current?.abort.abort();
+    reconciliation.current = null;
+    generationIntents.current.clear();
+    generationIntents.current.setOwner(accountIdentity.current || null);
+    reconciliationPolls.current = 0;
+    setCheckingConsumption(false);
+    setConsumptionError("");
     setBusy(null);
     imageRequest.current += 1;
     setImage("");
@@ -399,6 +475,7 @@ export default function Home() {
     setInput(emptyInput);
     setCredentials({});
     setResult(null);
+    setFormOpen(true);
     setResultInput(null);
     setSample(false);
     setDraftText("");
@@ -419,7 +496,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- Fetches the verified server session; state updates happen after the network response.
     void refreshAccount();
     const focus = () => {
-      void refreshAccount();
+      if (document.visibilityState === "visible") void refreshAccount();
     };
     const visibility = () => {
       if (document.visibilityState === "visible") void refreshAccount();
@@ -454,6 +531,13 @@ export default function Home() {
       return;
     }
     controller.current?.abort();
+    controller.current = null;
+    reconciliation.current?.abort.abort();
+    reconciliation.current = null;
+    generationIntents.current.setOwner(owner);
+    reconciliationPolls.current = 0;
+    setCheckingConsumption(false);
+    setConsumptionError("");
     setBusy(null);
     imageRequest.current += 1;
     setImage("");
@@ -465,6 +549,7 @@ export default function Home() {
     setDraftText("");
     setCredentials({});
     setResult(null);
+    setFormOpen(true);
     setResultInput(null);
     setSample(false);
     setRiot(null);
@@ -487,12 +572,51 @@ export default function Home() {
     setStorageReady(true);
   }, [account]);
 
+  useEffect(() => {
+    if (!verifiedOwner) return;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    let disposed = false;
+    const schedule = () => {
+      if (timer) clearTimeout(timer);
+      if (
+        disposed ||
+        document.visibilityState !== "visible" ||
+        !hasReservedRequests ||
+        reconciliationPolls.current >= 10
+      )
+        return;
+      timer = setTimeout(() => {
+        reconciliationPolls.current += 1;
+        void checkConsumption().finally(schedule);
+      }, 30_000);
+    };
+    const checkAndSchedule = () => {
+      if (timer) clearTimeout(timer);
+      if (document.visibilityState === "visible") void checkConsumption().finally(schedule);
+    };
+    const visibility = () => {
+      if (timer) clearTimeout(timer);
+      if (document.visibilityState === "visible") checkAndSchedule();
+      else reconciliation.current?.abort.abort();
+    };
+    checkAndSchedule();
+    window.addEventListener("focus", checkAndSchedule);
+    document.addEventListener("visibilitychange", visibility);
+    return () => {
+      disposed = true;
+      if (timer) clearTimeout(timer);
+      window.removeEventListener("focus", checkAndSchedule);
+      document.removeEventListener("visibilitychange", visibility);
+    };
+  }, [verifiedOwner, hasReservedRequests, checkConsumption]);
+
   function restoreHistory(record: HistoryRecord) {
     if (busy) cancel();
     clearImage();
     setInput(record.input);
     setResultInput(record.input);
     setResult(record.result);
+    setFormOpen(false);
     setSample(false);
     setModal(null);
     setNotice(
@@ -518,15 +642,20 @@ export default function Home() {
       setError(cause instanceof Error ? cause.message : "No pudimos completar la solicitud.");
   }
   function end(abort: AbortController) {
-    if (controller.current === abort) setBusy(null);
+    if (controller.current === abort) {
+      controller.current = null;
+      setBusy(null);
+    }
   }
   function cancel() {
     controller.current?.abort();
+    controller.current = null;
     setBusy(null);
     setNotice(
       "Dejamos de esperar el análisis. Si ya se envió al proveedor, puede consumir tu cuota. Tu selección sigue aquí.",
     );
     void refreshAccount();
+    void checkConsumption();
   }
   function ensureConnection() {
     if (!navigator.onLine) {
@@ -555,11 +684,11 @@ export default function Home() {
     }
     return true;
   }
-  function ensureCredentials(kind: "coach" | "draft" = "coach") {
+  function ensureCredentials(kind: "coach" | "draft" = "coach", replay = false) {
     if (!ensureAccount()) return false;
     const remaining =
       kind === "coach" ? account?.usage?.coachRemaining : account?.usage?.draftRemaining;
-    if (remaining !== undefined && remaining <= 0) {
+    if (!replay && remaining !== undefined && remaining <= 0) {
       setError(
         kind === "coach"
           ? "Ya usaste tus planes de este periodo. Puedes consultar los anteriores en Mis sesiones."
@@ -567,13 +696,20 @@ export default function Home() {
       );
       return false;
     }
-    if (account?.usage?.pending) {
-      setError("Ya tienes una generación en curso. Espera a que termine antes de comenzar otra.");
+    if (!replay && account?.usage?.pending) {
+      setError(
+        "Tienes una consulta en curso. Comprobamos su estado automáticamente; tu selección sigue guardada.",
+      );
       return false;
     }
     if (!ready) {
       setModal("settings");
       setNotice("Añade tu clave de OpenRouter para generar un plan real.");
+      return false;
+    }
+    if (!credentials.model && !status?.defaultModel) {
+      setModal("settings");
+      setNotice("Espera la configuración del modelo o elige uno en Conexión antes de generar.");
       return false;
     }
     return true;
@@ -593,17 +729,20 @@ export default function Home() {
   }
 
   async function generate(notes?: string) {
-    if (busy || preparingImage) return;
+    if (busy || controller.current || preparingImage) return;
     const combinedNotes =
-      notes !== undefined ? `${input.notes}${input.notes ? "\n" : ""}${notes}` : input.notes;
+      notes !== undefined && !input.notes.endsWith(notes)
+        ? `${input.notes}${input.notes ? "\n" : ""}${notes}`
+        : input.notes;
     if (combinedNotes.length > 1500) {
       setError(
         "Tu contexto supera 1500 caracteres. Acorta las notas de la composición antes de agregar esta pregunta.",
       );
       setTeamOpen(true);
+      setFormOpen(true);
       return;
     }
-    if (!safeContext(combinedNotes) || !ensureCredentials()) return;
+    if (!safeContext(combinedNotes) || !ensureAccount()) return;
     const coachInput = {
       ...input,
       notes: combinedNotes,
@@ -613,43 +752,69 @@ export default function Home() {
     };
     setInput(coachInput);
     const abort = begin("coach");
+    let key: string | undefined;
     try {
-      const next = await api<CoachResult>(
-        "/api/coach",
-        {
-          ...coachInput,
-          allies: coachInput.allies.filter(Boolean),
-          enemies: coachInput.enemies.filter(Boolean),
-          ...credentials,
-        },
-        abort.signal,
+      const body = {
+        ...coachInput,
+        allies: coachInput.allies.filter(Boolean),
+        enemies: coachInput.enemies.filter(Boolean),
+        ...credentials,
+      };
+      const intent = await generationIntents.current.get(
+        accountOwner!,
+        "COACH",
+        body,
+        status?.defaultModel || "",
       );
+      if (!intent || abort.signal.aborted) return;
+      key = intent.key;
+      if (intent.attempt?.state === "UNKNOWN" && !intent.attempt.hasResponse) {
+        setError(
+          "Este intento conserva una reserva incierta. Usa Comprobar estado; puedes preparar otro análisis si te queda cuota.",
+        );
+        return;
+      }
+      if (!ensureCredentials("coach", Boolean(intent.attempt?.hasResponse))) return;
+      const next = await api<CoachResult>("/api/coach", body, abort.signal, key);
       if (abort.signal.aborted) return;
+      generationIntents.current.complete(key);
       setResult(next);
+      setFormOpen(false);
       setResultInput(coachInput);
       setSample(false);
       if (window.innerWidth < 651)
-        resultElement.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        resultElement.current?.scrollIntoView({
+          behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+            ? "instant"
+            : "smooth",
+          block: "start",
+        });
     } catch (cause) {
       fail(cause, abort);
     } finally {
       end(abort);
       void refreshAccount();
+      reconciliationPolls.current = 0;
+      void checkConsumption(key);
     }
   }
 
   function showExample() {
-    const next = { ...emptyInput, webSearch: input.webSearch };
+    const next = { ...demoInput };
     setInput(next);
     setResult(demoResult);
+    setFormOpen(false);
     setResultInput(next);
     setSample(true);
     setError("");
-    setNotice(
-      "Ejemplo de Ahri vs. Yasuo: escrito localmente, sin IA y sin verificar el parche actual.",
-    );
+    setNotice("");
     if (window.innerWidth < 651)
-      resultElement.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      resultElement.current?.scrollIntoView({
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ? "instant"
+          : "smooth",
+        block: "start",
+      });
   }
 
   async function readImage(file: File | undefined) {
@@ -701,22 +866,40 @@ export default function Home() {
   }
 
   async function detectDraft() {
-    if (busy || preparingImage || (!draftText.trim() && !image)) return;
-    if (!safeContext(draftText) || !ensureCredentials("draft")) return;
+    if (busy || controller.current || preparingImage || (!draftText.trim() && !image)) return;
+    if (!safeContext(draftText) || !ensureAccount()) return;
     const abort = begin("draft");
     setDraft(null);
+    let key: string | undefined;
     try {
-      const next = await api<DraftResult>(
-        "/api/draft",
-        { text: draftText.trim(), image: image || undefined, ...credentials },
-        abort.signal,
+      const body = { text: draftText.trim(), image: image || undefined, ...credentials };
+      const intent = await generationIntents.current.get(
+        accountOwner!,
+        "DRAFT",
+        body,
+        status?.defaultModel || "",
       );
-      if (!abort.signal.aborted) setDraft(next);
+      if (!intent || abort.signal.aborted) return;
+      key = intent.key;
+      if (intent.attempt?.state === "UNKNOWN" && !intent.attempt.hasResponse) {
+        setError(
+          "Esta lectura conserva una reserva incierta. Usa Comprobar estado antes de repetirla.",
+        );
+        return;
+      }
+      if (!ensureCredentials("draft", Boolean(intent.attempt?.hasResponse))) return;
+      const next = await api<DraftResult>("/api/draft", body, abort.signal, key);
+      if (!abort.signal.aborted) {
+        generationIntents.current.complete(key);
+        setDraft(next);
+      }
     } catch (cause) {
       fail(cause, abort);
     } finally {
       end(abort);
       void refreshAccount();
+      reconciliationPolls.current = 0;
+      void checkConsumption(key);
     }
   }
 
@@ -792,6 +975,7 @@ export default function Home() {
     clearImage();
     setInput(emptyInput);
     setResult(null);
+    setFormOpen(true);
     setResultInput(null);
     setSample(false);
     setError("");
@@ -811,7 +995,9 @@ export default function Home() {
     );
 
   return (
-    <div className="workspace">
+    <div
+      className={`workspace ${result ? `has-plan ${formOpen ? "form-open" : "form-collapsed"}` : ""}`}
+    >
       <button
         className={`sidebar-dismiss ${sidebarOpen ? "visible" : ""}`}
         aria-label="Cerrar menú"
@@ -881,11 +1067,6 @@ export default function Home() {
             }}
           />
         </nav>
-        <div className="sidebar-tip">
-          <Target size={20} className="tip-icon" />
-          <strong>Cada decisión cuenta.</strong>
-          <p>Un buen plan no gana la partida por ti. Te ayuda a tomar la siguiente decisión.</p>
-        </div>
         <div className="sidebar-bottom">
           <div className="connection">
             <i className={`status-dot ${ready ? "live" : ""}`} />
@@ -933,6 +1114,15 @@ export default function Home() {
             <span className="current">League of Legends</span>
           </div>
           <div className="topbar-actions">
+            <button
+              className="model-chip"
+              onClick={() => setModal("settings")}
+              title="Cambiar modelo"
+            >
+              <Sparkles size={12} />
+              <span>{credentials.model || status?.defaultModel || "Modelo de OpenRouter"}</span>
+              <ChevronDown size={11} />
+            </button>
             <AccountBadge account={account} onOpen={() => setModal("account")} />
             {catalog ? (
               <span className="live-tag">
@@ -958,34 +1148,114 @@ export default function Home() {
             account={account}
             error={accountError}
             onRetry={() => void refreshAccount()}
+            onCheck={() => void checkConsumption()}
+            checking={checkingConsumption}
+            consumptionError={consumptionError}
           />
-          <div className="page-heading">
-            <div>
-              <div className="eyebrow">
-                <span style={{ width: 13, height: 2, background: "#85a6ff" }} />
-                PREPARA. ENTIENDE. MEJORA.
+          {!result ? (
+            <div className="page-heading">
+              <div>
+                <div className="eyebrow">
+                  <span style={{ width: 13, height: 2, background: "var(--color-accent)" }} />
+                  PREPARA. ENTIENDE. MEJORA.
+                </div>
+                <h1>Entra a la Grieta con un plan.</h1>
+                <p>Tu matchup, tus primeros niveles y las decisiones que importan.</p>
               </div>
-              <h1>Entra a la Grieta con un plan.</h1>
-              <p>Tu matchup, tus primeros niveles y las decisiones que importan.</p>
             </div>
-            <button
-              className="model-chip"
-              onClick={() => setModal("settings")}
-              title="Cambiar modelo"
-            >
-              <Sparkles size={12} />
-              <span>{credentials.model || status?.defaultModel || "Modelo de OpenRouter"}</span>
-              <ChevronDown size={11} />
-            </button>
-          </div>
+          ) : null}
+          {catalogError || error ? (
+            <div className="error-alert workspace-alert" role="alert">
+              <AlertCircle size={20} aria-hidden="true" />
+              <div className="workspace-error-copy">
+                <strong>
+                  {catalogError
+                    ? "No pudimos cargar los campeones"
+                    : "No pudimos completar el plan"}
+                </strong>
+                <p>{catalogError || error}</p>
+              </div>
+            </div>
+          ) : null}
+          {notice ? (
+            <div className="notice-alert workspace-alert" role="status">
+              <CircleHelp size={14} />
+              <span>{notice}</span>
+            </div>
+          ) : null}
           <div className="coach-grid">
-            <section className="panel setup-panel" aria-label="Preparación de la partida">
+            {result && !formOpen ? (
+              <aside className="setup-rail" aria-label="Resumen de tu selección">
+                <button
+                  className="icon-button"
+                  type="button"
+                  aria-label="Expandir preparación"
+                  aria-expanded={false}
+                  aria-controls="match-setup"
+                  onClick={() => setFormOpen(true)}
+                >
+                  <PanelLeftOpen size={18} />
+                </button>
+                <div className="rail-matchup">
+                  {champion ? (
+                    <Image
+                      src={champion.image}
+                      alt={champion.name}
+                      width={36}
+                      height={36}
+                      unoptimized
+                    />
+                  ) : null}
+                  <span>vs.</span>
+                  {enemy ? (
+                    <Image src={enemy.image} alt={enemy.name} width={36} height={36} unoptimized />
+                  ) : null}
+                </div>
+                <div className="rail-role" title={`${currentRole.name} · ${input.rank}`}>
+                  <currentRole.icon size={18} aria-label={currentRole.name} />
+                  <span>{input.rank}</span>
+                </div>
+                <div className="rail-team" title="Otros campeones elegidos en la composición">
+                  <Users size={16} />
+                  <span>
+                    {input.allies.filter(Boolean).length + input.enemies.filter(Boolean).length}
+                  </span>
+                </div>
+                <button
+                  className="icon-button rail-edit"
+                  type="button"
+                  aria-label="Editar partida"
+                  onClick={() => setFormOpen(true)}
+                >
+                  <Pencil size={16} />
+                </button>
+              </aside>
+            ) : null}
+            <section
+              id="match-setup"
+              className="panel setup-panel"
+              hidden={Boolean(result) && !formOpen}
+              aria-label="Preparación de la partida"
+            >
               <div className="panel-heading">
                 <h2>
                   <SlidersHorizontal size={15} />
                   Tu partida
                 </h2>
-                <span className="step-tag">01 / CONTEXTO</span>
+                {result ? (
+                  <button
+                    className="icon-button"
+                    type="button"
+                    aria-label="Contraer preparación"
+                    aria-expanded={true}
+                    aria-controls="match-setup"
+                    onClick={() => setFormOpen(false)}
+                  >
+                    <PanelLeftClose size={18} />
+                  </button>
+                ) : (
+                  <span className="step-tag">01 / CONTEXTO</span>
+                )}
               </div>
               <div className="input-tabs" aria-label="Modo de entrada">
                 <button
@@ -1208,30 +1478,14 @@ export default function Home() {
               {mode === "manual" ? (
                 <>
                   <div className="field">
-                    <label className="field-label">Tu campeón</label>
-                    <ChampionSelect
-                      champions={champions}
-                      value={input.champion}
-                      onChange={(value) => update("champion", value)}
-                      label="Tu campeón"
-                    />
-                    <div className="versus-divider">VS</div>
-                    <label className="field-label">Tu rival de línea</label>
-                    <ChampionSelect
-                      champions={champions}
-                      value={input.enemy}
-                      onChange={(value) => update("enemy", value)}
-                      label="Tu rival de línea"
-                    />
-                  </div>
-                  <div className="field">
                     <span className="field-label" id="role-label">
-                      ¿Dónde juegas?
+                      Primero, ¿dónde juegas?
                     </span>
                     <div className="roles" role="group" aria-labelledby="role-label">
                       {roles.map((role) => (
                         <button
                           key={role.id}
+                          type="button"
                           className={`role-button ${input.role === role.id ? "active" : ""}`}
                           aria-pressed={input.role === role.id}
                           onClick={() => update("role", role.id)}
@@ -1241,6 +1495,35 @@ export default function Home() {
                         </button>
                       ))}
                     </div>
+                  </div>
+                  <div className="field">
+                    <label className="field-label">Tu campeón</label>
+                    <ChampionSelect
+                      champions={champions}
+                      value={input.champion}
+                      onChange={(value) => update("champion", value)}
+                      label="Tu campeón"
+                      role={input.role}
+                      favorites={championPreferences.favorites[input.role]}
+                      onFavoritesChange={(ordered) =>
+                        void championPreferences.save(input.role, ordered)
+                      }
+                      canPersonalize={Boolean(verifiedOwner)}
+                      preferencesReady={championPreferences.ready}
+                      preferencesLoading={championPreferences.loading}
+                      preferencesSaving={championPreferences.saving}
+                      preferencesError={championPreferences.error}
+                      onPreferencesRetry={championPreferences.refresh}
+                    />
+                    <div className="versus-divider">VS</div>
+                    <label className="field-label">Tu rival de línea</label>
+                    <ChampionSelect
+                      champions={champions}
+                      value={input.enemy}
+                      onChange={(value) => update("enemy", value)}
+                      label="Tu rival de línea"
+                      role={input.role}
+                    />
                   </div>
                   <div className="field" style={{ marginBottom: 0 }}>
                     <label className="field-label" htmlFor="rank">
@@ -1265,7 +1548,7 @@ export default function Home() {
                     aria-controls="team-context"
                   >
                     <Users size={14} />
-                    <span>Composición y contexto</span>
+                    <span>Equipos y notas</span>
                     <span className="end">Opcional</span>
                     <ChevronDown
                       size={13}
@@ -1275,8 +1558,8 @@ export default function Home() {
                   {teamOpen ? (
                     <div id="team-context" className="team-context">
                       <p>
-                        Tu campeón y tu rival ya están incluidos. Completa los demás para ajustar el
-                        plan a la partida.
+                        Añade los demás campeones para adaptar las compras y el plan de mapa. Tu
+                        campeón y tu rival ya están incluidos.
                       </p>
                       <div className="team-label">
                         <i className="status-dot live" />
@@ -1459,12 +1742,18 @@ export default function Home() {
                   void generate();
                 }}
                 disabled={Boolean(busy) || preparingImage || !catalog || mode !== "manual"}
+                aria-busy={busy === "coach"}
               >
-                <Sparkles size={15} />
+                {busy === "coach" ? (
+                  <LoaderCircle size={18} className="spin" aria-hidden="true" />
+                ) : (
+                  <Sparkles size={15} aria-hidden="true" />
+                )}
                 {busy === "coach" ? "Preparando tu plan..." : "Generar plan de partida"}
-                <ArrowRight size={14} style={{ marginLeft: "auto" }} />
+                {busy !== "coach" ? (
+                  <ArrowRight size={14} style={{ marginLeft: "auto" }} aria-hidden="true" />
+                ) : null}
               </button>
-              <p className="form-footnote">Conciso. Específico. Hecho para tu siguiente partida.</p>
               {busy ? (
                 <button
                   className="text-button"
@@ -1475,41 +1764,9 @@ export default function Home() {
                   Cancelar solicitud
                 </button>
               ) : null}
-              {catalogError || error ? (
-                <div className="error-alert" role="alert">
-                  <AlertCircle size={14} />
-                  <span>{catalogError || error}</span>
-                </div>
-              ) : null}
-              {notice ? (
-                <div className="notice-alert" role="status">
-                  <CircleHelp size={14} />
-                  <span>{notice}</span>
-                </div>
-              ) : null}
             </section>
             <div className="right-column" ref={resultElement}>
-              {result && resultInput && busy !== "coach" ? (
-                <div
-                  className="plan-matchup"
-                  aria-label={`Plan para ${planChampion?.name || resultInput.champion} contra ${planEnemy?.name || resultInput.enemy}`}
-                >
-                  <div className="plan-matchup-picks">
-                    {planChampion ? (
-                      <Image src={planChampion.image} alt="" width={32} height={32} unoptimized />
-                    ) : null}
-                    <strong>{planChampion?.name || resultInput.champion}</strong>
-                    <span>vs.</span>
-                    {planEnemy ? (
-                      <Image src={planEnemy.image} alt="" width={32} height={32} unoptimized />
-                    ) : null}
-                    <strong>{planEnemy?.name || resultInput.enemy}</strong>
-                  </div>
-                  <span className="plan-matchup-role">
-                    {roles.find((role) => role.id === resultInput.role)?.name} · {resultInput.rank}
-                  </span>
-                </div>
-              ) : (
+              {!result ? (
                 <section
                   className="matchup-hero"
                   aria-label={`${champion?.name || input.champion} contra ${enemy?.name || input.enemy}`}
@@ -1535,7 +1792,7 @@ export default function Home() {
                     </span>
                     <span className="hero-tag accent">
                       <Target size={11} />
-                      ENFOQUE CHALLENGER
+                      PLAN CON CONTEXTO
                     </span>
                   </div>
                   <div className="hero-vs">VS</div>
@@ -1552,7 +1809,7 @@ export default function Home() {
                     </div>
                   </div>
                 </section>
-              )}
+              ) : null}
               {hasChanged && !busy ? (
                 <div className="notice-alert" style={{ marginTop: 0 }}>
                   <AlertCircle size={14} />
@@ -1582,11 +1839,15 @@ export default function Home() {
                     Cancelar análisis
                   </button>
                 </section>
-              ) : result ? (
+              ) : result && resultInput && catalog ? (
                 <CoachingResult
                   key={`${result.meta.generatedAt}-${sample}`}
                   result={result}
-                  items={catalog?.items || []}
+                  catalog={catalog}
+                  input={resultInput}
+                  formOpen={formOpen}
+                  ownerId={accountOwner || undefined}
+                  followupError={error}
                   sample={sample}
                   busy={Boolean(busy) || preparingImage}
                   onFollowup={(message) => {
@@ -1596,6 +1857,7 @@ export default function Home() {
                         "Tu contexto supera 1500 caracteres. Acorta las notas de la composición antes de agregar esta pregunta.",
                       );
                       setTeamOpen(true);
+                      setFormOpen(true);
                       return false;
                     }
                     if (
@@ -1609,43 +1871,32 @@ export default function Home() {
                 />
               ) : (
                 <section className="panel result-panel empty-result">
-                  <div className="empty-kicker">
-                    <Sparkles size={13} />
-                    TU VENTAJA EMPIEZA AQUÍ
-                  </div>
-                  <h2>Menos improvisación. Más intención.</h2>
-                  <p>
-                    Elige tu campeón y tu rival. Tu coach convierte el matchup en un plan que puedes
-                    aplicar desde el primer súbdito.
-                  </p>
+                  <h2>Tu plan de partida</h2>
+                  <p>Genera una guía para este matchup.</p>
                   <div className="preview-grid">
                     <div className="preview-card">
                       <div className="preview-icon">
                         <Layers size={16} />
                       </div>
-                      <strong>Del nivel 1 al 6</strong>
-                      <p>Qué hacer y cuándo buscar tu ventana.</p>
+                      <strong>Niveles 1–6</strong>
+                      <p>Cuándo pelear.</p>
                     </div>
                     <div className="preview-card">
                       <div className="preview-icon">
                         <Crosshair size={16} />
                       </div>
-                      <strong>Respuestas mecánicas</strong>
-                      <p>Reacciona a sus habilidades clave.</p>
+                      <strong>Mecánicas</strong>
+                      <p>Cómo reaccionar.</p>
                     </div>
                     <div className="preview-card">
                       <div className="preview-icon">
                         <Swords size={16} />
                       </div>
-                      <strong>Build y plan de mapa</strong>
-                      <p>Adapta tus compras y tus decisiones.</p>
+                      <strong>Compras y mapa</strong>
+                      <p>Qué comprar y dónde jugar.</p>
                     </div>
                   </div>
                   <div className="empty-footer">
-                    <span>
-                      <Shield size={11} />
-                      Consejos concretos, sin ruido.
-                    </span>
                     <button className="text-button" onClick={showExample} disabled={Boolean(busy)}>
                       Ver ejemplo de Ahri
                       <ArrowRight size={12} />
@@ -1656,14 +1907,8 @@ export default function Home() {
             </div>
           </div>
           <footer className="workspace-footer">
-            <span>
-              <Zap size={10} />
-              HECHO PARA JUGAR CON INTENCIÓN
-            </span>
-            <div className="coach-credit">
-              <span>GrietaPro no está avalado por Riot Games.</span>
-              <span>League of Legends y sus recursos pertenecen a Riot Games.</span>
-            </div>
+            <LegalLinks openInNewTab />
+            <RiotNotice />
           </footer>
         </main>
       </div>
@@ -1762,6 +2007,9 @@ export default function Home() {
             )
           }
           onRefresh={refreshAccount}
+          onCheck={() => void checkConsumption()}
+          checking={checkingConsumption}
+          consumptionError={consumptionError}
         />
       ) : null}
     </div>

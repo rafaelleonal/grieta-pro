@@ -2,10 +2,13 @@ import { getDb } from "./db";
 import { ApiError } from "./http";
 import { Prisma, type CoachRecord } from "../generated/prisma/client";
 function publicRecord(row: CoachRecord) {
+  const meta = row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {};
+  const current =
+    row.plan && typeof row.plan === "object" && !Array.isArray(row.plan) && "phases" in row.plan;
   return {
     id: row.id,
     input: row.input,
-    result: { plan: row.plan, meta: row.meta },
+    result: { plan: row.plan, meta: { ...meta, formatVersion: current ? 2 : 1 } },
     createdAt: row.createdAt.toISOString(),
   };
 }

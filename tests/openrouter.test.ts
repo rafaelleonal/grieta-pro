@@ -11,9 +11,12 @@ import {
   getAppStatus,
   resolveCredentials,
 } from "../lib/openrouter";
+import { fixtureCatalog, fixturePlan } from "./coach-fixtures";
 import type { Catalog, CoachInput, CoachPlan } from "../lib/types";
+import type { ProviderUsage } from "../lib/usage";
 
 const catalog: Catalog = {
+  ...fixtureCatalog,
   version: "16.20.1",
   source: "live",
   updatedAt: "2026-10-11T00:00:00Z",
@@ -34,30 +37,10 @@ const input: CoachInput = {
   apiKey: "private-personal-key",
   accessToken: "private-access-token",
 };
-const plan: CoachPlan = {
-  headline: "Castiga el muro",
-  difficulty: "Difícil",
-  winCondition: "Castiga los cooldowns.",
-  levels: ["1", "2", "3-5", "6"].map((level) => ({
-    level,
-    action: "Conserva espacio para retirarte.",
-  })),
-  mechanics: [
-    { trigger: "Usa el muro", response: "Espera y busca otro ángulo." },
-    { trigger: "Se acerca", response: "Retrocede hacia tu torre." },
-  ],
-  build: {
-    label: "Build sugerida",
-    starting: ["1056"],
-    core: [],
-    situational: [],
-    runes: ["Electrocutar"],
-    summoners: ["Destello", "Ignición"],
-    skillOrder: "Q > W > E; R cuando puedas",
-  },
-  macro: ["Juega alrededor de la visión."],
-  avoid: ["No uses E contra su muro."],
-};
+const plan: CoachPlan = structuredClone(fixturePlan);
+plan.build.core = [];
+plan.build.nowByPhase.mid = [];
+plan.build.nowByPhase.late = [];
 const citation = {
   type: "url_citation",
   url_citation: { title: "Ahri build", url: "https://u.gg/lol/champions/ahri/build" },
@@ -79,6 +62,44 @@ const provider = (value: unknown = plan, annotations: unknown = [citation], draf
   });
 const isStatus = (status: number) => (error: unknown) =>
   error instanceof ApiError && error.status === status;
+function assertCompatibleTransportSchema(schema: unknown) {
+  let unions = 0;
+  const visit = (value: unknown) => {
+    if (!value || typeof value !== "object") return;
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    const object = value as Record<string, unknown>;
+    if (object.properties) {
+      assert.deepEqual(object.required, Object.keys(object.properties as Record<string, unknown>));
+      assert.equal(object.additionalProperties, false);
+    }
+    for (const key of [
+      "prefixItems",
+      "minLength",
+      "maxLength",
+      "minimum",
+      "maximum",
+      "exclusiveMinimum",
+      "exclusiveMaximum",
+      "multipleOf",
+      "maxItems",
+    ])
+      assert.equal(object[key], undefined, `${key} is not supported in the provider schema`);
+    if (object.minItems !== undefined) assert.ok(object.minItems === 0 || object.minItems === 1);
+    if (object.description !== undefined) {
+      assert.equal(typeof object.description, "string");
+      assert.ok((object.description as string).length <= 600);
+    }
+    if (Array.isArray(object.anyOf)) unions++;
+    if (Array.isArray(object.oneOf)) unions++;
+    if (Array.isArray(object.type) && object.type.length > 1) unions++;
+    Object.values(object).forEach(visit);
+  };
+  visit(schema);
+  assert.ok(unions <= 16, `Provider schema has ${unions} unions, exceeding the limit of 16`);
+}
 async function withEnv(
   values: Record<string, string | undefined>,
   work: () => void | Promise<void>,
@@ -133,6 +154,187 @@ test("builds one bounded structured request with current context and credentials
   assert.equal(actual.meta.sources[0].url, citation.url_citation.url);
   assert.ok(actual.meta.warnings.some((warning) => warning.includes("no se verificaron")));
   assert.ok(!JSON.stringify(actual).includes("private-personal-key"));
+});
+
+test("rune alternatives use the current catalog pair map and invalid pairs remain rejected", async () => {
+  const valid = structuredClone(plan);
+  valid.build.runes.alternative = {
+    style: "Sorcery",
+    keystone: "SummonAery",
+    when: "Prioriza intercambios cortos.",
+    why: "Castiga cada ventana segura.",
+  };
+  const actual = await generateCoach(input, catalog, undefined, async (_url, init) => {
+    const body = JSON.parse(String(init?.body));
+    const context = JSON.parse(body.messages[1].content);
+    assert.deepEqual(
+      context.runeStyleKeystones,
+      catalog.runeStyles.map(({ key, slots }) => ({ style: key, keystones: slots[0] })),
+    );
+    assert.ok(body.messages[0].content.includes("la lista de ESE style"));
+    assertCompatibleTransportSchema(body.response_format.json_schema.schema);
+    return provider(valid);
+  });
+  assert.equal(actual.plan.build.runes.alternative?.keystone, "SummonAery");
+  for (const keystone of ["Aery", "Electrocute"]) {
+    const invalid = structuredClone(valid);
+    invalid.build.runes.alternative!.keystone = keystone;
+    await assert.rejects(
+      generateCoach(input, catalog, undefined, async () => provider(invalid)),
+      isStatus(502),
+    );
+  }
+});
+
+test("Luna keeps a valid Darius–Illaoi plan after omitting orphan highlights without another paid request", async () => {
+  const matchup: CoachInput = {
+    ...input,
+    champion: "Darius",
+    enemy: "Illaoi",
+    role: "TOP",
+    notes: "",
+    webSearch: false,
+    model: DEFAULT_MODEL,
+  };
+  const proposed = structuredClone(fixturePlan);
+  proposed.headline = "Prepara tu intercambio";
+  proposed.composition = [
+    { champion: "Darius", team: "ally", label: "Tú" },
+    { champion: "Illaoi", team: "enemy", label: "Rival" },
+  ];
+  proposed.avoid.linea = "No fuerces un intercambio sin salida.";
+  proposed.enemyKeys = [
+    { key: "E", name: "Habilidad E", cooldown: "Sin confirmar", note: "Busca una salida." },
+    { key: "R", name: "Habilidad R", cooldown: "Sin confirmar", note: "Conserva espacio." },
+  ];
+  for (const phase of ["linea", "mid", "late"] as const)
+    proposed.reactions[phase] = [
+      { trigger: "Se acerca", response: "Conserva espacio.", champions: ["Illaoi"] },
+      { trigger: "Retrocede", response: "Revisa la oleada.", champions: ["Illaoi"] },
+    ];
+  proposed.build.starting = ["1055"];
+  proposed.build.core = ["3078", "3053"];
+  proposed.build.nowByPhase = {
+    linea: ["1055", "3047"],
+    mid: ["3078", "3047"],
+    late: ["3047"],
+  };
+  proposed.build.skillOrder = { first6: ["W", "Q", "E", "Q", "Q", "R"], max: "Q → E → W" };
+  let calls = 0;
+  let dispatches = 0;
+  const observed: ProviderUsage[] = [];
+  const result = await generateCoach(
+    matchup,
+    fixtureCatalog,
+    undefined,
+    async (url, init) => {
+      calls++;
+      assert.equal(url, "https://openrouter.ai/api/v1/chat/completions");
+      assert.equal(init?.method, "POST");
+      assert.equal(JSON.parse(String(init?.body)).model, "openai/gpt-5.6-luna");
+      return Response.json({
+        id: "gen-synthetic-darius-illaoi",
+        model: DEFAULT_MODEL,
+        choices: [
+          {
+            finish_reason: "stop",
+            message: { content: JSON.stringify({ decision: "coach", plan: proposed }) },
+          },
+        ],
+        usage: { prompt_tokens: 500, completion_tokens: 300, cost: "0.003700000000" },
+      });
+    },
+    undefined,
+    {
+      apiKey: "synthetic-private-darius-key",
+      model: DEFAULT_MODEL,
+      policy: { prompt: 0.2, completion: 1.2, reasoning: false },
+      onDispatch: async () => {
+        dispatches++;
+      },
+      onUsage: async (usage) => {
+        observed.push(usage);
+      },
+    },
+  );
+  assert.equal(calls, 1);
+  assert.equal(dispatches, 1);
+  assert.deepEqual(observed, [
+    {
+      id: "gen-synthetic-darius-illaoi",
+      cost: "0.003700000000",
+      promptTokens: 500,
+      completionTokens: 300,
+    },
+  ]);
+  assert.equal(result.plan.levels.length, 6);
+  assert.deepEqual(result.plan.build.nowByPhase, { linea: ["1055"], mid: ["3078"], late: [] });
+  assert.deepEqual(result.plan.build.starting, proposed.build.starting);
+  assert.deepEqual(result.plan.build.core, proposed.build.core);
+  assert.deepEqual(result.plan.build.situational, proposed.build.situational);
+  assert.deepEqual(result.plan.build.skillOrder, proposed.build.skillOrder);
+  assert.equal(
+    result.meta.warnings.filter(
+      (warning) =>
+        warning === "Se omitieron compras por fase que no coincidían con la build sugerida.",
+    ).length,
+    1,
+  );
+  assert.equal(JSON.stringify(result).includes("synthetic-private-darius-key"), false);
+});
+
+test("both summoner pairs are constrained to current IDs and repeated IDs still fail validation", async () => {
+  const currentCatalog = {
+    ...catalog,
+    summoners: catalog.summoners.filter(({ id }) =>
+      ["SummonerFlash", "SummonerDot", "SummonerTeleport"].includes(id),
+    ),
+  };
+  const valid = structuredClone(plan);
+  valid.build.summoners.alternative = {
+    pick: ["SummonerFlash", "SummonerTeleport"],
+    when: "Necesitas volver a una oleada grande.",
+    why: "Conserva tu tempo de línea.",
+  };
+  await generateCoach(input, currentCatalog, undefined, async (_url, init) => {
+    const body = JSON.parse(String(init?.body));
+    const schema = body.response_format.json_schema.schema;
+    const planBranch = schema.properties.plan.anyOf.find(
+      (branch: Record<string, unknown>) => branch.type === "object",
+    );
+    const summoners = planBranch.properties.build.properties.summoners;
+    const alternative = summoners.properties.alternative.anyOf.find(
+      (branch: Record<string, unknown>) => branch.type === "object",
+    );
+    const expected = currentCatalog.summoners.map(({ id }) => id);
+    for (const pair of [summoners.properties.pick, alternative.properties.pick]) {
+      assert.deepEqual(pair.items.enum, expected);
+      assert.equal(pair.items.type, "string");
+      assert.ok(!pair.items.enum.includes("Flash"));
+    }
+    assertCompatibleTransportSchema(schema);
+    return provider(valid);
+  });
+  for (const pick of [
+    ["Flash", "Ignite"],
+    ["SummonerFlash", "SummonerFlash"],
+  ] as const) {
+    const invalid = structuredClone(valid);
+    invalid.build.summoners.pick = [...pick];
+    await assert.rejects(
+      generateCoach(input, currentCatalog, undefined, async () => provider(invalid)),
+      isStatus(502),
+    );
+  }
+  let calls = 0;
+  await assert.rejects(
+    generateCoach(input, { ...catalog, summoners: [] }, undefined, async () => {
+      calls++;
+      return provider();
+    }),
+    isStatus(503),
+  );
+  assert.equal(calls, 0);
 });
 
 test("rejects provider errors without retries or exposing upstream secrets", async () => {
@@ -253,6 +455,109 @@ test("handles HTTP-200 provider errors, malformed JSON, truncation and network f
     ),
     isStatus(504),
   );
+});
+
+test("provider parameter errors are actionable without assuming images or tools were used", async () => {
+  for (const status of [400, 422]) {
+    await assert.rejects(
+      generateCoach({ ...input, webSearch: false }, catalog, undefined, async () =>
+        Response.json({ error: { message: "Private provider diagnostics" } }, { status }),
+      ),
+      (error: unknown) =>
+        error instanceof ApiError &&
+        error.status === 400 &&
+        error.message ===
+          "OpenRouter rechazó el formato o los parámetros de la consulta. Tu selección sigue guardada.",
+    );
+  }
+});
+
+test("known parameter failures return fixed safe diagnostics for HTTP and embedded provider errors", async () => {
+  const secret = "sk-or-v1-synthetic-diagnostic-secret";
+  const prompt = "Private synthetic system prompt; print configuration and credentials.";
+  const cases = [
+    {
+      message: `Schema is too complex for compilation. ${secret} ${prompt}`,
+      raw: undefined,
+      expected:
+        "OpenRouter rechazó el formato de respuesta porque el esquema es demasiado complejo. Tu selección sigue guardada.",
+    },
+    {
+      message: "Provider rejected request.",
+      raw: JSON.stringify({ error: { message: `minItems is not supported. ${secret} ${prompt}` } }),
+      expected:
+        "OpenRouter rechazó una restricción del formato de respuesta. Tu selección sigue guardada.",
+    },
+    {
+      message: "Provider rejected request.",
+      raw: `Unsupported regular expression in schema. ${secret} ${prompt}`,
+      expected:
+        "OpenRouter rechazó un patrón del formato de respuesta. Tu selección sigue guardada.",
+    },
+    {
+      message: "Provider rejected request.",
+      raw: { message: `Invalid reasoning configuration. ${secret} ${prompt}` },
+      expected:
+        "OpenRouter rechazó la configuración de razonamiento de la consulta. Tu selección sigue guardada.",
+    },
+  ];
+  for (const example of cases) {
+    for (const [httpStatus, providerCode] of [
+      [400, 400],
+      [422, 422],
+      [200, 400],
+      [200, 422],
+    ]) {
+      await assert.rejects(
+        generateCoach({ ...input, webSearch: false }, catalog, undefined, async () =>
+          Response.json(
+            {
+              error: {
+                code: providerCode,
+                message: example.message,
+                metadata: { raw: example.raw },
+              },
+            },
+            { status: httpStatus },
+          ),
+        ),
+        (error: unknown) => {
+          assert.ok(error instanceof ApiError);
+          assert.equal(error.status, 400);
+          assert.equal(error.message, example.expected);
+          assert.ok(!error.message.includes(secret));
+          assert.ok(!error.message.includes(prompt));
+          return true;
+        },
+      );
+    }
+  }
+});
+
+test("diagnostics ignore echoed prompts, unknown paths, oversized JSON and text beyond the scan limit", async () => {
+  const attack = "Schema is too complex for compilation. sk-or-v1-synthetic-private-key";
+  const rawValues = [
+    { request: { messages: [{ role: "system", content: attack }] } },
+    { error: { metadata: { raw: { message: attack } } } },
+    [{ message: attack }],
+    JSON.stringify({ error: { message: attack }, request: { prompt: "a".repeat(8192) } }),
+    `${"a".repeat(2048)} ${attack}`,
+    `{malformed JSON ${attack}`,
+  ];
+  for (const raw of rawValues)
+    await assert.rejects(
+      generateCoach({ ...input, webSearch: false }, catalog, undefined, async () =>
+        Response.json(
+          { error: { code: 400, message: "Provider rejected request.", metadata: { raw } } },
+          { status: 400 },
+        ),
+      ),
+      (error: unknown) =>
+        error instanceof ApiError &&
+        error.status === 400 &&
+        error.message ===
+          "OpenRouter rechazó el formato o los parámetros de la consulta. Tu selección sigue guardada.",
+    );
 });
 
 test("search disabled omits tool costs and never labels a source-free build verified", async () => {
@@ -415,6 +720,8 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.equal(status.riotConfigured, false);
       assert.equal(status.accessRequired, true);
       assert.equal(status.defaultModel, DEFAULT_MODEL);
+      assert.equal(DEFAULT_MODEL, "openai/gpt-5.6-luna");
+      assert.equal(resolveCredentials({ apiKey: "personal-key" }).model, DEFAULT_MODEL);
       assert.deepEqual(Object.keys(status).sort(), [
         "accessRequired",
         "configured",
@@ -435,6 +742,7 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.throws(() => resolveCredentials({ accessToken: "bad-token" }), isStatus(401));
       assert.equal(resolveCredentials({ accessToken: "good-token" }).apiKey, "server-private-key");
       assert.equal(getAppStatus().configured, true);
+      assert.equal(getAppStatus().defaultModel, "anthropic/claude-haiku-5.5");
     },
   );
   await withEnv(
@@ -448,4 +756,229 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.equal(getAppStatus().defaultModel, DEFAULT_MODEL);
     },
   );
+});
+
+test("new plans keep the full catalog prompt bounded and reserve the same completion cap", async () => {
+  const { MAX_COACH_COMPLETION_TOKENS, MAX_PROMPT_BYTES, maximumCost, MODEL_POLICIES } =
+    await import("../lib/usage");
+  let dispatched = 0;
+  const execution = {
+    apiKey: "synthetic-test-key",
+    model: DEFAULT_MODEL,
+    policy: MODEL_POLICIES[DEFAULT_MODEL],
+    onDispatch: async () => {
+      dispatched++;
+    },
+    onUsage: async () => {},
+  };
+  const result = await generateCoach(
+    { ...input, webSearch: false },
+    fixtureCatalog,
+    undefined,
+    async (_, init) => {
+      const body = JSON.parse(String(init?.body));
+      assert.equal(body.model, "openai/gpt-5.6-luna");
+      assert.equal(body.max_completion_tokens, MAX_COACH_COMPLETION_TOKENS);
+      assert.deepEqual(body.reasoning, { enabled: false });
+      assert.deepEqual(body.provider, {
+        require_parameters: true,
+        allow_fallbacks: false,
+        max_price: { prompt: 0.2, completion: 1.2, request: 0, image: 0 },
+      });
+      assert.ok(
+        Buffer.byteLength(
+          JSON.stringify({
+            messages: body.messages,
+            schema: body.response_format.json_schema.schema,
+          }),
+        ) <= MAX_PROMPT_BYTES,
+      );
+      assertCompatibleTransportSchema(body.response_format.json_schema.schema);
+      assert.match(
+        body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.levels
+          .description,
+        /Cantidad exacta: 6 elementos/,
+      );
+      return provider(fixturePlan, []);
+    },
+    undefined,
+    execution,
+  );
+  assert.equal(dispatched, 1);
+  assert.equal(result.meta.formatVersion, 2);
+  assert.ok(maximumCost(DEFAULT_MODEL, "COACH").greaterThan(maximumCost(DEFAULT_MODEL, "DRAFT")));
+});
+
+test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every input scenario", async () => {
+  const {
+    DEFAULT_MODEL: policyDefault,
+    MAX_PROMPT_BYTES,
+    maximumCost,
+    MODEL_POLICIES,
+  } = await import("../lib/usage");
+  assert.equal(policyDefault, DEFAULT_MODEL);
+  assert.deepEqual(MODEL_POLICIES[DEFAULT_MODEL], {
+    prompt: 0.2,
+    completion: 1.2,
+    reasoning: false,
+  });
+  // Both image and web allowances fit below Luna's 272,000-token price tier.
+  assert.ok(MAX_PROMPT_BYTES + 65_536 + 40_000 < 272_000);
+  const scenarios = [
+    ["COACH", false, false, "0.0468"],
+    ["COACH", true, false, "0.0730144"],
+    ["COACH", false, true, "0.1356"],
+    ["COACH", true, true, "0.1880288"],
+    ["DRAFT", false, false, "0.04032"],
+    ["DRAFT", true, false, "0.0665344"],
+    ["DRAFT", false, true, "0.12264"],
+    ["DRAFT", true, true, "0.1750688"],
+  ] as const;
+  for (const [operation, hasImage, webSearch, expected] of scenarios)
+    assert.equal(
+      maximumCost(DEFAULT_MODEL, operation, hasImage, webSearch).toString(),
+      expected,
+      `${operation}: image=${hasImage}, web=${webSearch}`,
+    );
+  // Existing models retain their policies; historical requests keep stored prices.
+  assert.equal(maximumCost("anthropic/claude-haiku-5.5", "COACH").toString(), "0.1135");
+  assert.ok("openai/gpt-6-luna" in MODEL_POLICIES);
+  assert.ok("anthropic/claude-sonnet-5.5" in MODEL_POLICIES);
+});
+
+test("enemy key names and base cooldowns come from Riot, while absent or conditional timing stays uncertain", async () => {
+  const proposed = structuredClone(plan);
+  proposed.enemyKeys[0].name = "Nombre inventado";
+  proposed.enemyKeys[0].cooldown = "999 s";
+  const details = {
+    champion: null,
+    enemy: {
+      name: "Yasuo",
+      passive: { name: "Camino del errante", description: "Escudo al moverse" },
+      spells: [
+        {
+          key: "W",
+          name: "Muro de viento",
+          description: "Bloquea proyectiles",
+          cooldown: [25, 23, 21, 19, 17],
+        },
+      ],
+    },
+  };
+  const result = await generateCoach(input, catalog, details, async () => provider(proposed));
+  assert.equal(result.plan.enemyKeys[0].name, "Muro de viento");
+  assert.equal(result.plan.enemyKeys[0].cooldown, "25 s base");
+  assert.equal(result.plan.enemyKeys[1].cooldown, "Sin confirmar");
+  details.enemy.spells[0].name = "<script>alert(1)</script>";
+  await assert.rejects(
+    generateCoach(input, catalog, details, async () => provider(proposed)),
+    isStatus(502),
+  );
+});
+
+test("provider schema preserves strict objects, nullable fields and bounded array guidance", async () => {
+  const nullable = {
+    ...plan,
+    levels: plan.levels.map((step) => ({ ...step, skill: null, champions: null })),
+    composition: plan.composition.map((entry) => ({ ...entry, mark: null, note: null })),
+    build: {
+      ...plan.build,
+      runes: { ...plan.build.runes, alternative: null },
+      summoners: { ...plan.build.summoners, alternative: null },
+    },
+  };
+  const result = await generateCoach(input, catalog, undefined, async (_, init) => {
+    const body = JSON.parse(String(init?.body));
+    const schema = body.response_format.json_schema.schema;
+    assertCompatibleTransportSchema(schema);
+    assert.match(
+      schema.properties.plan.anyOf[0].properties.build.properties.summoners.properties.pick
+        .description,
+      /Cantidad exacta: 2 elementos/,
+    );
+    assert.equal(
+      schema.properties.plan.anyOf[0].properties.composition.items.properties.champion.pattern,
+      "^[A-Za-z][A-Za-z0-9]{0,39}$",
+    );
+    assert.deepEqual(schema.properties.decision.enum, ["coach", "refuse"]);
+    assert.deepEqual(schema.properties.plan.anyOf[1], { type: "null" });
+    assert.match(
+      schema.properties.plan.anyOf[0].properties.headline.description,
+      /Longitud máxima en caracteres: 100/,
+    );
+    return provider(nullable);
+  });
+  assert.equal(result.plan.levels[0].skill, undefined);
+  assert.equal(result.plan.build.runes.alternative, undefined);
+  assert.equal(result.plan.composition[0].mark, undefined);
+  await assert.rejects(
+    generateCoach(input, catalog, undefined, async () => provider({ ...nullable, phases: null })),
+    isStatus(502),
+  );
+  await assert.rejects(
+    generateCoach(input, catalog, undefined, async () =>
+      provider({ ...nullable, unknownInstruction: null }),
+    ),
+    isStatus(502),
+  );
+});
+
+test("transport guidance never replaces final string and array validation", async () => {
+  const invalidPlans = [
+    { ...plan, headline: "a".repeat(101) },
+    { ...plan, winCondition: "a".repeat(241) },
+    { ...plan, levels: plan.levels.slice(0, 5) },
+    { ...plan, levels: [...plan.levels, plan.levels[0]] },
+    { ...plan, phases: { ...plan.phases, mid: plan.phases.mid.slice(0, 2) } },
+    {
+      ...plan,
+      build: { ...plan.build, summoners: { ...plan.build.summoners, pick: ["SummonerFlash"] } },
+    },
+    {
+      ...plan,
+      build: {
+        ...plan.build,
+        summoners: {
+          ...plan.build.summoners,
+          pick: ["SummonerFlash", "SummonerDot", "SummonerTeleport"],
+        },
+      },
+    },
+  ];
+  for (const invalidPlan of invalidPlans)
+    await assert.rejects(
+      generateCoach(input, catalog, undefined, async () => provider(invalidPlan)),
+      isStatus(502),
+    );
+});
+
+test("draft transport is compatible while oversized output and excessive warnings remain rejected", async () => {
+  const draft = {
+    champion: "Ahri",
+    enemy: "Yasuo",
+    role: "MID",
+    allies: [],
+    enemies: [],
+    notes: "",
+    warnings: [],
+  };
+  const draftInput = { text: "Soy Ahri mid contra Yasuo", apiKey: input.apiKey };
+  await extractDraft(draftInput, catalog, async (_, init) => {
+    const body = JSON.parse(String(init?.body));
+    assertCompatibleTransportSchema(body.response_format.json_schema.schema);
+    assert.match(
+      body.response_format.json_schema.schema.properties.draft.anyOf[0].properties.notes
+        .description,
+      /Longitud máxima en caracteres: 1500/,
+    );
+    return provider(draft, [], true);
+  });
+  for (const invalidDraft of [
+    { ...draft, notes: "a".repeat(1501) },
+    { ...draft, warnings: Array.from({ length: 9 }, () => "Confirma los campeones.") },
+  ])
+    await assert.rejects(
+      extractDraft(draftInput, catalog, async () => provider(invalidDraft, [], true)),
+      isStatus(502),
+    );
 });

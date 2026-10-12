@@ -14,6 +14,8 @@ import {
   Swords,
 } from "lucide-react";
 import { authClient, authErrorMessage, readAccount, type AccountStatus } from "@/lib/auth-client";
+import { LegalLinks } from "@/components/legal-links";
+import { RiotNotice } from "@/components/riot-notice";
 import "./account.css";
 
 type Mode = "login" | "signup" | "forgot";
@@ -39,6 +41,10 @@ function AuthLayout({
         <h1>{title}</h1>
         <p className="account-intro">{description}</p>
         {children}
+        <div className="account-legal">
+          <LegalLinks openInNewTab />
+          <RiotNotice />
+        </div>
         <Link href="/" className="account-back">
           <ArrowLeft size={15} />
           Volver al coach
