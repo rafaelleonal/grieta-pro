@@ -58,6 +58,7 @@ import { readAccount, reconcileAccount, type AccountStatus } from "@/lib/auth-cl
 import { GenerationIntents } from "@/lib/generation-intent";
 import { demoInput, demoResult } from "@/lib/demo";
 import { prepareImage } from "@/lib/image-upload";
+import { modelLabel } from "@/lib/model-labels";
 import { assertSafeInputText, safeNotesForStorage } from "@/lib/coach-safety";
 import type {
   AppStatus,
@@ -236,8 +237,8 @@ function ApiSettings({
         >
           <option value="">Modelo recomendado</option>
           {models.map((model) => (
-            <option key={model} value={model}>
-              {model}
+            <option key={model} value={model} title={model}>
+              {modelLabel(model)}
             </option>
           ))}
         </select>
@@ -325,6 +326,7 @@ export default function Home() {
   const championPreferences = useChampionPreferences(verifiedOwner);
   const champions = catalog?.champions || [];
   const ready = Boolean(status?.configured || credentials.apiKey);
+  const selectedModelId = credentials.model || status?.defaultModel;
   const champion = champions.find((entry) => entry.id === input.champion);
   const enemy = champions.find((entry) => entry.id === input.enemy);
   const currentRole = roles.find((entry) => entry.id === input.role)!;
@@ -1117,10 +1119,14 @@ export default function Home() {
             <button
               className="model-chip"
               onClick={() => setModal("settings")}
-              title="Cambiar modelo"
+              title={
+                selectedModelId
+                  ? `Cambiar modelo · ${modelLabel(selectedModelId)} (${selectedModelId})`
+                  : "Cambiar modelo"
+              }
             >
               <Sparkles size={12} />
-              <span>{credentials.model || status?.defaultModel || "Modelo de OpenRouter"}</span>
+              <span>{selectedModelId ? modelLabel(selectedModelId) : "Modelo de OpenRouter"}</span>
               <ChevronDown size={11} />
             </button>
             <AccountBadge account={account} onOpen={() => setModal("account")} />

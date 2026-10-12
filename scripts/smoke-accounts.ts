@@ -87,6 +87,144 @@ async function main() {
         },
       });
     }
+    const { Prisma } = await import("../generated/prisma/client");
+    const usage = await import("../lib/usage");
+    const { seedPlans } = await import("./seed-plans");
+    await seedPlans();
+    const seededFree = await db.plan.findUniqueOrThrow({ where: { code: "FREE" } });
+    const seededPro = await db.plan.findUniqueOrThrow({ where: { code: "PRO" } });
+    const seededModels = [
+      usage.DEFAULT_MODEL,
+      "openai/gpt-5.6-luna",
+      "anthropic/claude-haiku-5.5",
+      "openai/gpt-6-luna",
+    ];
+    for (const [plan, expected] of [
+      [seededFree, { daily: "1", monthly: "1", coach: 10, draft: 5, search: 0, minute: 2 }],
+      [seededPro, { daily: "2", monthly: "5", coach: 50, draft: 20, search: 10, minute: 5 }],
+    ] as const) {
+      assert.equal(plan.dailyBudgetUsd.toString(), expected.daily);
+      assert.equal(plan.monthlyBudgetUsd.toString(), expected.monthly);
+      assert.equal(plan.monthlyCoachLimit, expected.coach);
+      assert.equal(plan.monthlyDraftLimit, expected.draft);
+      assert.equal(plan.monthlySearchLimit, expected.search);
+      assert.equal(plan.minuteRequestLimit, expected.minute);
+      assert.equal(plan.concurrentLimit, 1);
+      assert.equal(plan.webSearchAllowed, plan.code === "PRO");
+      assert.deepEqual(
+        plan.allowedModels,
+        plan.code === "PRO" ? [...seededModels, "anthropic/claude-sonnet-5.5"] : seededModels,
+      );
+    }
+    await seedPlans({ enableDefaultModel: true, enableGeminiDailyBudgets: true });
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seededFree.id } }), seededFree);
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: seededPro.id } }), seededPro);
+
+    const sharedBudgetNames = [
+      "AI_MONTHLY_BUDGET_USD",
+      "AI_DAILY_BUDGET_USD",
+      "AI_FREE_POOL_USD",
+      "AI_PRO_POOL_USD",
+    ] as const;
+    const inheritedBudgets = sharedBudgetNames.map((name) => process.env[name]);
+    for (const [index, name] of sharedBudgetNames.entries())
+      process.env[name] = ["25", "5", "5", "20"][index];
+    try {
+      const geminiFree = await db.user.create({
+        data: {
+          id: randomUUID(),
+          name: "Gemini Free QA",
+          email: "gemini-free@example.test",
+          emailVerified: true,
+        },
+      });
+      const geminiPro = await db.user.create({
+        data: {
+          id: randomUUID(),
+          name: "Gemini Pro QA",
+          email: "gemini-pro@example.test",
+          emailVerified: true,
+        },
+      });
+      await db.accessGrant.create({
+        data: { userId: geminiPro.id, planId: seededPro.id, source: "COMPLIMENTARY" },
+      });
+      for (const [user, operation, hasImage, webSearch, expectedCost] of [
+        [geminiFree, "COACH", false, false, "0.552"],
+        [geminiFree, "DRAFT", true, false, "0.694146"],
+        [geminiPro, "COACH", false, true, "1.434"],
+      ] as const) {
+        const policy = await usage.generationPolicy(user.id, usage.DEFAULT_MODEL, webSearch);
+        assert.equal(policy.model, "google/gemini-3.1-pro-preview");
+        assert.equal(policy.policy.reasoning, true);
+        const reserveUsd = usage.maximumCost(policy.model, operation, hasImage, webSearch);
+        assert.equal(reserveUsd.toString(), expectedCost);
+        const intent = {
+          userId: user.id,
+          key: randomUUID(),
+          inputHash: randomUUID(),
+          operation,
+          model: policy.model,
+          byok: false,
+          webSearch,
+          reserveUsd,
+        };
+        const reservation = await usage.reserveGeneration(intent);
+        assert.equal(reservation.replay, false);
+        assert.equal(reservation.request.status, "RESERVED");
+        assert.equal(reservation.request.reservedCostUsd.toString(), expectedCost);
+        assert.equal(reservation.request.actualCostUsd, null);
+        assert.equal(reservation.request.providerRequestId, null);
+        const buckets = await db.usageBucket.findMany({
+          where: { scope: "USER", scopeId: user.id, activeRequests: 1 },
+          orderBy: { id: "asc" },
+        });
+        assert.equal(buckets.length, 3);
+        for (const bucket of buckets) {
+          assert.equal(bucket.costReservedUsd.toString(), expectedCost);
+          assert.equal(bucket.activeRequests, 1);
+        }
+        const replay = await usage.reserveGeneration(intent);
+        assert.equal(replay.replay, true);
+        assert.equal(replay.request.id, reservation.request.id);
+        assert.deepEqual(
+          await db.usageBucket.findMany({
+            where: { scope: "USER", scopeId: user.id, activeRequests: 1 },
+            orderBy: { id: "asc" },
+          }),
+          buckets,
+          "A Gemini reservation replay cannot consume a second allowance",
+        );
+        // No dispatch or provider request: this disposable reservation is safely voided.
+        await usage.finishGeneration(reservation.request.id, {});
+        assert.equal(
+          (await db.aiRequest.findUniqueOrThrow({ where: { id: reservation.request.id } })).status,
+          "VOID",
+        );
+      }
+      for (const bucket of await db.usageBucket.findMany()) {
+        assert.equal(bucket.costUsedUsd.toString(), "0");
+        assert.equal(bucket.costReservedUsd.toString(), "0");
+        assert.equal(bucket.activeRequests, 0);
+        assert.equal(bucket.coachUsed + bucket.coachReserved, 0);
+        assert.equal(bucket.draftUsed + bucket.draftReserved, 0);
+        assert.equal(bucket.searchUsed + bucket.searchReserved, 0);
+      }
+      // Only the freshly migrated, disposable QA database is reset for old-policy fixtures.
+      await db.user.deleteMany({ where: { id: { in: [geminiFree.id, geminiPro.id] } } });
+      await db.usageBucket.deleteMany();
+      await db.plan.deleteMany();
+      assert.equal(await db.aiRequest.count(), 0);
+    } finally {
+      for (const [index, name] of sharedBudgetNames.entries()) {
+        if (inheritedBudgets[index] === undefined) delete process.env[name];
+        else process.env[name] = inheritedBudgets[index];
+      }
+    }
+    console.info(
+      "PASS · planes nuevos Gemini, cuotas mensuales intactas y reservas Free/Pro admitidas sin llamadas al proveedor",
+    );
+
     const free = await db.plan.create({
       data: {
         code: "FREE",
@@ -172,8 +310,6 @@ async function main() {
     const alice = await createVerifiedUser("alice@example.test");
     const bob = await createVerifiedUser("bob@example.test");
     assert.notEqual(alice.user.id, bob.user.id);
-    const { Prisma } = await import("../generated/prisma/client");
-    const usage = await import("../lib/usage");
     assert.equal((await usage.getAccountUsage(alice.user.id)).plan, "FREE");
     assert.equal(await db.accessGrant.count({ where: { userId: alice.user.id } }), 0);
     await assert.rejects(
@@ -1426,43 +1562,101 @@ async function main() {
     const unchangedPro = await db.plan.findUniqueOrThrow({ where: { id: pro.id } });
     const requestsBeforeSeed = await db.aiRequest.findMany({ orderBy: { id: "asc" } });
     const bucketsBeforeSeed = await db.usageBucket.findMany({ orderBy: { id: "asc" } });
-    const { seedPlans } = await import("./seed-plans");
+    const poolsBeforeSeed = sharedBudgetNames.map((name) => process.env[name]);
+    assert.ok(requestsBeforeSeed.some((request) => request.status === "UNKNOWN"));
     await seedPlans();
     assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: free.id } }), customFree);
     assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), unchangedPro);
     await seedPlans({ enableDefaultModel: true });
     const enabledFree = await db.plan.findUniqueOrThrow({ where: { id: free.id } });
-    const {
-      allowedModels: enabledModels,
-      version: enabledVersion,
-      updatedAt: enabledAt,
-      ...enabledPolicy
-    } = enabledFree;
-    const {
-      allowedModels: originalModels,
-      version: originalVersion,
-      updatedAt: originalAt,
-      ...originalPolicy
-    } = customFree;
-    assert.deepEqual(enabledModels, [...originalModels, "openai/gpt-5.6-luna"]);
-    assert.equal(enabledVersion, originalVersion + 1);
-    assert.deepEqual(
-      enabledPolicy,
-      originalPolicy,
-      "Enabling Luna preserves all custom quotas, budgets, permissions and name",
-    );
-    assert.ok(enabledAt >= originalAt);
-    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), unchangedPro);
+    const enabledPro = await db.plan.findUniqueOrThrow({ where: { id: pro.id } });
+    for (const [original, enabled] of [
+      [customFree, enabledFree],
+      [unchangedPro, enabledPro],
+    ]) {
+      const {
+        allowedModels: originalModels,
+        version: originalVersion,
+        updatedAt: originalAt,
+        ...originalPolicy
+      } = original;
+      const {
+        allowedModels: enabledModels,
+        version: enabledVersion,
+        updatedAt: enabledAt,
+        ...enabledPolicy
+      } = enabled;
+      assert.deepEqual(enabledModels, [...originalModels, usage.DEFAULT_MODEL]);
+      assert.equal(enabledVersion, originalVersion + 1);
+      assert.deepEqual(
+        enabledPolicy,
+        originalPolicy,
+        "Enabling Gemini preserves all custom quotas, budgets, permissions and name",
+      );
+      assert.ok(enabledAt >= originalAt);
+    }
     await seedPlans({ enableDefaultModel: true });
     assert.deepEqual(
       await db.plan.findUniqueOrThrow({ where: { id: free.id } }),
       enabledFree,
       "An already enabled model is never duplicated or versioned again",
     );
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), enabledPro);
+    await seedPlans({ enableGeminiDailyBudgets: true });
+    const dailyFree = await db.plan.findUniqueOrThrow({ where: { id: free.id } });
+    const dailyPro = await db.plan.findUniqueOrThrow({ where: { id: pro.id } });
+    for (const [original, enabled, expectedDaily] of [
+      [enabledFree, dailyFree, "1"],
+      [enabledPro, dailyPro, "2"],
+    ] as const) {
+      const {
+        dailyBudgetUsd: originalDaily,
+        version: originalVersion,
+        updatedAt: originalAt,
+        ...originalPolicy
+      } = original;
+      const {
+        dailyBudgetUsd: enabledDaily,
+        version: enabledVersion,
+        updatedAt: enabledAt,
+        ...enabledPolicy
+      } = enabled;
+      assert.ok(originalDaily.lt(enabledDaily));
+      assert.equal(enabledDaily.toString(), expectedDaily);
+      assert.equal(enabledVersion, originalVersion + 1);
+      assert.deepEqual(
+        enabledPolicy,
+        originalPolicy,
+        "The opt-in daily increase cannot change monthly budgets, quotas or models",
+      );
+      assert.ok(enabledAt >= originalAt);
+    }
+    await seedPlans({ enableDefaultModel: true, enableGeminiDailyBudgets: true });
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: free.id } }), dailyFree);
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), dailyPro);
+    const higherFree = await db.plan.update({
+      where: { id: free.id },
+      data: { dailyBudgetUsd: "1.50", version: { increment: 1 } },
+    });
+    const higherPro = await db.plan.update({
+      where: { id: pro.id },
+      data: { dailyBudgetUsd: "3.00", version: { increment: 1 } },
+    });
+    await seedPlans({ enableDefaultModel: true, enableGeminiDailyBudgets: true });
+    assert.deepEqual(
+      await db.plan.findUniqueOrThrow({ where: { id: free.id } }),
+      higherFree,
+      "An operator's higher daily budget is never lowered or versioned again",
+    );
+    assert.deepEqual(await db.plan.findUniqueOrThrow({ where: { id: pro.id } }), higherPro);
     assert.deepEqual(await db.aiRequest.findMany({ orderBy: { id: "asc" } }), requestsBeforeSeed);
     assert.deepEqual(await db.usageBucket.findMany({ orderBy: { id: "asc" } }), bucketsBeforeSeed);
+    assert.deepEqual(
+      sharedBudgetNames.map((name) => process.env[name]),
+      poolsBeforeSeed,
+    );
     console.info(
-      "PASS · activación opt-in de Luna conserva planes personalizados, cuotas y reservas inciertas sin duplicar el modelo",
+      "PASS · activación opt-in Gemini y presupuestos diarios conservan planes personalizados, contabilidad y reservas inciertas sin repetir cambios",
     );
 
     await resetRegistrationFixtureLimits();

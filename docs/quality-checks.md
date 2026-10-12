@@ -205,4 +205,12 @@ Una regresión sintética Darius/Illaoi con Luna simulado acredita un plan de se
 
 Comprobaciones actuales: `pnpm check` con 178 pruebas, `pnpm eval:security` con 34 casos, `pnpm test:accounts` con 25 grupos y `pnpm build`: correctos. El servidor local se restauró después de compilar. La auditoría de producción no encontró avisos; la completa conserva un aviso alto de `braces` en la cadena de desarrollo de ESLint, ya documentado en Seguridad y sin versión corregida indicada por el registro. No se ocultó ni ignoró ese resultado.
 
+## 11 de octubre de 2026: configuración de Gemini Pro
+
+Gemini 3.1 Pro Preview se incorporó como predeterminado con razonamiento medio, límites compartidos entre reserva y proveedor de 14 000 tokens para coach y 4 000 para captura, y restricciones de tarifa y contexto verificadas mediante documentación y metadatos públicos. La adaptación de `pattern` al transporte de Gemini mantiene la validación Zod, las comprobaciones de coherencia y los controles de salida. Las pruebas simuladas comprueban descarte de trazas de razonamiento, coste conocido de respuestas incompletas y ausencia de reintentos.
+
+`pnpm check` pasó 190 pruebas, formato, lint y tipos; `pnpm eval:security`, 34 casos; `pnpm test:accounts`, 26 grupos con PostgreSQL temporal y proveedores simulados; y `pnpm build`, la compilación de producción. Se comprobó que las semillas normales conservan las políticas, los cambios optativos no reducen límites personalizados y la repetición no modifica versiones ni reservas. El servidor local se restauró después de compilar.
+
+Con autorización del usuario, se habilitó Gemini en los planes locales y de Prisma Production y se elevaron únicamente los diarios Free/Pro a USD 1/2. Se compararon las políticas restantes y todas las filas de solicitudes y contabilidad antes y después: permanecieron iguales. Los modelos anteriores y los presupuestos mensuales y globales se conservaron. No se ejecutó una generación pagada de Gemini; estas comprobaciones no acreditan todavía su calidad táctica ni el flujo real del proveedor. No se añadieron dependencias.
+
 El diagnóstico y resumen seguros están en `artifacts/qa/openrouter-diagnostics/darius-illaoi-validation.json`, excluido de Git. No hubo nuevas consultas pagadas, cambios en la base persistente ni recuperación del plan original descartado. La corrección está confirmada con proveedores simulados; una generación posterior con Luna real requiere una prueba separada. Estos resultados locales no acreditan un despliegue ni la ejecución remota de GitHub Actions.

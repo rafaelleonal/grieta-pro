@@ -11,20 +11,54 @@ import { ApiError } from "./http";
 import { safeNotesForStorage } from "./coach-safety";
 import type { CoachInput, CoachResult, DraftResult } from "./types";
 
-export const DEFAULT_MODEL = "openai/gpt-5.6-luna";
+export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
+export const DEFAULT_MODEL = GEMINI_PRO_MODEL;
+export type ModelPolicy = {
+  prompt: number;
+  completion: number;
+  reasoning: boolean;
+  reasoningEffort?: "low" | "medium" | "high";
+  coachCompletionTokens?: number;
+  draftCompletionTokens?: number;
+  maxInputTokens?: number;
+  image?: number;
+};
 export const MODEL_POLICIES = {
   // GPT 5.6 Luna's higher-context tier starts at 272,000 input tokens. Even
   // text + one image + web allowances stay below it; max_price keeps base caps.
-  [DEFAULT_MODEL]: { prompt: 0.2, completion: 1.2, reasoning: false },
+  "openai/gpt-5.6-luna": { prompt: 0.2, completion: 1.2, reasoning: false },
   "anthropic/claude-haiku-5.5": { prompt: 0.5, completion: 2.5, reasoning: false },
   "openai/gpt-6-luna": { prompt: 0.2, completion: 0.75, reasoning: false },
   "anthropic/claude-sonnet-5.5": { prompt: 2, completion: 10, reasoning: true },
-} as const;
+  [GEMINI_PRO_MODEL]: {
+    prompt: 2,
+    completion: 12,
+    reasoning: true,
+    reasoningEffort: "medium",
+    coachCompletionTokens: 14_000,
+    draftCompletionTokens: 4_000,
+    // Requests stay below the 200k-token higher tariff. Input images are also
+    // bounded as tokens; this separate cap covers the per-image routing field.
+    maxInputTokens: 199_999,
+    image: 0.000002,
+  },
+} as const satisfies Record<string, ModelPolicy>;
 export const MAX_PROMPT_BYTES = 96_000;
 export const MAX_COACH_COMPLETION_TOKENS = 7000;
 export const MAX_DRAFT_COMPLETION_TOKENS = 1600;
 // One normalized image <=1024x1024. Conservative allowance, separate from text.
 const MAX_IMAGE_TOKENS = 65_536;
+export function completionTokenLimit(model: string, operation: AiOperation): number {
+  const policy: ModelPolicy | undefined = MODEL_POLICIES[model as keyof typeof MODEL_POLICIES];
+  return operation === "COACH"
+    ? (policy?.coachCompletionTokens ?? MAX_COACH_COMPLETION_TOKENS)
+    : (policy?.draftCompletionTokens ?? MAX_DRAFT_COMPLETION_TOKENS);
+}
+
+/** Conservative token bound shared by admission and the final provider request. */
+export function maximumInputTokens(hasImage = false, webSearch = false): number {
+  return MAX_PROMPT_BYTES + (hasImage ? MAX_IMAGE_TOKENS : 0) + (webSearch ? 40_000 : 0);
+}
 type BucketRef = { scope: UsageScope; scopeId: string; period: string };
 type Tx = Prisma.TransactionClient;
 export type ProviderUsage = {
@@ -127,25 +161,23 @@ export function maximumCost(
   hasImage = false,
   webSearch = false,
 ): Prisma.Decimal {
-  const policy = MODEL_POLICIES[model as keyof typeof MODEL_POLICIES];
+  const policy: ModelPolicy | undefined = MODEL_POLICIES[model as keyof typeof MODEL_POLICIES];
   if (!policy) throw new ApiError(403, "Este modelo no está disponible.");
   // UTF-8 bytes bound text tokens conservatively; allow the longest cache-write
   // premium and high-context tariff. Reasoning shares the completion cap.
-  const inputTokens =
-    MAX_PROMPT_BYTES + (hasImage ? MAX_IMAGE_TOKENS : 0) + (webSearch ? 40_000 : 0);
+  const inputTokens = maximumInputTokens(hasImage, webSearch);
+  if (policy.maxInputTokens && inputTokens > policy.maxInputTokens)
+    throw new ApiError(413, "Esta combinación supera el contexto permitido para el modelo.");
   const turns = webSearch ? 2 : 1;
   return new Prisma.Decimal(inputTokens)
     .mul(policy.prompt)
     .mul(2)
     .mul(turns)
     .add(
-      new Prisma.Decimal(
-        operation === "COACH" ? MAX_COACH_COMPLETION_TOKENS : MAX_DRAFT_COMPLETION_TOKENS,
-      )
-        .mul(policy.completion)
-        .mul(turns),
+      new Prisma.Decimal(completionTokenLimit(model, operation)).mul(policy.completion).mul(turns),
     )
     .div(1_000_000)
+    .add(hasImage ? (policy.image ?? 0) : 0)
     .add(webSearch ? "0.01" : 0);
 }
 function refsFor(userId: string, plan: Plan, now: Date): BucketRef[] {

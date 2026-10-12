@@ -16,7 +16,9 @@ Data Dragon es una fuente de datos estáticos; puede actualizarse después del p
 
 ## Comparación de modelos
 
-Conservamos Luna como base hasta medir alternativas. La documentación oficial describe GPT 5.6 Luna como una opción para cargas sensibles al coste; esto no acredita conocimiento especializado de LoL. [GPT 5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna).
+Gemini 3.1 Pro Preview es el nuevo predeterminado por la preferencia del usuario, con razonamiento medio. Su configuración se contrastó el 11 de octubre de 2026 con metadatos públicos y documentación oficial; todavía no hay una consulta real de Gemini validada ni una comparación táctica ejecutada. Este cambio no demuestra que dé mejores consejos. [Modelo en OpenRouter](https://openrouter.ai/google/gemini-3.1-pro-preview) y [niveles de razonamiento de Google](https://ai.google.dev/gemini-api/docs/thinking).
+
+GPT 5.6 Luna conserva su política y permanece disponible como comparación explícita. Su orientación a cargas sensibles al coste no acredita conocimiento especializado de LoL. [GPT 5.6 Luna](https://developers.openai.com/api/docs/models/gpt-5.6-luna). Hay que comparar el conjunto modelo, contexto, búsqueda, esfuerzo y formato: una respuesta de la aplicación de Gemini con herramientas distintas no aísla la calidad del modelo usado por GrietaPro.
 
 Sonnet y Opus son candidatos para comparar. No hay aquí evidencia de que superen a Luna en estos matchups. La elección debe considerar utilidad, tasa de planes válidos, latencia y coste por plan útil. La guía de Anthropic también plantea evaluar capacidades, velocidad, coste y esfuerzo en el caso de uso concreto. [Selección de modelos Claude](https://platform.claude.com/docs/en/about-claude/models/choosing-a-model).
 

@@ -20,6 +20,8 @@ El registro está abierto por defecto (`APP_REGISTRATION_MODE=open`). Sin códig
 
 Las semillas crean Free con 10 análisis y 5 lecturas de capturas al mes; Pro tiene 50 análisis, 20 lecturas y 10 búsquedas. Preguntar de nuevo genera otro análisis. El presupuesto monetario se aplica además de esos cupos, porque los modelos, imágenes y búsquedas cuestan distinto. Estos límites son editables; no constituyen todavía una oferta de suscripción de pago.
 
+Los presupuestos individuales nuevos son Free USD 1/día y 1/mes, y Pro USD 2/día y 5/mes, en periodos UTC. `pnpm db:seed` preserva planes existentes; los indicadores optativos `--enable-default-model --enable-gemini-daily-budgets` habilitan Gemini si falta y elevan únicamente los límites diarios inferiores a USD 1/2. No reducen límites personalizados, reinician uso ni alteran presupuestos mensuales, fondos Free/Pro o topes globales. No requieren una migración de esquema. Los cupos de análisis no garantizan que todos puedan consumirse: también debe caber la reserva en los presupuestos disponibles.
+
 Cuando haya cobros, una suscripción concederá el mismo acceso Pro. Los eventos verificados del proveedor de pagos actualizarán el acceso desde el servidor; una redirección de pago exitosa no bastará para concederlo. El plan puede ampliar la cuota o permitir comprar más análisis; no ofrecer consumo de IA sin límite.
 
 ## Modelo de datos
@@ -60,7 +62,7 @@ Referencia: [Better Auth con Next.js](https://better-auth.com/docs/integrations/
 
 Estados: `RESERVED`, `DISPATCHED`, `SETTLED`, `VOID`, `UNKNOWN`. `VOID` solo libera una operación que se sabe que no consumió saldo. Una respuesta rechazada por seguridad puede haber sido facturada. Si el coste real supera lo reservado, se registra completo, se detienen nuevas solicitudes del ámbito afectado y se corrige el cálculo de reserva.
 
-El plan de las pantallas Selección y En partida permite hasta 7000 tokens de salida; la extracción de capturas conserva 1600. Ambos límites se comparten entre la llamada al proveedor y el cálculo de reserva. El formato ampliado puede reservar más presupuesto por consulta, pero no aumenta los topes de gasto del usuario, del plan ni de la aplicación. El consumo real sigue dependiendo de la respuesta y de las tarifas del modelo.
+Gemini usa hasta 14 000 tokens de salida para el coach y 4 000 para extraer capturas o texto, con razonamiento medio activado. Estos topes incluyen razonamiento y respuesta visible; excluir la traza no elimina su coste ni asegura suficientes tokens para el JSON. Luna y las otras políticas existentes conservan los topes de 7 000/1 600. El límite de cada modelo y operación se comparte entre el proveedor y el cálculo de reserva. La mayor reserva de Gemini no eleva los presupuestos mensuales ni globales. El coste real depende del consumo informado por OpenRouter.
 
 Las transacciones serializables tienen reintentos acotados para conflictos de base de datos. Esos reintentos no repiten llamadas a OpenRouter. Una clave de idempotencia utilizada con otra entrada se rechazará. Una clave repetida con la misma entrada devolverá el estado o resultado existente.
 
@@ -92,14 +94,15 @@ La comparación de modelos y la calidad táctica requieren una evaluación apart
 
 ## Coste orientativo de 50 análisis
 
-Precios consultados el 10 de octubre de 2026, hora de México, y GPT 5.6 Luna el 11 de octubre, para los identificadores exactos, servicio normal y contexto corto. Las tarifas pueden cambiar y tienen tramos distintos para contextos muy grandes.
+Precios consultados el 10 de octubre de 2026, hora de México, y GPT 5.6 Luna y Gemini 3.1 Pro el 11 de octubre, para los identificadores exactos, servicio normal y contexto corto. Las tarifas pueden cambiar y tienen tramos distintos para contextos muy grandes.
 
-| Modelo                        | Entrada por millón de tokens | Salida por millón de tokens | 50 análisis con 20 000 tokens de entrada y 2 500 de salida cada uno |
-| ----------------------------- | ---------------------------: | --------------------------: | ------------------------------------------------------------------: |
-| `openai/gpt-5.6-luna`         |                     USD 0.20 |                    USD 1.20 |                                                            USD 0.35 |
-| `openai/gpt-6-luna`           |                     USD 0.10 |                    USD 0.50 |                                                          USD 0.1625 |
-| `anthropic/claude-haiku-5.5`  |                     USD 0.10 |                    USD 0.50 |                                                          USD 0.1625 |
-| `anthropic/claude-sonnet-5.5` |                     USD 2.00 |                   USD 10.00 |                                                            USD 3.25 |
+| Modelo                          | Entrada por millón de tokens | Salida por millón de tokens | 50 análisis con 20 000 tokens de entrada y 2 500 de salida cada uno |
+| ------------------------------- | ---------------------------: | --------------------------: | ------------------------------------------------------------------: |
+| `openai/gpt-5.6-luna`           |                     USD 0.20 |                    USD 1.20 |                                                            USD 0.35 |
+| `google/gemini-3.1-pro-preview` |                     USD 2.00 |                   USD 12.00 |                                                            USD 3.50 |
+| `openai/gpt-6-luna`             |                     USD 0.10 |                    USD 0.50 |                                                          USD 0.1625 |
+| `anthropic/claude-haiku-5.5`    |                     USD 0.10 |                    USD 0.50 |                                                          USD 0.1625 |
+| `anthropic/claude-sonnet-5.5`   |                     USD 2.00 |                   USD 10.00 |                                                            USD 3.25 |
 
 Cálculo: `50 × (20 000 × tarifaEntrada + 2 500 × tarifaSalida) / 1 000 000`.
 
@@ -109,13 +112,17 @@ La estimación excluye extracción de capturas, búsquedas, efectos de caché, r
 
 La herramienta Exa actualmente configurada cobra USD 0.007 por búsqueda en modo `auto`: 50 búsquedas efectivamente realizadas agregarían USD 0.35, más los tokens de resultados. El precio de búsqueda nativa del proveedor es diferente. Se limita a una búsqueda, tres resultados y 2000 caracteres por resultado; la reserva contempla el contenido extra y otra vuelta de generación. El límite de búsquedas es separado y la interfaz muestra cuántas quedan.
 
-GPT 5.6 Luna es el modelo predeterminado, con razonamiento desactivado y topes de tarifa de USD 0.20 de entrada y USD 1.20 de salida por millón. Su tramo desde 272 000 tokens de entrada sube a USD 0.40 y USD 1.80. Los límites actuales reservan hasta 96 000 tokens de texto, 65 536 de imagen y 40 000 de resultados web: 201 536 por vuelta, por debajo del umbral. La reserva duplica la tarifa de entrada y contempla otra vuelta cuando se usa búsqueda; la salida mantiene su tarifa base y su límite de tokens. `provider.max_price` excluye rutas que superan esos topes, sin elevarlos para seleccionar un proveedor más rápido.
+Gemini 3.1 Pro Preview es el predeterminado, con razonamiento medio y topes de tarifa de USD 2 de entrada y USD 12 de salida por millón. La admisión exige un máximo conservador de 199 999 tokens de entrada para permanecer debajo del tramo de 200 000, que publica USD 4/18. El cálculo permite hasta 96 000 tokens de texto, 65 536 de imagen y 40 000 de web; una combinación que supere el tope de Gemini se rechaza antes del envío. `provider.max_price` conserva los límites de tarifa, USD 0 por cargo fijo de solicitud y USD 0.000002 por imagen. La reserva incluye el margen de tokens de imagen y ese importe por una imagen, duplica la entrada para contemplar caché y reserva otra vuelta cuando hay búsqueda. [Metadatos públicos de Gemini](https://openrouter.ai/api/v1/models/google/gemini-3.1-pro-preview/endpoints), [límites de precio](https://openrouter.ai/docs/guides/routing/provider-selection#max-price) y [razonamiento](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
+
+Reservas iniciales de Gemini: manual sin búsqueda ni imagen, USD 0.552; extracción con imagen, USD 0.694146; coach con búsqueda, USD 1.434. El cálculo manual es `(96 000 × 2 × 2 + 14 000 × 12) / 1 000 000`. Estos importes reservan capacidad; no son consumo observado, precio promedio ni una garantía de respuesta. Todavía no se ha validado una consulta real de Gemini con esta configuración.
+
+GPT 5.6 Luna sigue disponible explícitamente, con razonamiento desactivado y topes de tarifa de USD 0.20/1.20 por millón. Su tramo desde 272 000 tokens sube a USD 0.40/1.80. Incluso el margen combinado de texto, imagen y web queda por debajo de ese umbral.
 
 Un análisis manual de Luna sin imagen ni búsqueda reserva USD 0.0468: `96 000 × 0.20 × 2 + 7 000 × 1.20`, dividido entre un millón. Es una reserva conservadora, no un coste medido. Cambiar el predeterminado o los modelos permitidos de un plan no recalcula ni libera solicitudes históricas `UNKNOWN`.
 
 GPT 6 Luna y Haiku siguen siendo opciones. Compara consejos mecánicos y reconocimiento de capturas en casos reales antes de atribuir mejoras de calidad. Sonnet queda como opción avanzada; su política de razonamiento requiere configuración específica y comprobación con los límites de salida actuales. Un modelo más caro no asegura consejos correctos ni actualizados.
 
-Precios: [GPT 5.6 Luna en OpenRouter](https://openrouter.ai/openai/gpt-5.6-luna), [GPT 6 Luna](https://openrouter.ai/openai/gpt-6-luna), [Haiku 5.5](https://openrouter.ai/anthropic/claude-haiku-5.5), [Sonnet 5.5](https://openrouter.ai/anthropic/claude-sonnet-5.5) y [catálogo público de tarifas](https://openrouter.ai/api/v1/models). Referencias adicionales: [OpenAI GPT 6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [búsqueda web](https://openrouter.ai/docs/guides/features/server-tools/web-search), [caché](https://openrouter.ai/docs/guides/best-practices/prompt-caching) y [razonamiento](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
+Precios: [Gemini 3.1 Pro en OpenRouter](https://openrouter.ai/google/gemini-3.1-pro-preview), [GPT 5.6 Luna](https://openrouter.ai/openai/gpt-5.6-luna), [GPT 6 Luna](https://openrouter.ai/openai/gpt-6-luna), [Haiku 5.5](https://openrouter.ai/anthropic/claude-haiku-5.5), [Sonnet 5.5](https://openrouter.ai/anthropic/claude-sonnet-5.5) y [catálogo público de tarifas](https://openrouter.ai/api/v1/models). Referencias adicionales: [OpenAI GPT 6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), [búsqueda web](https://openrouter.ai/docs/guides/features/server-tools/web-search), [caché](https://openrouter.ai/docs/guides/best-practices/prompt-caching) y [razonamiento](https://openrouter.ai/docs/guides/best-practices/reasoning-tokens).
 
 ## Integración con Riot y Porofessor
 

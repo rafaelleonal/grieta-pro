@@ -23,9 +23,12 @@ import {
 } from "./validation";
 import {
   DEFAULT_MODEL,
+  GEMINI_PRO_MODEL,
+  MODEL_POLICIES,
   MAX_PROMPT_BYTES,
-  MAX_COACH_COMPLETION_TOKENS,
-  MAX_DRAFT_COMPLETION_TOKENS,
+  completionTokenLimit,
+  maximumInputTokens,
+  type ModelPolicy,
   type ProviderUsage,
 } from "./usage";
 import { getAuthStatus } from "./auth";
@@ -41,7 +44,7 @@ import {
 export interface ProviderExecution {
   apiKey: string;
   model: string;
-  policy: { prompt: number; completion: number; reasoning: boolean };
+  policy: ModelPolicy;
   onDispatch: () => Promise<void>;
   onUsage: (usage: ProviderUsage) => Promise<void>;
 }
@@ -245,7 +248,7 @@ const schemaObject = (value: unknown): value is JsonSchema =>
   Boolean(value && typeof value === "object" && !Array.isArray(value));
 
 /** Adapt transport constraints; the full application schema still validates every response. */
-function providerSchema(input: JsonSchema): JsonSchema {
+function providerSchema(input: JsonSchema, model: string): JsonSchema {
   const schema = structuredClone(input);
   // Claude's constrained decoding accepts a subset of JSON Schema:
   // https://platform.claude.com/docs/en/build-with-claude/structured-outputs
@@ -285,6 +288,13 @@ function providerSchema(input: JsonSchema): JsonSchema {
           if (schemaObject(child)) visit(child);
         });
     const hints: string[] = [];
+    // Gemini documents only a JSON Schema subset. Keep pattern constraints in
+    // the original Zod schema and describe them in transport rather than rely
+    // on an unsupported provider keyword.
+    if (model === GEMINI_PRO_MODEL && typeof node.pattern === "string") {
+      hints.push(`Patrón permitido: ${node.pattern}.`);
+      delete node.pattern;
+    }
     for (const [key, label] of describedLimits) {
       const limit = node[key];
       if (typeof limit === "number" && Number.isFinite(limit)) hints.push(`${label}: ${limit}.`);
@@ -465,8 +475,10 @@ async function structuredCompletion(
   diagnoseResult: (category: "refusal" | "output_validation", validationCategory?: string) => void;
 }> {
   const { apiKey, model } = options.execution || resolveCredentials(options.credentials);
+  const policy: ModelPolicy | undefined =
+    options.execution?.policy || MODEL_POLICIES[model as keyof typeof MODEL_POLICIES];
   const applicationSchema = z.toJSONSchema(options.schema);
-  const schema = providerSchema(applicationSchema);
+  const schema = providerSchema(applicationSchema, model);
   // OpenRouter accepts JSON Schema; the meta-schema declaration is unnecessary for providers.
   delete schema.$schema;
   if (options.execution) {
@@ -485,6 +497,16 @@ async function structuredCompletion(
         413,
         "El contexto de juego supera el límite de esta consulta. Acorta las notas y vuelve a intentar.",
       );
+    }
+    const hasImage = options.messages.some(
+      (message) =>
+        Array.isArray(message.content) && message.content.some((part) => part.type === "image_url"),
+    );
+    if (
+      policy?.maxInputTokens &&
+      maximumInputTokens(hasImage, options.webSearch) > policy.maxInputTokens
+    ) {
+      throw new ApiError(413, "Esta combinación supera el contexto permitido para el modelo.");
     }
   }
   const timeout = AbortSignal.timeout(90_000);
@@ -533,8 +555,8 @@ async function structuredCompletion(
         messages: options.messages,
         max_completion_tokens: options.maxTokens,
         stream: false,
-        reasoning: options.execution?.policy.reasoning
-          ? { enabled: true, effort: "low", exclude: true }
+        reasoning: policy?.reasoning
+          ? { enabled: true, effort: policy.reasoningEffort || "low", exclude: true }
           : { enabled: false },
         provider: {
           require_parameters: true,
@@ -545,7 +567,7 @@ async function structuredCompletion(
                   prompt: options.execution.policy.prompt,
                   completion: options.execution.policy.completion,
                   request: 0,
-                  image: 0,
+                  image: options.execution.policy.image || 0,
                 },
               }
             : {}),
@@ -754,7 +776,10 @@ export async function generateCoach(
       credentials: input,
       schema: coachSchemaForCatalog(catalog),
       schemaName: "league_coach_plan",
-      maxTokens: MAX_COACH_COMPLETION_TOKENS,
+      maxTokens: completionTokenLimit(
+        execution?.model || input.model || configuredModel(),
+        "COACH",
+      ),
       webSearch: input.webSearch,
       signal,
       execution,
@@ -896,7 +921,10 @@ export async function extractDraft(
       credentials: input,
       schema: draftCompletionSchema,
       schemaName: "league_draft_extraction",
-      maxTokens: MAX_DRAFT_COMPLETION_TOKENS,
+      maxTokens: completionTokenLimit(
+        execution?.model || input.model || configuredModel(),
+        "DRAFT",
+      ),
       webSearch: false,
       signal,
       execution,

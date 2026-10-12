@@ -2,13 +2,13 @@
 
 OpenRouter genera los consejos y reconoce capturas. Resend entrega los enlaces de verificación y recuperación de cuenta. Las pruebas automatizadas utilizan proveedores simulados; configurar estas cuentas habilita llamadas reales, que pueden consumir saldo o cupo de correo.
 
-Esta guía se revisó el 10 de octubre de 2026 con documentación oficial. Los paneles, modelos y límites pueden cambiar. Aquí no se crean cuentas, compran créditos, envían correos ni prueban claves por ti.
+La configuración de Gemini de esta guía se revisó el 11 de octubre de 2026 con documentación oficial y metadatos públicos de OpenRouter. Los paneles, modelos y límites pueden cambiar. Aquí no se crean cuentas, compran créditos, envían correos ni prueban claves por ti.
 
 ## 1. Preparar tu configuración local
 
-Instala las dependencias con `pnpm install --frozen-lockfile`. Si todavía no existe `.env.local`, copia `.env.example`; si ya existe, edítalo y conserva los valores que funcionan. No publiques ese archivo ni pegues claves en conversaciones, capturas o issues.
+Instala las dependencias con `pnpm install --frozen-lockfile`. Si todavía no tienes configuración privada, copia `.env.example` a `.env` o `.env.local`. Si ya usas `.env`, edita ese archivo y conserva los valores que funcionan: `.env.local` tiene prioridad y puede ocultarlos. No publiques esos archivos ni pegues claves en conversaciones, capturas o issues.
 
-Si aún no tienes `BETTER_AUTH_SECRET`, genéralo con `openssl rand -base64 32` y guarda el resultado únicamente en `.env.local`. Conserva el secreto existente y la conexión local de PostgreSQL que funciona. El cambio de marca mantiene los nombres históricos `cholo_local` y `cholo_coach`; no requiere renombrar la base.
+Si aún no tienes `BETTER_AUTH_SECRET`, genéralo con `openssl rand -base64 32` y guarda el resultado únicamente en el archivo privado elegido. Conserva el secreto existente y la conexión local de PostgreSQL que funciona. El cambio de marca mantiene los nombres históricos `cholo_local` y `cholo_coach`; no requiere renombrar la base.
 
 ```dotenv
 BETTER_AUTH_SECRET=
@@ -26,31 +26,31 @@ Las claves de esta guía son variables del servidor. No añadas `NEXT_PUBLIC_` n
 1. Crea tu cuenta o inicia sesión en [OpenRouter](https://openrouter.ai/).
 2. Abre [Settings → Credits](https://openrouter.ai/settings/credits) y revisa el saldo. Para utilizar modelos de pago, añade sólo el saldo que quieras destinar a la prueba. Revisa el total mostrado por el panel antes de pagar; deja la recarga automática desactivada durante las primeras pruebas. OpenRouter descuenta las consultas del saldo de créditos. [Créditos y facturación](https://openrouter.ai/docs/faq).
 3. Abre [Settings → API keys](https://openrouter.ai/settings/keys), crea una clave normal para inferencia y ponle un nombre, por ejemplo `GrietaPro desarrollo`. Configura un límite de crédito pequeño y explícito; si eliges reinicio diario, semanal o mensual, revisa esa ventana. Una clave de administración de claves no sirve para las consultas del coach. Copia la clave al crearla y guárdala en tu entorno privado. [Autenticación y límites por clave](https://openrouter.ai/docs/api_reference/authentication).
-4. Completa estas variables en `.env.local`:
+4. Completa estas variables en tu archivo de configuración privado:
 
 ```dotenv
 OPENROUTER_API_KEY=
-OPENROUTER_MODEL=openai/gpt-5.6-luna
+OPENROUTER_MODEL=google/gemini-3.1-pro-preview
 ```
 
 El campo de clave vacío debe contener tu clave real. El modelo es un ID exacto de la política del servidor, no un nombre libre. Las políticas iniciales permiten:
 
-| Plan | Modelos                                                                  |
-| ---- | ------------------------------------------------------------------------ |
-| Free | `openai/gpt-5.6-luna`, `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
-| Pro  | Los anteriores y `anthropic/claude-sonnet-5.5`                           |
+| Plan | Modelos                                                                                                   |
+| ---- | --------------------------------------------------------------------------------------------------------- |
+| Free | `google/gemini-3.1-pro-preview`, `openai/gpt-5.6-luna`, `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
+| Pro  | Los anteriores y `anthropic/claude-sonnet-5.5`                                                            |
 
-GPT 5.6 Luna es el modelo predeterminado; su ID, entrada de imágenes y salidas estructuradas se verificaron el 11 de octubre de 2026 en el catálogo público. Los otros modelos permanecen disponibles según el plan. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
+Gemini 3.1 Pro Preview es el modelo predeterminado. Su ID, imágenes, salidas estructuradas y razonamiento se verificaron el 11 de octubre de 2026 mediante metadatos públicos; no se hizo una consulta pagada para validar esta configuración. GPT 5.6 Luna y los demás modelos permanecen disponibles según el plan. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
 
-La política de Luna limita la entrada a USD 0.20 y la salida a USD 1.20 por millón de tokens, con razonamiento desactivado. Un análisis manual sin imagen ni búsqueda reserva como máximo USD 0.0468; el coste final procede del consumo informado por OpenRouter. Las reservas pendientes de consultas anteriores conservan su modelo e importe. Consulta [cuentas y consumo](accounts-and-usage.md#coste-orientativo-de-50-análisis) para los límites de contexto y escenarios de precio.
+La política de Gemini limita la entrada a USD 2 y la salida a USD 12 por millón de tokens, con razonamiento `medium` activado y excluido de la respuesta. El razonamiento también se factura y comparte el límite de salida: 14 000 tokens para el coach y 4 000 para extraer capturas o texto. Un análisis manual reserva USD 0.552; una extracción con imagen, USD 0.694146; un coach con búsqueda, USD 1.434. Son reservas conservadoras, no costes medidos ni garantías de calidad o de completar una respuesta. El coste final procede de OpenRouter. Se conserva la política explícita de Luna, con razonamiento desactivado y reserva manual de USD 0.0468. Las reservas anteriores conservan su modelo e importe. Consulta [cuentas y consumo](accounts-and-usage.md#coste-orientativo-de-50-análisis).
 
-Las semillas incluyen Luna al crear planes nuevos. En una base existente, `pnpm db:seed` conserva la política administrada. Después de revisar que la conexión corresponde al entorno local elegido, este comando añade únicamente el modelo predeterminado a Free y Pro si falta e incrementa la versión de esos planes; conserva las demás opciones, cuotas, presupuestos y solicitudes:
+Las semillas nuevas incluyen Gemini y crean los presupuestos individuales Free de USD 1/día y 1/mes, y Pro de USD 2/día y 5/mes. En una base existente, `pnpm db:seed` conserva la política administrada. Después de revisar que la conexión corresponde al entorno elegido, este comando habilita explícitamente el modelo predeterminado y eleva los límites diarios inferiores a USD 1 en Free o USD 2 en Pro:
 
 ```sh
-pnpm db:seed --enable-default-model
+pnpm db:seed --enable-default-model --enable-gemini-daily-budgets
 ```
 
-No hace falta una migración para habilitar el modelo. Reinicia Next.js después de cambiar `OPENROUTER_MODEL` para que use la nueva configuración.
+Los dos indicadores son independientes: `--enable-default-model` sólo añade el modelo si falta; `--enable-gemini-daily-budgets` sólo eleva los límites diarios inferiores. Ninguno reduce un límite personalizado ni reinicia consumo o reservas. Conservan los límites mensuales, cupos, fondos por plan y presupuestos globales. No hace falta una migración de esquema. Reinicia Next.js después de cambiar `OPENROUTER_MODEL` para que use la nueva configuración.
 
 Para incorporar otro modelo hace falta revisar `lib/usage.ts`, las políticas de los planes y las pruebas de imágenes, salida y gasto. No sustituyas el ID por un alias o una variante `:free` esperando que evite esos controles.
 
@@ -130,4 +130,4 @@ La [guía de Prisma Postgres y migraciones](database-deployment.md) explica cóm
 
 Usa base de datos, claves y secreto separados del desarrollo. Configura las variables privadas en Vercel o Netlify, `BETTER_AUTH_URL` con el origen público HTTPS y sólo los orígenes adicionales necesarios. Usa `APP_REGISTRATION_MODE=open` para el registro público; selecciona `invite` únicamente si quieres una beta cerrada. Ambos modos exigen verificar el correo y mantienen las cuotas. Aplica migraciones y semillas a la base de ese entorno y vuelve a desplegar después de cambiar variables. No uses Mailpit ni credenciales locales en producción.
 
-Comprueba de nuevo el correo y una consulta acotada en ese entorno antes de compartir acceso. Sigue [Desplegar](../README.md#desplegar-en-vercel-o-netlify); preparar estas variables no publica la aplicación. Las fuentes de esta guía están en [Recursos oficiales](resources.md).
+Comprueba de nuevo el correo y una consulta acotada en ese entorno antes de compartir acceso. Sigue [Desplegar](../README.md#desplegar-en-vercel-netlify-o-un-vps); preparar estas variables no publica la aplicación. Las fuentes de esta guía están en [Recursos oficiales](resources.md).

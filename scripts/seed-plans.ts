@@ -2,9 +2,18 @@ import { loadEnvConfig } from "@next/env";
 import { getDb } from "../lib/db";
 import { DEFAULT_MODEL } from "../lib/usage";
 
-export async function seedPlans(options: { enableDefaultModel?: boolean } = {}) {
+export async function seedPlans(
+  options: { enableDefaultModel?: boolean; enableGeminiDailyBudgets?: boolean } = {},
+) {
   const db = getDb();
-  const economyModels = [DEFAULT_MODEL, "anthropic/claude-haiku-5.5", "openai/gpt-6-luna"];
+  const includedModels = [
+    ...new Set([
+      DEFAULT_MODEL,
+      "openai/gpt-5.6-luna",
+      "anthropic/claude-haiku-5.5",
+      "openai/gpt-6-luna",
+    ]),
+  ];
   const plans = [
     {
       code: "FREE" as const,
@@ -13,9 +22,9 @@ export async function seedPlans(options: { enableDefaultModel?: boolean } = {}) 
       monthlyDraftLimit: 5,
       monthlySearchLimit: 0,
       monthlyBudgetUsd: "1.00",
-      dailyBudgetUsd: "0.25",
+      dailyBudgetUsd: "1.00",
       minuteRequestLimit: 2,
-      allowedModels: economyModels,
+      allowedModels: includedModels,
       webSearchAllowed: false,
       concurrentLimit: 1,
     },
@@ -26,9 +35,9 @@ export async function seedPlans(options: { enableDefaultModel?: boolean } = {}) 
       monthlyDraftLimit: 20,
       monthlySearchLimit: 10,
       monthlyBudgetUsd: "5.00",
-      dailyBudgetUsd: "1.00",
+      dailyBudgetUsd: "2.00",
       minuteRequestLimit: 5,
-      allowedModels: [...economyModels, "anthropic/claude-sonnet-5.5"],
+      allowedModels: [...includedModels, "anthropic/claude-sonnet-5.5"],
       webSearchAllowed: true,
       concurrentLimit: 1,
     },
@@ -45,17 +54,28 @@ export async function seedPlans(options: { enableDefaultModel?: boolean } = {}) 
       },
       data: { allowedModels: { push: DEFAULT_MODEL }, version: { increment: 1 } },
     });
+  // Apply only the explicitly enabled daily increases. Never lower a custom
+  // allowance or reset monthly quotas, budgets, usage or pending reservations.
+  if (options.enableGeminiDailyBudgets)
+    for (const plan of plans)
+      await db.plan.updateMany({
+        where: { code: plan.code, dailyBudgetUsd: { lt: plan.dailyBudgetUsd } },
+        data: { dailyBudgetUsd: plan.dailyBudgetUsd, version: { increment: 1 } },
+      });
 }
 
 if (process.argv[1]?.endsWith("seed-plans.ts")) {
   loadEnvConfig(process.cwd());
   const enableDefaultModel = process.argv.includes("--enable-default-model");
-  seedPlans({ enableDefaultModel })
+  const enableGeminiDailyBudgets = process.argv.includes("--enable-gemini-daily-budgets");
+  seedPlans({ enableDefaultModel, enableGeminiDailyBudgets })
     .then(() =>
       console.info(
-        enableDefaultModel
-          ? "Planes Free y Pro listos; modelo predeterminado permitido sin cambiar los demás límites."
-          : "Planes Free y Pro listos; se conservaron las políticas existentes.",
+        enableGeminiDailyBudgets
+          ? `Planes Free y Pro listos; presupuestos diarios de al menos USD 1 y USD 2${enableDefaultModel ? " y modelo predeterminado permitido" : ""}. Se conservaron los demás límites.`
+          : enableDefaultModel
+            ? "Planes Free y Pro listos; modelo predeterminado permitido sin cambiar los demás límites."
+            : "Planes Free y Pro listos; se conservaron las políticas existentes.",
       ),
     )
     .catch(() => {

@@ -187,6 +187,7 @@ test("rune alternatives use the current catalog pair map and invalid pairs remai
 });
 
 test("Luna keeps a valid Darius–Illaoi plan after omitting orphan highlights without another paid request", async () => {
+  const luna = "openai/gpt-5.6-luna";
   const matchup: CoachInput = {
     ...input,
     champion: "Darius",
@@ -194,7 +195,7 @@ test("Luna keeps a valid Darius–Illaoi plan after omitting orphan highlights w
     role: "TOP",
     notes: "",
     webSearch: false,
-    model: DEFAULT_MODEL,
+    model: luna,
   };
   const proposed = structuredClone(fixturePlan);
   proposed.headline = "Prepara tu intercambio";
@@ -234,7 +235,7 @@ test("Luna keeps a valid Darius–Illaoi plan after omitting orphan highlights w
       assert.equal(JSON.parse(String(init?.body)).model, "openai/gpt-5.6-luna");
       return Response.json({
         id: "gen-synthetic-darius-illaoi",
-        model: DEFAULT_MODEL,
+        model: luna,
         choices: [
           {
             finish_reason: "stop",
@@ -247,7 +248,7 @@ test("Luna keeps a valid Darius–Illaoi plan after omitting orphan highlights w
     undefined,
     {
       apiKey: "synthetic-private-darius-key",
-      model: DEFAULT_MODEL,
+      model: luna,
       policy: { prompt: 0.2, completion: 1.2, reasoning: false },
       onDispatch: async () => {
         dispatches++;
@@ -720,7 +721,7 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.equal(status.riotConfigured, false);
       assert.equal(status.accessRequired, true);
       assert.equal(status.defaultModel, DEFAULT_MODEL);
-      assert.equal(DEFAULT_MODEL, "openai/gpt-5.6-luna");
+      assert.equal(DEFAULT_MODEL, "google/gemini-3.1-pro-preview");
       assert.equal(resolveCredentials({ apiKey: "personal-key" }).model, DEFAULT_MODEL);
       assert.deepEqual(Object.keys(status).sort(), [
         "accessRequired",
@@ -758,8 +759,8 @@ test("server-funded resolution fails closed in production; personal keys remain 
   );
 });
 
-test("new plans keep the full catalog prompt bounded and reserve the same completion cap", async () => {
-  const { MAX_COACH_COMPLETION_TOKENS, MAX_PROMPT_BYTES, maximumCost, MODEL_POLICIES } =
+test("new plans keep the full catalog prompt bounded and use the reserved Gemini completion cap", async () => {
+  const { completionTokenLimit, MAX_PROMPT_BYTES, maximumCost, MODEL_POLICIES } =
     await import("../lib/usage");
   let dispatched = 0;
   const execution = {
@@ -777,13 +778,13 @@ test("new plans keep the full catalog prompt bounded and reserve the same comple
     undefined,
     async (_, init) => {
       const body = JSON.parse(String(init?.body));
-      assert.equal(body.model, "openai/gpt-5.6-luna");
-      assert.equal(body.max_completion_tokens, MAX_COACH_COMPLETION_TOKENS);
-      assert.deepEqual(body.reasoning, { enabled: false });
+      assert.equal(body.model, "google/gemini-3.1-pro-preview");
+      assert.equal(body.max_completion_tokens, completionTokenLimit(DEFAULT_MODEL, "COACH"));
+      assert.deepEqual(body.reasoning, { enabled: true, effort: "medium", exclude: true });
       assert.deepEqual(body.provider, {
         require_parameters: true,
         allow_fallbacks: false,
-        max_price: { prompt: 0.2, completion: 1.2, request: 0, image: 0 },
+        max_price: { prompt: 2, completion: 12, request: 0, image: 0.000002 },
       });
       assert.ok(
         Buffer.byteLength(
@@ -810,6 +811,7 @@ test("new plans keep the full catalog prompt bounded and reserve the same comple
 });
 
 test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every input scenario", async () => {
+  const luna = "openai/gpt-5.6-luna";
   const {
     DEFAULT_MODEL: policyDefault,
     MAX_PROMPT_BYTES,
@@ -817,7 +819,7 @@ test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every in
     MODEL_POLICIES,
   } = await import("../lib/usage");
   assert.equal(policyDefault, DEFAULT_MODEL);
-  assert.deepEqual(MODEL_POLICIES[DEFAULT_MODEL], {
+  assert.deepEqual(MODEL_POLICIES[luna], {
     prompt: 0.2,
     completion: 1.2,
     reasoning: false,
@@ -836,7 +838,7 @@ test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every in
   ] as const;
   for (const [operation, hasImage, webSearch, expected] of scenarios)
     assert.equal(
-      maximumCost(DEFAULT_MODEL, operation, hasImage, webSearch).toString(),
+      maximumCost(luna, operation, hasImage, webSearch).toString(),
       expected,
       `${operation}: image=${hasImage}, web=${webSearch}`,
     );
@@ -898,7 +900,11 @@ test("provider schema preserves strict objects, nullable fields and bounded arra
     );
     assert.equal(
       schema.properties.plan.anyOf[0].properties.composition.items.properties.champion.pattern,
-      "^[A-Za-z][A-Za-z0-9]{0,39}$",
+      undefined,
+    );
+    assert.match(
+      schema.properties.plan.anyOf[0].properties.composition.items.properties.champion.description,
+      /Patrón permitido:/,
     );
     assert.deepEqual(schema.properties.decision.enum, ["coach", "refuse"]);
     assert.deepEqual(schema.properties.plan.anyOf[1], { type: "null" });
