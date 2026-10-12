@@ -54,8 +54,8 @@ La semilla crea estas políticas iniciales:
 
 | Plan de GrietaPro | Análisis/mes | Capturas/mes | Búsquedas/mes | Presupuesto por usuario | Solicitudes/minuto | Generaciones simultáneas |
 | ----------------- | -----------: | -----------: | ------------: | ----------------------- | -----------------: | -----------------------: |
-| Free              |           10 |            5 |             0 | USD 1/mes y 0.25/día    |                  2 |                        1 |
-| Pro               |           50 |           20 |            10 | USD 5/mes y 1/día       |                  5 |                        1 |
+| Free              |           10 |            5 |             0 | USD 1/mes y 1/día       |                  2 |                        1 |
+| Pro               |           50 |           20 |            10 | USD 5/mes y 2/día       |                  5 |                        1 |
 
 La semilla conserva las políticas que ya existan si vuelves a ejecutarla. La cuota monetaria, las consultas y los fondos globales se aplican conjuntamente: ninguno promete IA ilimitada. Los registros nuevos sin invitación reciben Free. El primer administrador verificado puede conceder Pro de cortesía desde la app; no necesitas cambiar el rol a administrador para dar Pro a tus amigos. La facturación de suscripciones sigue pendiente. [Cuentas y consumo](accounts-and-usage.md).
 

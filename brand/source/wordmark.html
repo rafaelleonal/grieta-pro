@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>No Era el Jungla · logotipo</title>
+    <style>
+      @font-face {
+        font-family: Inter;
+        src: url("../../app/fonts/InterVariable.woff2") format("woff2");
+        font-weight: 100 900;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1320px;
+        height: 256px;
+        overflow: hidden;
+        background: transparent;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        gap: 48px;
+        font-family: Inter, sans-serif;
+      }
+      b {
+        font-size: 108px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        color: #e9e9ed;
+        white-space: nowrap;
+      }
+      b span {
+        color: #b5abfc;
+      }
+    </style>
+  </head>
+  <body>
+    <svg width="256" height="256" viewBox="0 0 64 64" aria-hidden="true">
+      <defs>
+        <mask id="c" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+          <rect width="64" height="64" fill="#fff" />
+          <path d="M18 46 45 19" stroke="#000" stroke-width="2.2" stroke-linecap="round" />
+          <path d="M15 15 49 49" stroke="#000" stroke-width="8.5" stroke-linecap="round" />
+        </mask>
+      </defs>
+      <path d="M14 50C14 30 30 14 50 14 50 34 34 50 14 50Z" fill="#9184d9" mask="url(#c)" />
+      <path d="M9.5 54.5 14 50" stroke="#9184d9" stroke-width="3" stroke-linecap="round" />
+      <path d="M16 16 48 48" stroke="#e7e5fe" stroke-width="3.6" stroke-linecap="round" />
+    </svg>
+    <b>No Era el <span>Jungla</span></b>
+  </body>
+</html>

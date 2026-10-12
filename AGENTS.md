@@ -6,6 +6,10 @@ GrietaPro prepara partidas de League of Legends con consejos breves en español:
 
 Usa TypeScript estricto y pnpm según `package.json`; se recomienda Node.js 24. Mantén los cambios centrados en la petición y respeta las decisiones y autorizaciones del usuario. Esta guía no añade aprobaciones para trabajo local o reversible.
 
+## Retomar el proyecto
+
+Lee [el contexto de continuidad](docs/agent-handoff.md) para conocer la implementación, diagnósticos, pendientes y límites de las últimas pruebas. Después comprueba `git status`, `package.json` y la configuración del entorno sin imprimir secretos. El documento es una instantánea fechada; verifica los estados que puedan haber cambiado. Las autorizaciones de pruebas pagadas ya utilizadas no autorizan nuevas llamadas.
+
 ## Dónde trabajar
 
 - `app/page.tsx` y `components/`: preparación, plan, cuentas y experiencia móvil.

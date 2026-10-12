@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="No Era el Jungla">
+  <defs>
+    <mask id="nej-cut" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64">
+      <rect width="64" height="64" fill="#fff"/>
+      <path d="M18 46 45 19" stroke="#000" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M15 15 49 49" stroke="#000" stroke-width="8.5" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <path d="M14 50C14 30 30 14 50 14 50 34 34 50 14 50Z" fill="#9184d9" mask="url(#nej-cut)"/>
+  <path d="M9.5 54.5 14 50" stroke="#9184d9" stroke-width="3" stroke-linecap="round"/>
+  <path d="M16 16 48 48" stroke="#e7e5fe" stroke-width="3.6" stroke-linecap="round"/>
+</svg>

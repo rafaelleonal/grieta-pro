@@ -8,14 +8,16 @@ Usa preferentemente Node.js 24 y la versión de pnpm fijada en `package.json`. T
 
 ```sh
 pnpm install --frozen-lockfile
-cp .env.example .env.local
+if [ ! -f .env ] && [ ! -f .env.local ]; then
+  cp .env.example .env
+fi
 ```
 
 Sigue el [README](README.md) para levantar PostgreSQL local, aplicar las migraciones y configurar las cuentas. Puedes explorar el ejemplo sin claves reales. No necesitas OpenRouter, Riot ni Resend para ejecutar las pruebas automatizadas.
 
 Para conectar servicios reales, consulta la [guía de OpenRouter y Resend](docs/provider-setup.md). Sus claves se configuran en tu entorno privado; no las incluyas en una propuesta de cambios.
 
-Lee `AGENTS.md`. Antes de cambiar código de Next.js, consulta la guía correspondiente de la versión instalada en `node_modules/next/dist/docs/`. No edites los archivos generados en `.next/`, `generated/prisma/` ni `next-env.d.ts`.
+Lee [AGENTS.md](AGENTS.md) y [el contexto de continuidad](docs/agent-handoff.md). Conserva el archivo de entorno privado que ya exista; `.env.local` tiene prioridad sobre `.env`. Antes de cambiar código de Next.js, consulta la guía correspondiente de la versión instalada en `node_modules/next/dist/docs/`. No edites los archivos generados en `.next/`, `generated/prisma/` ni `next-env.d.ts`.
 
 ## Hacer un cambio
 

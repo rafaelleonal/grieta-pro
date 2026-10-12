@@ -2,6 +2,8 @@
 
 Coach de League of Legends en español construido con Next.js y OpenRouter. Recibe tu campeón, línea y rival; genera un plan breve de niveles 1 a 6, respuestas mecánicas, build situacional y objetivos de partida. Puedes añadir las composiciones completas, interpretar texto o una captura y, opcionalmente, importar una partida activa con Riot ID.
 
+Para retomar el desarrollo, empieza por [AGENTS.md](AGENTS.md) y [el contexto de continuidad](docs/agent-handoff.md): implementación actual, último diagnóstico de IA, pruebas, configuración y trabajo pendiente. Los recursos de la propuesta de marca **No Era el Jungla** están en [brand/](brand/README.md); su integración todavía está pendiente.
+
 Los [términos de uso y la política de privacidad](docs/legal-and-riot.md) están disponibles en `/terminos` y `/privacidad`, con enlaces desde el coach y las pantallas de cuenta. Completa los datos públicos del responsable antes de publicar o solicitar acceso de producción a Riot.
 
 Elige primero tu rol para ver campeones habituales. **Todos** y la búsqueda permiten elegir cualquier campeón, incluso fuera de posición. Con una cuenta verificada puedes marcar hasta doce favoritos por rol y ordenar su prioridad; se guardan en tu cuenta. Consulta [favoritos y futura conexión con Riot](docs/accounts-and-usage.md#campeones-por-rol-y-favoritos).
@@ -12,13 +14,13 @@ Se recomienda Node.js 24 y pnpm 10.33.2. También se admite la rama Node.js 22 d
 
 ```sh
 pnpm install --frozen-lockfile
-if [ ! -f .env.local ]; then
-  cp .env.example .env.local
+if [ ! -f .env ] && [ ! -f .env.local ]; then
+  cp .env.example .env
 fi
 pnpm db:local
 ```
 
-Mantén PostgreSQL abierto. En otra terminal, completa `.env.local`: genera `BETTER_AUTH_SECRET`, configura Resend y un remitente de tu dominio verificado. Después:
+Mantén PostgreSQL abierto. En otra terminal, completa el archivo privado existente (`.env` o `.env.local`): genera `BETTER_AUTH_SECRET`, configura Resend y un remitente de tu dominio verificado. No crees `.env.local` para sustituir un `.env` ya configurado: tiene prioridad. Después:
 
 ```sh
 pnpm db:setup
@@ -57,9 +59,9 @@ En **Foto, captura o texto**, usa **Elegir foto o captura** para abrir tus fotos
 
 Puedes explorar el ejemplo sin credenciales. El ejemplo es contenido de demostración: no representa una consulta de IA ni una recomendación actualizada. Para generar un plan propio, entra con tu cuenta verificada y configura OpenRouter en el servidor o introduce tu clave personal en **Conexión**.
 
-El modelo predeterminado para las consultas nuevas es `google/gemini-3.1-pro-preview`, con razonamiento medio. GPT 5.6 Luna sigue disponible al elegirlo explícitamente. Este cambio no acredita mejor coaching: todavía no hay una comparación táctica ejecutada ni una consulta real de Gemini validada. La demostración local sigue siendo contenido fijo; cambiar el modelo no modifica los análisis guardados ni las reservas pendientes.
+El modelo predeterminado para las consultas nuevas es `google/gemini-3.1-pro-preview`, con razonamiento medio. GPT 5.6 Luna sigue disponible al elegirlo explícitamente. El 12 de octubre de 2026 se confirmó una respuesta real de Gemini con consejo disponible y orden de habilidades omitido por validación. La única prueba autorizada con Sonnet terminó con HTTP 400, sin consejo para comparar. Esto no acredita superioridad táctica de un modelo; consulta [el diagnóstico y los pendientes](docs/agent-handoff.md#diagnóstico-de-ia-que-debe-retomarse). La demostración local sigue siendo contenido fijo; cambiar el modelo no modifica los análisis guardados ni las reservas pendientes.
 
-El plan tiene dos vistas: **Selección de campeones**, con runas, hechizos y preparación, y **En partida**, con decisiones para Línea, Mid y Late. Al recibirlo se contrae el formulario; puedes abrirlo para editar tu selección. Los atajos `S`, `P`, `1`–`3` y `/` funcionan fuera de los campos de texto. Las preguntas generan otro análisis y consumen la cuota correspondiente. Los registros antiguos conservan su información original y muestran un aviso para regenerar las nuevas secciones.
+El resultado empieza por **Tu prioridad**, **Tu ventana** y **Qué evitar**. **Ver niveles, mecánicas y compras** despliega los detalles disponibles; un campo rechazado no elimina consejos independientes válidos. Los planes completos anteriores conservan las vistas de **Selección de campeones** y **En partida**, con fases de Línea, Mid y Late. Al recibir el resultado se contrae el formulario; puedes abrirlo para editar tu selección. Los atajos `S`, `P`, `1`–`3` y `/` funcionan fuera de los campos de texto. Las preguntas generan otro análisis y consumen la cuota correspondiente. El historial antiguo sigue siendo legible sin regeneración automática.
 
 La navegación del plan se guarda en esta pestaña, separada por cuenta y análisis, sin guardar su contenido en `sessionStorage`. Recargar no recupera un resultado privado: ábrelo desde **Mis sesiones**. La referencia visual está en [el handoff](design_handoff_coach_pantallas/README.md); sus archivos exportados no se ejecutan en la aplicación. La fuente Inter se sirve localmente con su [licencia OFL](app/fonts/OFL.txt).
 
@@ -107,7 +109,7 @@ El modelo debe poder procesar imágenes para reconocer capturas. Los mensajes y 
 1. Elige tu campeón, línea y rival. Añade tu rango y contexto cuando sean relevantes.
 2. Opcionalmente, pega una descripción o carga una captura de la selección. Revisa los campeones reconocidos antes de generar el plan; una captura no identifica siempre quién eres o quién ocupa cada línea.
 3. Completa aliados y enemigos para obtener recomendaciones sobre la composición.
-4. Genera el plan: primero verás tu prioridad, cómo empezar, una reacción mecánica, un error a evitar y las compras. Abre los detalles de niveles, reacciones, build/runas o mapa cuando los necesites. **Copiar plan** incluye siempre todo el contenido, las advertencias y las fuentes. El resumen usa los consejos originales del resultado; no hace otra consulta a la IA.
+4. Genera el plan: primero verás tu prioridad, una ventana observable con reacción mecánica y qué evitar. Abre los detalles de niveles, reacciones, compras/runas o mapa cuando estén disponibles y los necesites. **Copiar plan** incluye siempre todo el contenido, las advertencias y las fuentes. El resumen usa los consejos originales del resultado; no hace otra consulta a la IA.
 
 Las fotos y capturas originales admiten hasta **30 MB** (30,000,000 bytes). Se optimizan en el dispositivo antes de enviarlas al coach: la aplicación reduce resolución/peso cuando hace falta y envía una imagen de hasta 2.5 MB. Así evita subir archivos originales de 30 MB a las funciones del alojamiento. PNG, JPEG y WebP tienen soporte directo; otros formatos de foto dependen de que el navegador pueda abrirlos. Si el navegador no puede leer HEIC/HEIF, guarda la foto como JPG o usa el formato más compatible de la cámara. No hay captura automática de pantalla ni conexión local con el cliente de League of Legends.
 
