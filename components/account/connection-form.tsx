@@ -42,10 +42,10 @@ export function ConnectionForm({
     <form onSubmit={submit} className="flex flex-col gap-4">
       <Field
         id="api-key"
-        label={`Clave API de OpenRouter${status?.configured ? " · opcional" : ""}`}
+        label={`Clave de OpenRouter${status?.configured ? " · opcional" : ""}`}
         help={
           <>
-            Obtén tu clave en{" "}
+            Crea una clave en{" "}
             <a
               href="https://openrouter.ai/settings/keys"
               target="_blank"
@@ -55,7 +55,7 @@ export function ConnectionForm({
               OpenRouter
               <ArrowUpRight size={12} aria-hidden="true" />
             </a>
-            . Cada análisis puede consumir crédito de tu cuenta.
+            . Cada análisis puede consumir crédito de OpenRouter.
           </>
         }
       >
@@ -68,9 +68,7 @@ export function ConnectionForm({
               setDraft({ ...draft, apiKey: event.target.value });
               setSaved(false);
             }}
-            placeholder={
-              status?.configured ? "Hay una clave configurada en el servidor" : "sk-or-v1-..."
-            }
+            placeholder={status?.configured ? "Usar la clave de la app" : "sk-or-v1-..."}
             autoComplete="off"
             spellCheck={false}
             aria-describedby="api-key-help"
@@ -89,11 +87,7 @@ export function ConnectionForm({
           </Button>
         </div>
       </Field>
-      <Field
-        id="model"
-        label="Modelo"
-        help="Sólo puedes usar los modelos habilitados para tu plan. El servidor comprueba esta elección antes de cada consulta."
-      >
+      <Field id="model" label="Modelo" help="Modelos incluidos en tu plan.">
         <Select
           id="model"
           value={models.includes(draft.model || "") ? draft.model : ""}
@@ -113,13 +107,13 @@ export function ConnectionForm({
       </Field>
       <p className="flex items-start gap-2 text-xs text-neutral-400">
         <Shield size={14} aria-hidden="true" className="mt-0.5 flex-none" />
-        La clave permanece en memoria mientras la pestaña está abierta: no la almacenamos ni la
-        registramos. Usar tu clave no evita la cuota ni el límite de generaciones a la vez.
+        Tu clave sólo vive en esta pestaña: no se almacena ni se registra. Siguen aplicando las
+        cuotas y el límite de consultas simultáneas.
       </p>
       <div className="flex flex-wrap gap-2">
         <Button type="submit" variant="primary">
           <Check size={16} aria-hidden="true" />
-          Guardar conexión
+          Guardar
         </Button>
         {credentials.apiKey ? (
           <Button
@@ -133,7 +127,7 @@ export function ConnectionForm({
         ) : null}
         {saved ? (
           <span role="status" className="inline-flex items-center text-small text-success-text">
-            Conexión actualizada
+            Guardado
           </span>
         ) : null}
       </div>

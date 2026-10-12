@@ -40,14 +40,13 @@ export function AccessNotice({ session }: { session: AccountSession }) {
   if (!account.configured)
     return (
       <Alert tone="info" icon={<ShieldCheck size={18} />} action={link("/login", "Ver acceso")}>
-        El registro está pendiente de configuración. Puedes preparar tu partida y explorar el
-        ejemplo.
+        Las cuentas aún no están disponibles. Puedes probar el ejemplo.
       </Alert>
     );
   if (!account.authenticated)
     return (
       <Alert tone="info" icon={<UserRound size={18} />} action={link("/login", "Entrar")}>
-        Entra para usar la IA y guardar tus planes en tu cuenta.
+        Entra para generar y guardar planes.
       </Alert>
     );
   if (!account.user?.emailVerified)
@@ -57,7 +56,7 @@ export function AccessNotice({ session }: { session: AccountSession }) {
         icon={<ShieldCheck size={18} />}
         action={link("/verify-email", "Verificar")}
       >
-        Verifica tu correo para activar tus consultas al coach.
+        Verifica tu correo para generar planes.
       </Alert>
     );
   if (account.usage?.pending || account.usage?.uncertain || consumptionError)
@@ -78,15 +77,14 @@ export function AccessNotice({ session }: { session: AccountSession }) {
       >
         {consumptionError ||
           (account.usage?.pending
-            ? "Tu consulta sigue en curso. Comprobamos su estado automáticamente."
-            : "Hay una reserva con coste por confirmar. Puedes preparar otro análisis si te queda cuota; esta reserva se conserva.")}
+            ? "Consulta en curso. Comprobamos su estado automáticamente."
+            : "Coste por confirmar. La reserva se mantiene; puedes seguir si tienes cuota.")}
       </Alert>
     );
   if (account.usage?.coachRemaining === 0)
     return (
       <Alert tone="warning" icon={<ShieldCheck size={18} />}>
-        Usaste tus planes de este periodo. Tu historial sigue disponible; la cuota se renueva{" "}
-        {formatDate(account.usage.resetsAt)}.
+        Sin planes disponibles. Tu cuota se renueva {formatDate(account.usage.resetsAt)}.
       </Alert>
     );
   return null;

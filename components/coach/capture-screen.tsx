@@ -44,11 +44,9 @@ export function CaptureScreen({ ws, onManual }: { ws: CoachWorkspace; onManual: 
         <span className="text-overline font-medium uppercase text-accent-300">
           — Desde una captura
         </span>
-        <h1 className="text-h1 font-medium md:text-display">
-          Sube la selección y revisamos los campeones.
-        </h1>
+        <h1 className="text-h1 font-medium md:text-display">Importa tu selección</h1>
         <p className="text-small text-neutral-400 md:text-body">
-          Foto de la pantalla, captura o texto pegado del cliente. Tú confirmas antes de generar.
+          Usa una foto o texto. Revisa antes de generar.
         </p>
       </header>
 
@@ -97,18 +95,18 @@ export function CaptureScreen({ ws, onManual }: { ws: CoachWorkspace; onManual: 
                   <Upload size={19} />
                 </span>
                 <strong className="text-sm font-medium">
-                  <span className="hidden md:inline">Arrastra una imagen o pégala con Ctrl V</span>
-                  <span className="md:hidden">Elige una foto o tómala</span>
+                  <span className="hidden md:inline">Arrastra o pega una imagen</span>
+                  <span className="md:hidden">Sube o toma una foto</span>
                 </strong>
                 <p id="upload-limit" className="text-xs text-neutral-400">
-                  PNG, JPG o WebP · hasta 30 MB · la optimizamos antes de subir
+                  PNG, JPG o WebP · hasta 30 MB
                 </p>
               </>
             )}
             <div className="flex flex-wrap justify-center gap-2">
               <Button onClick={() => gallery.current?.click()} disabled={disabled}>
                 <ImagePlus size={16} aria-hidden="true" />
-                Elegir foto o captura
+                Elegir imagen
               </Button>
               <Button
                 onClick={() => camera.current?.click()}
@@ -124,7 +122,7 @@ export function CaptureScreen({ ws, onManual }: { ws: CoachWorkspace; onManual: 
               hidden
               type="file"
               accept="image/*"
-              aria-label="Elegir foto o captura"
+              aria-label="Elegir imagen"
               aria-describedby="upload-limit"
               disabled={disabled}
               onChange={(event) => {
@@ -191,7 +189,7 @@ export function CaptureScreen({ ws, onManual }: { ws: CoachWorkspace; onManual: 
               htmlFor="draft-text"
               className="text-overline font-medium uppercase text-neutral-500"
             >
-              O pega texto
+              Pegar texto
             </label>
             <Textarea
               id="draft-text"
@@ -200,7 +198,7 @@ export function CaptureScreen({ ws, onManual }: { ws: CoachWorkspace; onManual: 
                 capture.setDraftText(event.target.value);
                 capture.setDraft(null);
               }}
-              placeholder="Pega el chat de la selección o escribe: «Yo Darius top contra Illaoi; mi jungla es Lee Sin…»"
+              placeholder="Ej. Darius top contra Illaoi. Mi jungla: Lee Sin."
               maxLength={2000}
               disabled={disabled}
             />
@@ -217,12 +215,11 @@ export function CaptureScreen({ ws, onManual }: { ws: CoachWorkspace; onManual: 
             loadingLabel="Identificando campeones…"
           >
             <WandSparkles size={16} aria-hidden="true" />
-            Identificar y revisar
+            Leer selección
           </Button>
           <p className="flex items-start gap-2 text-xs text-neutral-400">
             <Lock size={14} aria-hidden="true" className="mt-0.5 flex-none" />
-            La foto se envía a OpenRouter para leerla. No guardamos la imagen original; sólo usamos
-            los campeones que confirmes.
+            OpenRouter lee la foto. No guardamos el original. Tú confirmas los campeones.
           </p>
         </section>
 
@@ -246,20 +243,19 @@ function DraftReview({
   if (!draft)
     return (
       <section className="flex flex-col items-center justify-center gap-2 rounded-lg bg-surface p-6 text-center">
-        <strong className="text-h3 font-medium">Revisa lo que detectamos</strong>
+        <strong className="text-h3 font-medium">Revisar selección</strong>
         <p className="max-w-sm text-small text-neutral-400">
-          Cuando identifiquemos la selección, aquí verás tu equipo y los rivales para confirmar o
-          corregir antes de preparar el plan.
+          Aquí podrás confirmar o corregir los campeones.
         </p>
       </section>
     );
   const missing = [!draft.champion, !draft.enemy, !draft.role].filter(Boolean).length;
   return (
     <section
-      aria-label="Revisa lo que detectamos"
+      aria-label="Revisar selección"
       className="flex flex-col gap-4 rounded-lg bg-surface p-4 md:p-6"
     >
-      <h2 className="text-h2 font-medium">Revisa lo que detectamos</h2>
+      <h2 className="text-h2 font-medium">Revisar selección</h2>
       {[
         [
           "Tu equipo",
@@ -316,12 +312,9 @@ function DraftReview({
       ))}
       {draft.notes ? <p className="text-small text-neutral-300">{draft.notes}</p> : null}
       {draft.warnings.length || missing ? (
-        <Alert
-          tone="warning"
-          title={missing ? "Faltan datos por confirmar" : "Revisa estos avisos"}
-        >
+        <Alert tone="warning" title={missing ? "Faltan datos" : "Por revisar"}>
           {draft.warnings.join(" ")}
-          {missing ? " Los datos que no se identificaron conservarán tu selección manual." : ""}
+          {missing ? " Lo no detectado conserva tu selección manual." : ""}
         </Alert>
       ) : null}
       <div className="flex flex-col gap-2 sm:flex-row">
@@ -333,7 +326,7 @@ function DraftReview({
             onManual();
           }}
         >
-          Usar esta selección
+          Usar selección
         </Button>
         <Button onClick={() => ws.capture.setDraft(null)}>Descartar</Button>
         <Button variant="ghost" onClick={onManual}>

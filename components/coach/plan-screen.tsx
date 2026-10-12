@@ -33,9 +33,9 @@ export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-4 py-5 md:px-7 md:py-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-6">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 flex-wrap items-center gap-2">
           {[champion, enemy].map((entry, index) =>
             entry ? (
               <Image
@@ -49,11 +49,11 @@ export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
               />
             ) : null,
           )}
-          <span className="text-sm">
+          <h1 className="text-h3">
             <strong className="font-medium">{champion?.name || resultInput.champion}</strong>{" "}
             <span className="text-neutral-400">vs.</span>{" "}
             <strong className="font-medium">{enemy?.name || resultInput.enemy}</strong>
-          </span>
+          </h1>
           <span className="text-xs text-neutral-400">
             {roleName(resultInput.role)} · {resultInput.rank}
           </span>

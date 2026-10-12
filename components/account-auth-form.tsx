@@ -94,10 +94,7 @@ export function AccountAuthForm() {
     readAccount(abort.signal)
       .then(setAccount)
       .catch(() => {
-        if (!abort.signal.aborted)
-          setError(
-            "No pudimos comprobar la disponibilidad del registro. Recarga la página para intentar de nuevo.",
-          );
+        if (!abort.signal.aborted) setError("No se pudo comprobar el registro. Recarga la página.");
       });
     return () => abort.abort();
   }, []);
@@ -133,9 +130,7 @@ export function AccountAuthForm() {
           setError(authErrorMessage(outcome.error));
           return;
         }
-        setNotice(
-          "Si el correo tiene una cuenta, recibirás un enlace para cambiar la contraseña. Revisa también spam.",
-        );
+        setNotice("Si tienes cuenta, recibirás un enlace. Revisa también spam.");
       } else if (mode === "signup") {
         const registration = {
           name: name.trim(),
@@ -155,7 +150,7 @@ export function AccountAuthForm() {
         setInvitationCode("");
         setResend(true);
         setNotice(
-          "Revisa tu correo para confirmar tu cuenta. Si ya estabas registrado, puedes iniciar sesión o recuperar tu contraseña.",
+          "Revisa tu correo para confirmar. Si ya tienes cuenta, entra o recupera tu contraseña.",
         );
       } else {
         const outcome = await authClient.signIn.email({
@@ -174,9 +169,7 @@ export function AccountAuthForm() {
         router.refresh();
       }
     } catch {
-      setError(
-        "No pudimos conectar. Conservamos los datos del formulario para que puedas intentarlo otra vez.",
-      );
+      setError("No pudimos conectar. Tus datos siguen aquí; reintenta.");
     } finally {
       setBusy(false);
     }
@@ -193,12 +186,9 @@ export function AccountAuthForm() {
         callbackURL: `${window.location.origin}/verify-email?confirmed=1`,
       });
       if (outcome.error) setError(authErrorMessage(outcome.error));
-      else
-        setNotice(
-          "Si corresponde, recibirás un nuevo enlace de verificación. Revisa también spam.",
-        );
+      else setNotice("Si corresponde, recibirás un enlace. Revisa también spam.");
     } catch {
-      setError("No pudimos enviar el enlace. Intenta de nuevo en unos minutos.");
+      setError("No se envió el enlace. Reintenta en unos minutos.");
     } finally {
       setBusy(false);
     }
@@ -206,24 +196,22 @@ export function AccountAuthForm() {
 
   const title =
     mode === "login"
-      ? "Tu siguiente partida empieza aquí."
+      ? "Iniciar sesión"
       : mode === "signup"
-        ? "Tu espacio para mejorar."
-        : "Recupera tu cuenta.";
+        ? "Crear cuenta"
+        : "Recuperar contraseña";
   return (
     <AuthLayout
       title={title}
       description={
-        mode === "forgot"
-          ? "Te enviaremos un enlace para crear una nueva contraseña."
-          : "Guarda tus planes, revisa tus matchups y vuelve con una decisión más clara."
+        mode === "forgot" ? "Recibe un enlace por correo." : "Tus planes, en un solo lugar."
       }
     >
       {account?.authenticated ? (
         <div className="account-notice">
           <p>Ya entraste como {account.user?.name}.</p>
           <Link className="account-submit" href="/">
-            Ir a mi coach
+            Ir al coach
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -251,14 +239,11 @@ export function AccountAuthForm() {
           ) : null}
           {account && !account.configured ? (
             <p className="account-notice" role="status">
-              Las cuentas todavía necesitan conectar la base de datos y el correo de esta
-              instalación. Puedes preparar tu selección y explorar el ejemplo del coach.
+              Las cuentas aún no están disponibles. Puedes probar el ejemplo.
             </p>
           ) : null}
           {mode === "signup" && account?.configured && account.registrationMode === "CLOSED" ? (
-            <p className="account-notice">
-              El registro está cerrado por ahora. Si ya tienes cuenta, puedes entrar.
-            </p>
+            <p className="account-notice">Registro cerrado. ¿Ya tienes cuenta? Entra.</p>
           ) : null}
           <form
             className="account-form"
@@ -268,7 +253,7 @@ export function AccountAuthForm() {
           >
             {mode === "signup" ? (
               <>
-                <label htmlFor="account-name">Tu nombre</label>
+                <label htmlFor="account-name">Nombre</label>
                 <input
                   id="account-name"
                   name="name"
@@ -321,9 +306,7 @@ export function AccountAuthForm() {
                   </button>
                 </div>
                 {mode === "signup" ? (
-                  <p className="account-help">
-                    Al menos 12 caracteres. Una frase larga funciona bien.
-                  </p>
+                  <p className="account-help">Mínimo 12 caracteres.</p>
                 ) : (
                   <button
                     className="account-link"
@@ -356,8 +339,8 @@ export function AccountAuthForm() {
                 />
                 <p id="account-invitation-help" className="account-help">
                   {account.registrationMode === "INVITE"
-                    ? "Usa el código que te compartieron para crear tu cuenta."
-                    : "Si recibiste un código, úsalo para activar el acceso de tu invitación."}
+                    ? "Necesitas una invitación."
+                    : "Opcional. Usa tu código si tienes uno."}
                 </p>
               </>
             ) : null}
@@ -373,12 +356,12 @@ export function AccountAuthForm() {
             >
               {busy ? <LoaderCircle className="spin" size={17} /> : <ArrowRight size={17} />}
               {busy
-                ? "Un momento..."
+                ? "Cargando…"
                 : mode === "signup"
                   ? "Crear cuenta"
                   : mode === "forgot"
                     ? "Enviar enlace"
-                    : "Entrar a mi coach"}
+                    : "Entrar"}
             </button>
           </form>
           {resend ? (
@@ -395,12 +378,12 @@ export function AccountAuthForm() {
           ) : null}
           {mode === "forgot" ? (
             <button className="account-link" type="button" onClick={() => changeMode("login")}>
-              Volver a iniciar sesión
+              Volver
             </button>
           ) : null}
           <p className="account-privacy">
             <ShieldCheck size={16} />
-            Cada cuenta tiene su historial privado y una cuota de IA.
+            Historial privado. Uso sujeto a cuota.
           </p>
         </>
       )}
@@ -439,7 +422,7 @@ export function AccountVerification() {
       .catch(() => {
         if (!abort.signal.aborted) {
           setState("pending");
-          setError("No pudimos comprobar tu cuenta. Puedes entrar para revisar su estado.");
+          setError("No se pudo comprobar tu cuenta. Inicia sesión.");
         }
       });
     return () => abort.abort();
@@ -456,12 +439,9 @@ export function AccountVerification() {
         callbackURL: `${window.location.origin}/verify-email?confirmed=1`,
       });
       if (outcome.error) setError(authErrorMessage(outcome.error));
-      else
-        setNotice(
-          "Si corresponde, recibirás un enlace para verificar tu correo. Revisa también spam.",
-        );
+      else setNotice("Si corresponde, recibirás un enlace. Revisa también spam.");
     } catch {
-      setError("No pudimos enviar el enlace. Intenta de nuevo en unos minutos.");
+      setError("No se envió el enlace. Reintenta en unos minutos.");
     } finally {
       setBusy(false);
     }
@@ -470,19 +450,19 @@ export function AccountVerification() {
     <AuthLayout
       title={
         state === "verified"
-          ? "Correo confirmado."
+          ? "Correo confirmado"
           : state === "confirmed"
-            ? "Comprueba tu cuenta."
-            : "Confirma tu correo."
+            ? "Revisa tu cuenta"
+            : "Confirma tu correo"
       }
       description={
         state === "verified"
-          ? "Tu cuenta está lista para preparar partidas y guardar planes."
+          ? "Tu cuenta está lista."
           : state === "confirmed"
-            ? "Entra con tu correo y contraseña para comprobar el estado de tu cuenta."
+            ? "Inicia sesión para comprobar tu cuenta."
             : state === "invalid"
-              ? "Este enlace venció o ya fue utilizado. Solicita uno nuevo o entra si ya confirmaste tu correo."
-              : "Abre el enlace que te enviamos. Puedes solicitar otro si no lo encuentras."
+              ? "Enlace inválido o vencido. Pide otro o entra si ya verificaste tu correo."
+              : "Abre el enlace de tu correo o pide otro."
       }
     >
       <div className="account-illustration">
@@ -490,7 +470,7 @@ export function AccountVerification() {
       </div>
       {state === "loading" ? (
         <p className="account-help" role="status">
-          Comprobando tu cuenta...
+          Comprobando…
         </p>
       ) : state !== "verified" && state !== "confirmed" ? (
         <form
@@ -518,7 +498,7 @@ export function AccountVerification() {
         </form>
       ) : null}
       <Link className="account-link" href={state === "verified" ? "/" : "/login"}>
-        {state === "verified" ? "Ir a mi coach" : "Entrar a mi cuenta"}
+        {state === "verified" ? "Ir al coach" : "Entrar"}
       </Link>
     </AuthLayout>
   );
@@ -542,7 +522,7 @@ export function AccountResetPassword() {
     event.preventDefault();
     if (!token || busy) return;
     if (password !== confirmation) {
-      setError("Las contraseñas no coinciden. Revísalas e intenta de nuevo.");
+      setError("Las contraseñas no coinciden.");
       return;
     }
     setBusy(true);
@@ -558,21 +538,15 @@ export function AccountResetPassword() {
         window.history.replaceState(null, "", "/reset-password");
       }
     } catch {
-      setError(
-        "No pudimos cambiar la contraseña. Conservamos tus datos para que puedas intentar de nuevo.",
-      );
+      setError("No se cambió la contraseña. Reintenta.");
     } finally {
       setBusy(false);
     }
   }
   return (
     <AuthLayout
-      title={done ? "Contraseña actualizada." : "Elige una nueva contraseña."}
-      description={
-        done
-          ? "Entra otra vez con tu nueva contraseña. Tus planes siguen en tu cuenta."
-          : "Usa una frase larga de al menos 12 caracteres."
-      }
+      title={done ? "Contraseña actualizada" : "Nueva contraseña"}
+      description={done ? "Entra con tu nueva contraseña." : "Mínimo 12 caracteres."}
     >
       {done ? (
         <Link href="/login" className="account-submit">
@@ -580,7 +554,7 @@ export function AccountResetPassword() {
           <ArrowRight size={17} />
         </Link>
       ) : !checked ? (
-        <p role="status">Preparando el formulario...</p>
+        <p role="status">Cargando…</p>
       ) : token ? (
         <form
           className="account-form"
@@ -600,7 +574,7 @@ export function AccountResetPassword() {
             required
             disabled={busy}
           />
-          <label htmlFor="confirm-password">Repite la contraseña</label>
+          <label htmlFor="confirm-password">Confirmar contraseña</label>
           <input
             id="confirm-password"
             type="password"
@@ -620,8 +594,8 @@ export function AccountResetPassword() {
         </form>
       ) : (
         <p className="account-error" role="alert">
-          El enlace falta, venció o ya se utilizó.{" "}
-          <Link href="/login">Solicita uno nuevo desde “Olvidé mi contraseña”.</Link>
+          Enlace inválido o vencido.{" "}
+          <Link href="/login">Pide otro desde “Olvidé mi contraseña”.</Link>
         </p>
       )}
     </AuthLayout>

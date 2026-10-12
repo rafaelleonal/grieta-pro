@@ -6,7 +6,7 @@ El coaching combina hechos comprobables y decisiones contextuales. Una habilidad
 
 ## Qué acredita hoy la aplicación
 
-La presentación comienza por prioridad, ventana observable con respuesta mecánica y qué evitar. El contrato de generación pide sólo `brief` como núcleo; niveles, mecánicas de línea, compras, runas, hechizos, habilidades y mapa son detalles independientes opcionales. No pide títulos duplicados, fases extensas, highlights de compras, composición decorativa ni alternativas. Las secciones omitidas deliberadamente se distinguen de las que no superaron la validación mediante `partial.invalid` y el motivo `optional`; no se rellenan con consejos genéricos.
+La presentación comienza por prioridad según el rol, trabajo en las peleas y lectura del matchup, seguida de una ventana observable y qué evitar. El contrato de generación pide `brief` (incluido `teamfight`), seis niveles, reacciones de inicio, preparación y mapa. La recuperación conserva secciones válidas de respuestas incompletas; no convierte la ausencia en consejo inventado. No pide títulos duplicados, fases extensas, highlights de compras, composición decorativa ni alternativas. Las secciones omitidas deliberadamente se distinguen de las que no superaron la validación mediante `partial.invalid` y el motivo `optional`; no se rellenan con consejos genéricos.
 
 Los planes anteriores conservan sus datos: la presentación proyecta el resumen desde su condición de victoria, reacción de línea y error a evitar, o desde un paso disponible del mismo registro. No consulta otra IA ni mezcla historial entre cuentas. Los avisos de preparación se muestran junto al detalle afectado, y una respuesta sin consejo ofrece comprobar el intento o abrir el historial; no dispara una generación adicional. El resumen se copia antes del detalle.
 
@@ -100,3 +100,21 @@ Un candidato más caro se adopta cuando resuelve una carencia repetida y demostr
 Después, el usuario puede valorar si identificó una ventana y si pudo aplicar una reacción. Esos comentarios ayudan a mejorar la guía. Ganar o perder depende de muchas variables y no atribuye por sí solo el resultado al coaching. Una prueba con replays o usuarios requeriría un protocolo separado y permiso para usar sus datos; este conjunto inicial usa únicamente datos sintéticos y activos públicos.
 
 Los artefactos de evaluación nunca deben incluir claves, cookies, correos reales, capturas privadas originales ni prompts enviados. Se pueden conservar casos sintéticos permitidos, planes evaluados y versiones del código/catálogos, respetando los controles de privacidad del proyecto. Este documento no cambia modelos, planes, cuotas ni datos existentes.
+
+## Enfoque por rol y juego de equipo · 12 de octubre de 2026
+
+El objetivo de producto pasa de preparar un duelo a explicar cómo aportar a la victoria del equipo. La guía oficial de Riot describe LoL como un juego de equipos cuyo objetivo es destruir el nexo y destaca estructuras y objetivos neutrales: [How to play](https://www.leagueoflegends.com/en-us/how-to-play/). Las decisiones concretas siguientes son criterios del coach, no reglas de balance ni garantías estadísticas.
+
+| Rol     | Inicio                                                                                 | Aportación posterior que debe explicar el plan                                                  |
+| ------- | -------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| Jungla  | Limpieza y ruta condicional, gank frente a recursos, contragank y prioridad de líneas. | Acceso a objetivos, asegurar recursos y elegir iniciación, flanco o protección según el kit.    |
+| Soporte | Presión en dúo, experiencia compartida, visión y salida segura sin abandonar a su ADC. | Preparar visión con compañía; iniciar, proteger o contrainiciar según amenazas y seguimiento.   |
+| ADC     | Recursos y ventanas con su pareja.                                                     | Posición y daño al objetivo seguro; no perseguir automáticamente al carry rival.                |
+| Mid     | Oleada, presión y acceso al río.                                                       | Rotación, captura, control o flanco según el campeón.                                           |
+| Top     | Intercambios y gestión de oleada.                                                      | Decidir entre presión lateral y llegada a la pelea; no asumir que todos los tops deben iniciar. |
+
+El resumen añade tres decisiones: **Antes**, **Tu trabajo** y **Si no conviene pelear**. La preparación hace más visible añadir los equipos, manteniéndolos opcionales. Sin composición completa, el resumen muestra cuántos campeones se conocen y el prompt exige condiciones, sin inventar un aliado protector o una amenaza específica. Aun con diez campeones no se conocen oro, ubicación, visión ni cooldowns en vivo. Ganar un duelo de jungla no determina por sí solo la ventaja de mapa.
+
+`brief.teamfight` usa tres textos acotados y un objeto estricto; se valida y recupera de forma independiente. No añade solicitudes, reintentos, modelos ni excepciones de cuota. Los planes anteriores muestran la ausencia del bloque; no se regeneran ni reciben consejos de otro registro. El identificador técnico `reactions.linea` se conserva por compatibilidad, pero significa inicio de partida y sus etiquetas se adaptan al rol.
+
+Las pruebas simuladas comprueban los cinco prompts, una sola solicitud, contrato, rechazo de instrucciones inseguras, recuperación de contenido válido, conservación del historial y copia del plan. No evalúan si un modelo real seguirá bien estas instrucciones: eso requiere una comparación táctica autorizada con casos de jungla, soportes de distintos kits y composiciones completas/incompletas.

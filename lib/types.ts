@@ -95,7 +95,15 @@ export interface Reaction {
   response: string;
   champions: string[];
 }
+export type MatchupVerdict = "favored" | "you_counter" | "enemy_counter" | "even" | "uncertain";
+export interface MatchupRead {
+  verdict: MatchupVerdict;
+  reason: string;
+  condition: string;
+}
 export interface CoachBrief {
+  matchup?: MatchupRead;
+  teamfight?: { setup: string; job: string; fallback: string };
   priority?: string;
   window?: { trigger: string; response: string };
   avoid?: string;

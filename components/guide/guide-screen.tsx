@@ -5,18 +5,9 @@ import { LegalLinks } from "@/components/legal-links";
 import { RiotNotice } from "@/components/riot-notice";
 
 const STEPS = [
-  [
-    "Cuéntanos tu partida",
-    "Elige rol, campeón, rival y rango. O sube una foto de la selección y confirma lo que leemos.",
-  ],
-  [
-    "Recibe el plan",
-    "Tu prioridad, una ventana para actuar y qué evitar; después niveles 1–6, runas, hechizos, compras y mapa.",
-  ],
-  [
-    "Úsalo en partida",
-    "Déjalo abierto en un segundo monitor o en el móvil. Pregunta si algo cambia: cada pregunta genera un plan nuevo.",
-  ],
+  ["Elige", "Elige campeón y rival, o importa una captura."],
+  ["Revisa", "Lee tu prioridad por rol, tu papel en las peleas y el matchup."],
+  ["Juega", "Consulta el plan en partida. Cada pregunta consume un plan nuevo."],
 ] as const;
 
 /** Cómo funciona: pasos, datos que usamos, límites del coach y atajos. */
@@ -31,12 +22,9 @@ export function GuideScreen({
     <div className="flex flex-1 flex-col gap-6 px-4 py-6 md:px-7 md:py-9 xl:px-14">
       <header className="flex max-w-3xl flex-col gap-2">
         <span className="text-overline font-medium uppercase text-accent-300">— Cómo funciona</span>
-        <h1 className="text-h1 font-medium md:text-display">
-          Un plan breve para tu partida, en tres pasos.
-        </h1>
+        <h1 className="text-h1 font-medium md:text-display">Tu plan en tres pasos</h1>
         <p className="text-small text-neutral-300 md:text-body">
-          Elociencia usa un modelo de IA con el catálogo actual de Riot. Son recomendaciones para
-          pensar mejor, no estadísticas óptimas.
+          Consejos de IA con el catálogo de Riot. No son estadísticas ni garantizan victorias.
         </p>
       </header>
 
@@ -53,25 +41,20 @@ export function GuideScreen({
       </ol>
 
       <div className="grid gap-4 md:grid-cols-3">
-        <InfoCard title="Qué datos usamos">
-          <li>Los campeones y el contexto que confirmas.</li>
-          <li>El catálogo de Riot (Data Dragon) de la versión actual.</li>
-          <li>Fuentes actuales sólo si las activas en Pro.</li>
+        <InfoCard title="Datos">
+          <li>Tu selección y contexto.</li>
+          <li>Catálogo actual de Riot.</li>
+          <li>Fuentes web opcionales en Pro.</li>
         </InfoCard>
-        <InfoCard title="Lo que no hace">
-          <li>No garantiza que ganes ni da tasas de victoria.</li>
-          <li>No lee tu partida en vivo ni toca el cliente.</li>
-          <li>No guarda tus capturas originales.</li>
+        <InfoCard title="Límites">
+          <li>Sin tasas de victoria.</li>
+          <li>Sin lectura en vivo ni acceso al cliente.</li>
+          <li>Sin guardar fotos originales.</li>
         </InfoCard>
         <section className="flex flex-col gap-3 rounded-lg p-5 ring-1 ring-inset ring-neutral-800">
-          <h2 className="text-h3 font-medium">Atajos del plan</h2>
+          <h2 className="text-h3 font-medium">Atajo</h2>
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2.5 text-small">
-            {[
-              [["S", "P"], "Selección / En partida"],
-              [["1", "2", "3"], "Línea · Mid · Late"],
-              [["/"], "Preguntar al coach"],
-              [["Ctrl", "↵"], "Generar plan"],
-            ].map(([keys, label]) => (
+            {[[["Ctrl / ⌘", "↵"], "Generar plan"]].map(([keys, label]) => (
               <div key={label as string} className="contents">
                 <dt className="flex gap-1">
                   {(keys as string[]).map((key) => (
@@ -91,12 +74,12 @@ export function GuideScreen({
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg bg-accent-900/60 p-5 ring-1 ring-inset ring-accent-800 md:flex-row md:items-center">
-        <p className="flex-1 text-body">¿Quieres ver cómo se ve antes de usar un plan?</p>
+        <p className="flex-1 text-body">Prueba una demostración sin consumir cuota.</p>
         <Button variant="primary" onClick={onExample}>
-          Ver ejemplo de Ahri
+          Ver ejemplo
           <ArrowRight size={16} aria-hidden="true" />
         </Button>
-        <Button onClick={onPrepare}>Preparar mi partida</Button>
+        <Button onClick={onPrepare}>Preparar partida</Button>
       </div>
 
       <footer className="mt-auto flex flex-col gap-2 border-t border-divider pt-4">

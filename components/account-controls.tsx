@@ -47,12 +47,7 @@ export function AccountBadge({
       </Link>
     );
   return (
-    <button
-      type="button"
-      className="account-badge"
-      onClick={onOpen}
-      aria-label="Mi cuenta y cuota de IA"
-    >
+    <button type="button" className="account-badge" onClick={onOpen} aria-label="Cuenta y consumo">
       <UserRound size={14} />
       <span>
         {account.user?.plan === "PRO" ? "Pro" : "Free"}
@@ -91,10 +86,7 @@ export function AccountAccessNotice({
     return (
       <div className="account-access">
         <ShieldCheck size={17} />
-        <span>
-          El registro está pendiente de configuración. Puedes preparar tu partida y explorar el
-          ejemplo.
-        </span>
+        <span>Las cuentas aún no están disponibles. Puedes probar el ejemplo.</span>
         <Link href="/login">
           Ver acceso
           <ArrowRight size={14} />
@@ -105,7 +97,7 @@ export function AccountAccessNotice({
     return (
       <div className="account-access">
         <UserRound size={17} />
-        <span>Entra para usar la IA y guardar tus planes en tu cuenta.</span>
+        <span>Entra para generar y guardar planes.</span>
         <Link href="/login">
           Entrar
           <ArrowRight size={14} />
@@ -116,7 +108,7 @@ export function AccountAccessNotice({
     return (
       <div className="account-access">
         <ShieldCheck size={17} />
-        <span>Verifica tu correo para activar tus consultas al coach.</span>
+        <span>Verifica tu correo para generar planes.</span>
         <Link href="/verify-email">
           Verificar
           <ArrowRight size={14} />
@@ -130,8 +122,8 @@ export function AccountAccessNotice({
         <span>
           {consumptionError ||
             (account.usage?.pending
-              ? "Tu consulta sigue en curso. Comprobamos su estado automáticamente."
-              : "Hay una reserva con coste por confirmar. Puedes preparar otro análisis si te queda cuota; esta reserva se conserva.")}
+              ? "Consulta en curso. Comprobamos su estado automáticamente."
+              : "Coste por confirmar. La reserva se mantiene; puedes seguir si tienes cuota.")}
         </span>
         <button type="button" onClick={onCheck} disabled={checking}>
           {checking ? <LoaderCircle size={14} className="spin" /> : null}
@@ -144,8 +136,7 @@ export function AccountAccessNotice({
       <div className="account-access">
         <ShieldCheck size={17} />
         <span>
-          Usaste tus planes de este periodo. Tu historial sigue disponible; la cuota se renueva{" "}
-          {formatDate(account.usage.resetsAt)}.
+          Sin planes disponibles. Tu cuota se renueva {formatDate(account.usage.resetsAt)}.
         </span>
       </div>
     );
@@ -195,9 +186,7 @@ export function AccountModal({
       onClose();
       await onRefresh();
     } catch {
-      setError(
-        "No pudimos cerrar la sesión en el servidor. Vuelve a intentar; los datos abiertos ya se limpiaron.",
-      );
+      setError("No se cerró la sesión. Reintenta; los datos locales ya se limpiaron.");
     } finally {
       setBusy(false);
     }
@@ -215,36 +204,35 @@ export function AccountModal({
       </div>
       {account.usage ? (
         <>
-          <p className="account-section-label">Tu cuota disponible</p>
+          <p className="account-section-label">Cuota disponible</p>
           <dl className="account-quota">
             <div>
-              <dt>Planes de partida</dt>
+              <dt>Planes</dt>
               <dd>{account.usage.coachRemaining}</dd>
             </div>
             <div>
-              <dt>Lecturas de foto o texto</dt>
+              <dt>Fotos o texto</dt>
               <dd>{account.usage.draftRemaining}</dd>
             </div>
             <div>
-              <dt>Búsquedas de fuentes</dt>
+              <dt>Fuentes web</dt>
               <dd>{account.usage.webRemaining}</dd>
             </div>
           </dl>
           <p className="account-help">
-            Se renueva {formatDate(account.usage.resetsAt)}. Leer una captura y generar su plan
-            consumen cuotas distintas. Cada pregunta al coach genera un nuevo plan.
+            Se renueva {formatDate(account.usage.resetsAt)}. Leer capturas y generar planes tienen
+            cuotas distintas. Cada pregunta consume un plan.
           </p>
           {account.usage.pending ? (
             <p className="account-help">
-              Hay {account.usage.pending} consulta(s) en curso. Comprobamos su estado
-              automáticamente sin iniciar otro análisis.
+              Hay {account.usage.pending} consulta(s) en curso. Comprobamos su estado sin iniciar
+              otra.
             </p>
           ) : null}
           {account.usage.uncertain ? (
             <p className="account-help">
-              Hay {account.usage.uncertain} reserva(s) con coste por confirmar. Su cuota y
-              presupuesto se conservan. Puedes hacer otro análisis si todavía tienes cuota y
-              presupuesto disponible.
+              Hay {account.usage.uncertain} reserva(s) con coste por confirmar. Conservamos su cuota
+              y presupuesto; puedes seguir si tienes saldo disponible.
             </p>
           ) : null}
           {account.usage.pending || account.usage.uncertain ? (
@@ -265,10 +253,7 @@ export function AccountModal({
           ) : null}
         </>
       ) : null}
-      <p className="account-help">
-        Tus planes se guardan en tu cuenta. Las claves API y las fotos originales quedan fuera del
-        historial.
-      </p>
+      <p className="account-help">Guardamos tus planes, sin claves ni fotos originales.</p>
       {user?.role === "ADMIN" ? <AdminControls /> : null}
       {error ? (
         <p className="account-error" role="alert">
@@ -303,9 +288,7 @@ async function adminRequest<T>(path: string, body: unknown): Promise<T> {
   const data = await response.json().catch(() => null);
   if (!response.ok)
     throw new Error(
-      typeof data?.error === "string"
-        ? data.error
-        : "No pudimos actualizar el acceso. Revisa los datos e intenta de nuevo.",
+      typeof data?.error === "string" ? data.error : "No se actualizó el acceso. Revisa los datos.",
     );
   return data as T;
 }
@@ -327,7 +310,7 @@ export function AdminControls() {
       await navigator.clipboard.writeText(code);
       setCopied(true);
     } catch {
-      setError("No pudimos copiar el código. Selecciónalo y cópialo manualmente.");
+      setError("No se copió el código. Cópialo a mano.");
     }
   }
   async function reconcile() {
@@ -368,7 +351,7 @@ export function AdminControls() {
             ? { expiresAt: new Date(`${expires}T23:59:59`).toISOString() }
             : {}),
         });
-        setNotice("Acceso actualizado. El usuario verá su plan al consultar de nuevo su cuenta.");
+        setNotice("Acceso actualizado. Visible al recargar la cuenta.");
       } else {
         const invitation = await adminRequest<{ code: string; expiresAt: string }>(
           "/api/admin/invitations",
@@ -389,9 +372,9 @@ export function AdminControls() {
     <details className="account-admin">
       <summary>
         <ShieldCheck size={15} />
-        Administrar accesos
+        Accesos
       </summary>
-      <p className="account-help">Los beneficios Pro no conceden permisos de administrador.</p>
+      <p className="account-help">Pro no concede permisos de administrador.</p>
       <div className="account-tabs">
         <button
           type="button"
@@ -426,7 +409,7 @@ export function AdminControls() {
           void submit(event);
         }}
       >
-        <label htmlFor="admin-email">Correo de la persona</label>
+        <label htmlFor="admin-email">Correo</label>
         <input
           id="admin-email"
           type="email"
@@ -459,9 +442,7 @@ export function AdminControls() {
               onChange={(event) => setExpires(event.target.value)}
               disabled={busy}
             />
-            <p className="account-help">
-              Sin fecha, el acceso Pro se mantiene hasta que lo retires.
-            </p>
+            <p className="account-help">Sin fecha: hasta que retires el acceso.</p>
           </>
         ) : tab === "invite" ? (
           <>
@@ -479,8 +460,7 @@ export function AdminControls() {
           </>
         ) : (
           <p className="account-help">
-            Se retirará el acceso Pro de cortesía. Las futuras suscripciones pagadas se administran
-            por separado.
+            Se retira sólo Pro de cortesía. No afecta suscripciones pagadas.
           </p>
         )}
         {error ? (
@@ -514,8 +494,7 @@ export function AdminControls() {
       </form>
       <div className="account-admin-consumption">
         <p className="account-help">
-          Si un proveedor dejó cargos pendientes, comprueba su consumo antes de liberar el
-          presupuesto reservado.
+          Confirma los cargos pendientes antes de liberar el presupuesto reservado.
         </p>
         <button
           className="secondary-button"
@@ -610,11 +589,11 @@ export function AccountHistory({
     }
   }
   return (
-    <Modal title="Mis sesiones" wide onClose={onClose}>
+    <Modal title="Sesiones" wide onClose={onClose}>
       {!account?.authenticated ? (
         <div className="account-history-empty">
           <History size={30} />
-          <p>Entra a tu cuenta para consultar tus planes guardados.</p>
+          <p>Entra para ver tus planes.</p>
           <Link className="secondary-button" href="/login">
             Entrar
             <ArrowRight size={14} />
@@ -622,7 +601,7 @@ export function AccountHistory({
         </div>
       ) : (
         <>
-          <p className="modal-intro">Abre un plan para volver a consultar tus consejos.</p>
+          <p className="modal-intro">Sólo tú puedes ver tus planes.</p>
           {error ? (
             <p className="account-error" role="alert">
               {error}
@@ -645,7 +624,7 @@ export function AccountHistory({
           {busy && !records.length ? (
             <p className="account-help" role="status">
               <LoaderCircle className="spin" size={17} />
-              Cargando tus planes...
+              Cargando…
             </p>
           ) : records.length ? (
             <ul className="account-history-list" aria-label="Planes guardados">
@@ -710,7 +689,7 @@ export function AccountHistory({
                     </button>
                     {deleteId === record.id ? (
                       <div className="account-history-confirm">
-                        <span>¿Borrar este plan de tu historial?</span>
+                        <span>¿Borrar este plan?</span>
                         <button
                           type="button"
                           disabled={deleting}
@@ -730,10 +709,7 @@ export function AccountHistory({
           ) : !error ? (
             <div className="account-history-empty">
               <History size={30} />
-              <p>
-                Tu primer plan aparecerá aquí después de consultar al coach. Los ejemplos locales no
-                se guardan.
-              </p>
+              <p>Tu próximo plan aparecerá aquí. Los ejemplos no se guardan.</p>
             </div>
           ) : null}
           {cursor ? (
@@ -745,7 +721,7 @@ export function AccountHistory({
                 void loadMore();
               }}
             >
-              {busy ? <LoaderCircle size={14} className="spin" /> : null}Ver más planes
+              {busy ? <LoaderCircle size={14} className="spin" /> : null}Cargar más
             </button>
           ) : null}
         </>

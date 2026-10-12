@@ -42,9 +42,9 @@ export function matchupSlots(role: Role): Slot[] {
     },
     {
       key: "enemy",
-      label: "Tu rival",
-      emptyTitle: "Elige a tu rival",
-      choosing: "tu rival",
+      label: role === "JUNGLE" ? "Jungla rival" : "Tu rival",
+      emptyTitle: role === "JUNGLE" ? "Elige su jungla" : "Elige a tu rival",
+      choosing: role === "JUNGLE" ? "el jungla rival" : "tu rival",
       role,
       team: "enemy",
       optional: false,

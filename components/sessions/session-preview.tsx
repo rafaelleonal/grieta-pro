@@ -74,7 +74,7 @@ export function SessionPreview({
         </Button>
         <Button onClick={onReprepare} className="justify-start">
           <RotateCcw size={15} aria-hidden="true" />
-          Preparar de nuevo con esta selección
+          Reutilizar selección
         </Button>
         {confirm ? (
           <div
@@ -82,7 +82,7 @@ export function SessionPreview({
             aria-label="Confirmar borrado"
             className="flex flex-col gap-2 rounded-control bg-danger-bg p-3 ring-1 ring-inset ring-danger-border"
           >
-            <p className="text-small text-danger-text">¿Borrar esta sesión de tu historial?</p>
+            <p className="text-small text-danger-text">¿Borrar este plan?</p>
             <div className="flex gap-2">
               <Button
                 variant="danger"
@@ -104,11 +104,11 @@ export function SessionPreview({
             onClick={() => setConfirm(true)}
           >
             <Trash2 size={15} aria-hidden="true" />
-            Borrar esta sesión
+            Borrar plan
           </Button>
         )}
         <p className="border-t border-divider pt-3 text-xs text-neutral-400">
-          Borrar una sesión no devuelve el plan usado a tu cuota.
+          Borrar no devuelve la cuota usada.
         </p>
       </div>
     </aside>

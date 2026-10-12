@@ -56,8 +56,7 @@ export function ProfileEditor({
 
       <fieldset className="flex flex-col gap-3">
         <legend className="mb-3 text-label font-medium">
-          Hasta 2 posiciones{" "}
-          <span className="font-normal text-neutral-500">· toca para cambiar</span>
+          Posiciones <span className="font-normal text-neutral-500">· máximo 2</span>
         </legend>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
           {ROLES.map((role) => {
@@ -85,10 +84,7 @@ export function ProfileEditor({
       {champions.length ? (
         <fieldset className="flex flex-col gap-3">
           <legend className="mb-3 text-label font-medium">
-            Tus campeones{" "}
-            <span className="font-normal text-neutral-500">
-              · por maestría · toca para quitar o añadir
-            </span>
+            Favoritos <span className="font-normal text-neutral-500">· por maestría</span>
           </legend>
           <ul className="grid grid-cols-[repeat(auto-fill,minmax(88px,1fr))] gap-2">
             {champions.map(({ id, role }) => {

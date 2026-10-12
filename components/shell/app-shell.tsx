@@ -1,9 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ChevronRight, Settings2 } from "lucide-react";
+import { ChevronRight, Settings2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { BrandLogo, BrandTile } from "@/components/brand";
 import { PwaInstall } from "@/components/pwa-manager";
+import { useSidebar } from "@/components/hooks/use-sidebar";
 import { cn } from "@/components/ui/cn";
 import type { AccountStatus } from "@/lib/auth-client";
 import { NAV_ITEMS, NEW_PREPARATION, VIEW_TITLES, type View } from "./navigation";
@@ -42,13 +43,28 @@ export function AppShell({
   topbar,
   children,
 }: ShellProps) {
+  const { collapsed, toggle } = useSidebar();
   const primary = NAV_ITEMS.filter((item) => item.view !== "account");
   return (
-    <div className="min-h-dvh bg-bg text-text md:grid md:grid-cols-[76px_minmax(0,1fr)] xl:grid-cols-[232px_minmax(0,1fr)]">
+    <div
+      className={cn(
+        "min-h-dvh bg-bg text-text md:grid md:grid-cols-[76px_minmax(0,1fr)]",
+        !collapsed && "xl:grid-cols-[232px_minmax(0,1fr)]",
+      )}
+    >
+      <a
+        href="#main-content"
+        className="sr-only z-50 rounded-md bg-bg p-3 text-accent-200 focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+      >
+        Saltar al contenido
+      </a>
       {/* Escritorio: sidebar */}
       <aside
         aria-label="Navegación principal"
-        className="sticky top-0 hidden h-dvh flex-col border-r border-divider px-3.5 py-5 xl:flex"
+        className={cn(
+          "sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-divider px-3.5 py-5",
+          !collapsed && "xl:flex",
+        )}
       >
         <button
           type="button"
@@ -86,7 +102,7 @@ export function AppShell({
               aria-hidden="true"
               className={cn("size-1.5 rounded-full", keyReady ? "bg-success" : "bg-neutral-600")}
             />
-            {keyReady ? "OpenRouter · clave disponible" : "OpenRouter · sin configurar"}
+            {keyReady ? "IA · disponible" : "IA · sin configurar"}
           </p>
           <button
             type="button"
@@ -100,7 +116,7 @@ export function AppShell({
             </span>
             <span className="flex min-w-0 flex-1 flex-col">
               <strong className="truncate text-sm font-medium">
-                {account?.user?.name || "Tu espacio personal"}
+                {account?.user?.name || "Tu cuenta"}
               </strong>
               <span className="text-xs text-neutral-400">{planLabel(account)}</span>
             </span>
@@ -112,7 +128,10 @@ export function AppShell({
       {/* Tablet: riel */}
       <aside
         aria-label="Navegación principal"
-        className="sticky top-0 hidden h-dvh flex-col items-center gap-2 border-r border-divider py-4 md:flex xl:hidden"
+        className={cn(
+          "sticky top-0 hidden h-dvh flex-col items-center gap-2 overflow-y-auto border-r border-divider py-4 md:flex",
+          !collapsed && "xl:hidden",
+        )}
       >
         <button
           type="button"
@@ -181,8 +200,22 @@ export function AppShell({
         </header>
 
         {/* Escritorio y tablet: barra superior */}
-        <header className="hidden min-h-15 items-center gap-3 border-b border-divider px-7 md:flex">
-          <nav aria-label="Ruta" className="flex items-center gap-2 text-small">
+        <header className="hidden min-h-15 flex-wrap items-center gap-3 border-b border-divider px-5 py-2 md:flex">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={collapsed ? "Expandir menú lateral" : "Contraer menú lateral"}
+            aria-expanded={!collapsed}
+            title={collapsed ? "Expandir menú lateral" : "Contraer menú lateral"}
+            className="hidden size-11 shrink-0 items-center justify-center rounded-md text-neutral-300 hover:bg-surface xl:flex"
+          >
+            {collapsed ? (
+              <PanelLeftOpen size={20} aria-hidden="true" />
+            ) : (
+              <PanelLeftClose size={20} aria-hidden="true" />
+            )}
+          </button>
+          <nav aria-label="Ruta" className="hidden items-center gap-2 text-small xl:flex">
             <span className="text-neutral-400">Tu espacio</span>
             <ChevronRight size={13} aria-hidden="true" className="text-neutral-600" />
             <span aria-current="page">{VIEW_TITLES[view]}</span>
@@ -190,7 +223,9 @@ export function AppShell({
           <div className="ml-auto flex flex-wrap items-center justify-end gap-2">{topbar}</div>
         </header>
 
-        <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+        <main id="main-content" tabIndex={-1} className="flex min-w-0 flex-1 flex-col">
+          {children}
+        </main>
       </div>
 
       {/* Móvil: pestañas inferiores */}

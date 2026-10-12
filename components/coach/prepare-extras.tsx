@@ -37,8 +37,8 @@ export function TeamsPanel({
     <div className="grid gap-5 md:grid-cols-2">
       {(
         [
-          ["allies", "Tus otros aliados", "bg-success"],
-          ["enemies", "Los otros rivales", "bg-danger"],
+          ["allies", "Aliados", "bg-success"],
+          ["enemies", "Rivales", "bg-danger"],
         ] as const
       ).map(([team, label, dot]) => (
         <fieldset key={team} className="flex flex-col gap-2">
@@ -62,8 +62,7 @@ export function TeamsPanel({
         </fieldset>
       ))}
       <p className="text-xs text-neutral-400 md:col-span-2">
-        Añade los demás campeones para adaptar las compras y el plan de mapa. Tu campeón, tu rival y
-        las parejas de bot ya están incluidos.
+        Opcional. Añade sólo los campeones que faltan.
       </p>
     </div>
   );
@@ -79,13 +78,13 @@ export function NotePanel({
   return (
     <div className="flex flex-col gap-1.5">
       <label htmlFor="coach-notes" className="text-label font-medium">
-        Algo más que deba saber <span className="font-normal text-neutral-500">· opcional</span>
+        Contexto <span className="font-normal text-neutral-500">· opcional</span>
       </label>
       <Textarea
         id="coach-notes"
         value={notes}
         onChange={(event) => onChange(event.target.value)}
-        placeholder="Ej. Me cuesta esquivar su Q. Quiero jugar seguro hasta nivel 6."
+        placeholder="Ej. Quiero jugar seguro hasta nivel 6."
         maxLength={1500}
         aria-describedby="coach-notes-count"
       />
@@ -116,8 +115,8 @@ export function RiotPanel({
     <div className="flex flex-col gap-3">
       <p className="text-small text-neutral-300">
         {status?.riotConfigured
-          ? "Importa tu partida activa. La selección de campeones previa a la partida se puede leer con una captura."
-          : "Esta instalación necesita una clave de Riot en el servidor. Mientras tanto, usa la selección manual o una captura."}
+          ? "Importa una partida en curso. Para selección de campeones, usa una captura."
+          : "Riot no está disponible. Elige a mano o usa una captura."}
       </p>
       <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_120px_auto]">
         <Input
@@ -147,14 +146,12 @@ export function RiotPanel({
           loadingLabel="Buscando…"
         >
           <Search size={15} aria-hidden="true" />
-          Buscar partida activa
+          Buscar partida
         </Button>
       </div>
       {riot.riot ? (
         <div className="flex flex-col gap-2">
-          <p className="text-small text-neutral-300">
-            Selecciona tu rival de línea y revisa después tu rol.
-          </p>
+          <p className="text-small text-neutral-300">Elige tu rival y revisa tu línea.</p>
           <ul className="grid gap-2 sm:grid-cols-2">
             {riot.riot.participants
               .filter((entry) => entry.team === "enemy")

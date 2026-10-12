@@ -20,11 +20,9 @@ export function CoachFailure({
   onHistory: () => void;
 }) {
   return (
-    <section className="panel result-panel coach-recovery" aria-label="Recuperar esta consulta">
-      <h2>El coach no respondió esta vez</h2>
-      <p>
-        Tu selección sigue guardada. Puedes revisar este intento o consultar tus planes anteriores.
-      </p>
+    <section className="panel result-panel coach-recovery" aria-label="Revisar consulta">
+      <h2>No llegó el plan</h2>
+      <p>Tu selección sigue guardada.</p>
       <div className="coach-recovery-actions">
         <button className="primary-button" type="button" onClick={onCheck} disabled={checking}>
           <RefreshCw size={16} className={checking ? "spin" : undefined} aria-hidden="true" />
@@ -32,25 +30,23 @@ export function CoachFailure({
         </button>
         <button className="secondary-button" type="button" onClick={onHistory}>
           <History size={16} aria-hidden="true" />
-          Ver planes guardados
+          Ver mis planes
         </button>
       </div>
       {checked ? (
         <p role="status">
           {checkError
-            ? "Todavía no pudimos confirmar el estado del intento. No hemos iniciado otra consulta."
+            ? "Estado sin confirmar. No iniciamos otra consulta."
             : uncertain
-              ? "Todavía hay un intento pendiente o con coste incierto. No hemos iniciado otra consulta."
-              : "No hay consultas en curso. No obtuvimos consejos para este intento; tu selección está lista si decides generar otro."}
+              ? "Consulta pendiente o coste por confirmar. No iniciamos otra consulta."
+              : "Sin consultas pendientes. No llegó el plan; puedes generar otro."}
         </p>
       ) : null}
       {previousPlan ? (
-        <p className="coach-recovery-previous">
-          El plan que aparece debajo pertenece a una consulta anterior.
-        </p>
+        <p className="coach-recovery-previous">El plan de abajo es de una consulta anterior.</p>
       ) : null}
       <details>
-        <summary>Ver qué ocurrió</summary>
+        <summary>Ver detalles</summary>
         <p>{error}</p>
       </details>
     </section>

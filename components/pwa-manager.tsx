@@ -36,7 +36,7 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
     const completed = () => {
       setInstalled(true);
       setPrompt(null);
-      setMessage("Ya puedes abrir Elociencia desde tu pantalla de inicio.");
+      setMessage("App instalada.");
     };
     standalone.addEventListener("change", displayChanged);
     window.addEventListener("beforeinstallprompt", available);
@@ -70,13 +70,11 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
       const choice = await prompt.userChoice;
       setMessage(
         choice.outcome === "accepted"
-          ? "Instalación solicitada. Sigue los pasos del navegador."
-          : "Puedes instalarla más adelante desde el menú del navegador.",
+          ? "Sigue los pasos del navegador."
+          : "Puedes instalarla después desde el navegador.",
       );
     } catch {
-      setMessage(
-        "Abre el menú de tu navegador y elige Instalar app o Añadir a pantalla de inicio.",
-      );
+      setMessage("Menú del navegador → Instalar app o Añadir a pantalla de inicio.");
     } finally {
       setPrompt(null);
       setInstalling(false);
@@ -102,7 +100,7 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
       {open
         ? createPortal(
             <Modal
-              title={installed ? "Elociencia en tu celular" : "Tu coach, a un toque"}
+              title={installed ? "App instalada" : "Instalar Elociencia"}
               onClose={() => setOpen(false)}
             >
               <div className="pwa-app-preview">
@@ -113,48 +111,33 @@ export function PwaInstall({ onOpen }: { onOpen: () => void }) {
                 </div>
                 <Smartphone size={23} />
               </div>
-              <p className="modal-intro">
-                Añádelo a tu pantalla de inicio para abrirlo como una app. También puedes instalarlo
-                en tu computadora.
-              </p>
+              <p className="modal-intro">Abre Elociencia desde tu pantalla de inicio.</p>
               {!secure ? (
-                <p className="notice-alert pwa-note">
-                  Para instalarla necesitas abrir la versión publicada con HTTPS. La dirección local
-                  de tu computadora sirve para usarla en el navegador.
-                </p>
+                <p className="notice-alert pwa-note">Abre la versión HTTPS para instalar la app.</p>
               ) : null}
               <div className="help-steps pwa-instructions">
                 <div className="help-step">
                   <span className="level-number">1</span>
                   <div>
                     <h3>iPhone o iPad</h3>
-                    <p>
-                      Abre la app en Safari. Toca Compartir → Añadir a pantalla de inicio → Añadir.
-                    </p>
+                    <p>Safari → Compartir → Añadir a pantalla de inicio.</p>
                   </div>
                 </div>
                 <div className="help-step">
                   <span className="level-number">2</span>
                   <div>
                     <h3>Android o computadora</h3>
-                    <p>
-                      En Chrome o Edge, abre el menú y elige Instalar app o Añadir a pantalla de
-                      inicio. Si aparece el botón de abajo, puedes usarlo directamente.
-                    </p>
+                    <p>Chrome o Edge → Menú → Instalar app o Añadir a pantalla de inicio.</p>
                   </div>
                 </div>
               </div>
               <div className="privacy-note">
                 <Shield size={15} />
-                <span>
-                  La IA y Riot necesitan internet. Sin conexión verás un aviso; tus fotos, claves y
-                  planes no se guardan en la caché de la app.
-                </span>
+                <span>Requiere internet. Fotos, claves y planes no se guardan en caché.</span>
               </div>
               {workerFailed ? (
                 <p className="field-help">
-                  El navegador no pudo activar la pantalla sin conexión. Vuelve a abrir la app
-                  cuando tengas internet.
+                  No se activó el modo sin conexión. Reabre la app con internet.
                 </p>
               ) : null}
               {message ? (
@@ -207,8 +190,8 @@ export function OfflineNotice() {
     <div className="notice-alert pwa-offline-notice" role="status">
       <WifiOff size={16} />
       <span>
-        Sin conexión. Puedes seguir preparando tu selección; conecta internet para consultar al
-        coach. Las solicitudes no se reenvían automáticamente.
+        Sin conexión. Puedes preparar tu selección; analizar requiere internet. No hay reintentos
+        automáticos.
       </span>
     </div>
   ) : null;

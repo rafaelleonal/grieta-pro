@@ -911,7 +911,13 @@ test("provider schema preserves strict objects, nullable fields and bounded arra
     assert.equal(planBranch.properties.composition, undefined);
     assert.equal(planBranch.properties.headline, undefined);
     assert.equal(planBranch.properties.phases, undefined);
-    assert.deepEqual(planBranch.properties.brief.required, ["priority", "window", "avoid"]);
+    assert.deepEqual(planBranch.properties.brief.required, [
+      "matchup",
+      "priority",
+      "teamfight",
+      "window",
+      "avoid",
+    ]);
     assert.match(
       planBranch.properties.brief.properties.priority.description,
       /Longitud máxima en caracteres: 240/,

@@ -48,12 +48,12 @@ export function CoachTopbar({
               style={{ width: `${Math.min(1, ratio) * 100}%` }}
             />
           </span>
-          {usage.coachRemaining} planes
+          {usage.coachRemaining} restantes
         </button>
       ) : null}
       {catalog ? (
         <StatusPill live={catalog.source === "live"}>
-          RIOT {catalog.version}
+          CATÁLOGO {catalog.version}
           {catalog.source === "snapshot" ? " · RESPALDO" : ""}
         </StatusPill>
       ) : (

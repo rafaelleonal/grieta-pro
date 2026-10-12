@@ -26,10 +26,10 @@ export function GeneratingScreen({
 }) {
   const name = (id: string) => catalog?.champions.find((entry) => entry.id === id)?.name || id;
   const steps: { label: string; state: StepState }[] = [
-    { label: "Validar selección", state: "done" },
+    { label: "Selección", state: "done" },
     { label: `Catálogo Riot ${catalog?.version || ""}`.trim(), state: "done" },
-    { label: "Escribir el plan", state: "active" },
-    { label: "Revisar coherencia", state: "pending" },
+    { label: "Generar plan", state: "active" },
+    { label: "Revisión", state: "pending" },
   ];
   return (
     <section
@@ -47,13 +47,13 @@ export function GeneratingScreen({
             </span>
             <h1 className="text-h1 font-medium">Preparando tu plan…</h1>
             <p className="text-small text-neutral-400 md:text-body">
-              Suele tardar entre 15 y 60 segundos. Puedes seguir en otra pestaña.
+              Suele tardar de 15 a 60 segundos.
             </p>
           </div>
           <div className="flex w-full flex-col items-stretch gap-1.5 sm:w-auto sm:items-end">
             <Button onClick={onCancel}>Cancelar</Button>
             <p className="max-w-64 text-xs text-neutral-400 sm:text-right">
-              Si cancelas ahora, la consulta ya enviada puede contar en tu consumo.
+              Cancelar puede consumir cuota si la consulta ya se envió.
             </p>
           </div>
         </header>

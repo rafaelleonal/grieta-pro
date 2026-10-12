@@ -26,6 +26,8 @@ Lee [AGENTS.md](AGENTS.md) y [el contexto de continuidad](docs/agent-handoff.md)
 
 ### Interfaz
 
+Antes de cambiar pantallas, copy o consejos del coach, lee las [directrices de diseño y experiencia](docs/design-guidelines.md). Sus reglas y criterios de aceptación aplican a toda la app: navegación contraíble, jerarquía y espaciado, imágenes de objetos y hechizos, textos mínimos, lectura del matchup y consejos por rol orientados también al juego en equipo.
+
 Las decisiones de interfaz están registradas como ADR en [`docs/adr/`](docs/adr) y resumidas en [AGENTS.md](AGENTS.md#interfaz-decisiones-obligatorias). Una propuesta que no las siga se devolverá para ajustarla.
 
 - **Estilos con Tailwind CSS v4** ([ADR 0001](docs/adr/0001-tailwind-v4.md)). Usa las utilidades con los tokens de `@theme` en `app/globals.css`. No añadas CSS a las hojas heredadas ni valores sueltos de color, sombra o radio; si falta un token, propónlo en `@theme`. Al tocar una pantalla, migra sus estilos y borra las reglas que dejen de usarse.

@@ -169,22 +169,18 @@ export function useCoachWorkspace() {
     controller.current = null;
     setBusy(null);
     setNotice(
-      "Dejamos de esperar el análisis. Si ya se envió al proveedor, puede consumir tu cuota. Tu selección sigue aquí.",
+      "Espera cancelada. Si la consulta ya se envió, puede consumir cuota. Tu selección sigue aquí.",
     );
     void session.refreshAccount();
     void session.checkConsumption();
   }
   function ensureAccount() {
     if (!navigator.onLine) {
-      setError(
-        "Sin conexión. Conecta internet y vuelve a solicitar el análisis cuando estés listo.",
-      );
+      setError("Sin conexión. Conéctate y reintenta.");
       return false;
     }
     if (!account?.configured) {
-      setError(
-        "Las cuentas todavía necesitan configurarse en esta instalación. Puedes explorar el ejemplo local.",
-      );
+      setError("Las cuentas aún no están disponibles. Puedes probar el ejemplo.");
       return false;
     }
     if (!account.authenticated) {
@@ -192,7 +188,7 @@ export function useCoachWorkspace() {
       return false;
     }
     if (!account.user?.emailVerified) {
-      setError("Verifica tu correo para activar tus consultas al coach.");
+      setError("Verifica tu correo para generar planes.");
       return false;
     }
     return true;
@@ -204,25 +200,23 @@ export function useCoachWorkspace() {
     if (!replay && remaining !== undefined && remaining <= 0) {
       setError(
         kind === "coach"
-          ? "Ya usaste tus planes de este periodo. Puedes consultar los anteriores en Mis sesiones."
-          : "Ya usaste tus lecturas de este periodo. Puedes elegir los campeones manualmente.",
+          ? "Sin planes disponibles. Consulta los anteriores en Sesiones."
+          : "Sin lecturas disponibles. Elige los campeones a mano.",
       );
       return false;
     }
     if (!replay && account?.usage?.pending) {
-      setError(
-        "Tienes una consulta en curso. Comprobamos su estado automáticamente; tu selección sigue guardada.",
-      );
+      setError("Consulta en curso. Comprobamos su estado; tu selección sigue guardada.");
       return false;
     }
     if (!ready) {
       setSettingsOpen(true);
-      setNotice("Añade tu clave de OpenRouter para generar un plan real.");
+      setNotice("Añade tu clave de OpenRouter para generar planes.");
       return false;
     }
     if (!effectiveCredentials.model && !data.status?.defaultModel) {
       setSettingsOpen(true);
-      setNotice("Espera la configuración del modelo o elige uno en Conexión antes de generar.");
+      setNotice("Elige un modelo en Conexión de IA.");
       return false;
     }
     return true;
@@ -255,9 +249,7 @@ export function useCoachWorkspace() {
         ? `${input.notes}${input.notes ? "\n" : ""}${followup}`
         : input.notes;
     if (notes.length > 1500) {
-      setError(
-        "Tu contexto supera 1500 caracteres. Acorta las notas de la composición antes de agregar esta pregunta.",
-      );
+      setError("Máximo 1500 caracteres. Acorta tu contexto antes de añadir la pregunta.");
       setEditing(true);
       return false;
     }
@@ -288,9 +280,7 @@ export function useCoachWorkspace() {
       if (!intent || abort.signal.aborted) return true;
       key = intent.key;
       if (intent.attempt?.state === "UNKNOWN" && !intent.attempt.hasResponse) {
-        setError(
-          "Este intento conserva una reserva incierta. Usa Comprobar estado; puedes preparar otro análisis si te queda cuota.",
-        );
+        setError("Coste por confirmar. Usa Comprobar estado; puedes seguir si tienes cuota.");
         return true;
       }
       if (!ensureCredentials("coach", Boolean(intent.attempt?.hasResponse))) return true;
@@ -330,9 +320,7 @@ export function useCoachWorkspace() {
       if (!intent || abort.signal.aborted) return;
       key = intent.key;
       if (intent.attempt?.state === "UNKNOWN" && !intent.attempt.hasResponse) {
-        setError(
-          "Esta lectura conserva una reserva incierta. Usa Comprobar estado antes de repetirla.",
-        );
+        setError("Coste por confirmar. Usa Comprobar estado antes de repetir la lectura.");
         return;
       }
       if (!ensureCredentials("draft", Boolean(intent.attempt?.hasResponse))) return;
@@ -397,9 +385,7 @@ export function useCoachWorkspace() {
         ? `${previous.notes}${previous.notes ? "\n" : ""}${draft.notes}`.slice(0, 1500)
         : previous.notes,
     }));
-    setNotice(
-      "Selección aplicada. Revisa tu campeón, tu línea y tu rival antes de generar el plan.",
-    );
+    setNotice("Selección aplicada. Revisa campeón, línea y rival.");
     capture.setDraft(null);
   }
 
@@ -423,7 +409,7 @@ export function useCoachWorkspace() {
     }));
     riotImport.setRiotOpen(false);
     riotImport.setRiot(null);
-    setNotice("Partida importada. Elige tu línea y confirma el rival para preparar el plan.");
+    setNotice("Partida importada. Revisa línea y rival.");
   }
 
   function restoreHistory(record: HistoryRecord) {
@@ -434,9 +420,7 @@ export function useCoachWorkspace() {
     setResult(record.result);
     setEditing(false);
     setSample(false);
-    setNotice(
-      "Plan recuperado de tu cuenta. Revisa su fecha, parche y fuentes antes de volver a usarlo.",
-    );
+    setNotice("Plan guardado. Revisa fecha, parche y fuentes antes de reutilizarlo.");
   }
 
   function showExample() {

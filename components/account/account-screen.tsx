@@ -15,10 +15,10 @@ import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
 import { ConnectionForm } from "./connection-form";
 
 const SECTIONS = [
-  ["consumo", "Plan y consumo"],
+  ["consumo", "Consumo"],
   ["clave", "Clave de OpenRouter"],
-  ["perfil", "Perfil y acceso"],
-  ["privacidad", "Privacidad y datos"],
+  ["perfil", "Perfil"],
+  ["privacidad", "Privacidad"],
 ] as const;
 
 function formatDate(value: string) {
@@ -57,9 +57,7 @@ export function AccountScreen({
       session.markLoggedOut();
       await session.refreshAccount();
     } catch {
-      setError(
-        "No pudimos cerrar la sesión en el servidor. Vuelve a intentar; los datos abiertos ya se limpiaron.",
-      );
+      setError("No se cerró la sesión. Reintenta; los datos locales ya se limpiaron.");
     } finally {
       setBusy(false);
     }
@@ -69,9 +67,9 @@ export function AccountScreen({
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-10 text-center">
         <Mascot size={112} />
-        <h1 className="text-h1 font-medium">Tu cuenta de Elociencia</h1>
+        <h1 className="text-h1 font-medium">Tu cuenta</h1>
         <p className="max-w-md text-small text-neutral-400">
-          Entra para ver tu consumo, guardar tus planes y configurar tu perfil de juego.
+          Entra para ver tus planes, consumo y perfil.
         </p>
         <Link href="/login" className={buttonClasses("primary")}>
           Entrar o crear cuenta
@@ -102,7 +100,7 @@ export function AccountScreen({
       <div className="flex min-w-0 flex-col gap-5">
         <Section
           id="consumo"
-          title="Plan y consumo"
+          title="Consumo"
           aside={
             <Tag tone={user?.plan === "PRO" ? "pro" : "neutral"}>
               {user?.plan === "PRO" ? "Pro" : "Free"}
@@ -119,23 +117,19 @@ export function AccountScreen({
                   detail={`${usage.coachRemaining} disponibles de ${usage.coachLimit}`}
                 />
                 <p className="text-xs text-neutral-400">
-                  Se renuevan el {formatDate(usage.resetsAt)}. Cada pregunta de seguimiento cuenta
-                  como un plan.
+                  Se renuevan el {formatDate(usage.resetsAt)}. Cada pregunta consume un plan.
                 </p>
                 <dl className="grid gap-2 sm:grid-cols-3">
+                  <Stat label="Capturas" value={`${usage.draftRemaining} de ${usage.draftLimit}`} />
                   <Stat
-                    label="Lecturas de captura"
-                    value={`${usage.draftRemaining} de ${usage.draftLimit}`}
-                  />
-                  <Stat
-                    label="Fuentes actuales"
+                    label="Fuentes web"
                     value={
                       usage.webAllowed
                         ? `${usage.webRemaining} de ${usage.webLimit}`
                         : "No incluidas"
                     }
                   />
-                  <Stat label="Pendientes de cierre" value={String(pending)} />
+                  <Stat label="Por confirmar" value={String(pending)} />
                 </dl>
                 {pending ? (
                   <Alert
@@ -151,8 +145,7 @@ export function AccountScreen({
                       </Button>
                     }
                   >
-                    Hay consultas en curso o reservas con coste por confirmar. Se conservan hasta
-                    confirmarlas; no iniciamos otro análisis.
+                    Hay consultas o costes pendientes. Comprobar su estado no inicia otro análisis.
                   </Alert>
                 ) : null}
                 {session.consumptionError ? (
@@ -168,13 +161,13 @@ export function AccountScreen({
                 </strong>
                 <ul className="flex flex-col gap-1.5 text-small text-neutral-300">
                   <li>Más planes al mes</li>
-                  <li>Consulta de fuentes actuales</li>
-                  <li>Más modelos disponibles</li>
+                  <li>Fuentes web</li>
+                  <li>Más modelos</li>
                 </ul>
                 <p className="text-xs text-neutral-400">
                   {user?.plan === "PRO"
-                    ? "Ya tienes Pro en esta cuenta."
-                    : "Por ahora Pro se concede por invitación o de cortesía. Aún no hay pagos en la app."}
+                    ? "Pro activo."
+                    : "Pro por invitación o cortesía. Sin pagos en la app."}
                 </p>
               </div>
             </div>
@@ -185,19 +178,16 @@ export function AccountScreen({
 
         <Section
           id="clave"
-          title="Clave personal de OpenRouter"
+          title="Clave de OpenRouter"
           aside={
             ws.credentials.apiKey ? (
               <span className="inline-flex items-center gap-1.5 text-xs text-success-text">
                 <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />
-                En uso en esta pestaña
+                Activa
               </span>
             ) : null
           }
         >
-          <p className="text-small text-neutral-400">
-            Opcional. Se guarda sólo en memoria mientras la pestaña está abierta.
-          </p>
           <ConnectionForm
             credentials={ws.credentials}
             status={ws.status}
@@ -207,7 +197,7 @@ export function AccountScreen({
         </Section>
 
         <div className="grid gap-5 lg:grid-cols-2">
-          <Section id="perfil" title="Perfil y acceso">
+          <Section id="perfil" title="Perfil">
             <dl className="grid grid-cols-[96px_minmax(0,1fr)] items-center gap-x-3 gap-y-2.5 text-small">
               <dt className="text-neutral-400">Nombre</dt>
               <dd>{user?.name}</dd>
@@ -258,10 +248,10 @@ export function AccountScreen({
             </div>
           </Section>
 
-          <Section id="privacidad" title="Privacidad y datos">
+          <Section id="privacidad" title="Privacidad">
             <p className="text-small text-neutral-300">
-              No guardamos tus capturas originales ni los prompts enviados. Al cerrar sesión
-              limpiamos el borrador de este dispositivo. Puedes borrar cada plan desde Mis sesiones.
+              No guardamos fotos originales ni prompts enviados. Cerrar sesión limpia el borrador
+              local. Borra tus planes desde Sesiones.
             </p>
             <p className="text-xs text-neutral-400">Borrar planes no cambia tu consumo del mes.</p>
             <Link
@@ -277,7 +267,7 @@ export function AccountScreen({
         {user?.role === "ADMIN" ? (
           <Section
             id="administrar"
-            title="Administrar accesos"
+            title="Accesos"
             aside={<ShieldCheck size={18} aria-hidden="true" className="text-accent-300" />}
           >
             <AdminControls />

@@ -84,7 +84,7 @@ export function OnboardingScreen({
       setError(
         cause instanceof Error
           ? cause.message
-          : `No encontramos esa cuenta en ${serverLabel}. Revisa el #TAG o prueba otro servidor.`,
+          : `Cuenta no encontrada en ${serverLabel}. Revisa el #TAG y el servidor.`,
       );
       setStep("connect");
     }
@@ -117,10 +117,9 @@ export function OnboardingScreen({
         <BrandLogo size={36} />
         <div className="flex flex-col gap-3">
           <span className="text-overline font-medium uppercase text-accent-300">— Bienvenida</span>
-          <h1 className="text-h1 font-medium">Conecta tu cuenta y nosotros llenamos el resto.</h1>
+          <h1 className="text-h1 font-medium">Tu perfil de juego</h1>
           <p className="text-small text-neutral-300">
-            Con tu Riot ID leemos tu rango y tus campeones. Todo es opcional y puedes cambiarlo en
-            tu perfil.
+            Importa tu rango y campeones. Puedes omitirlo o editarlo después.
           </p>
         </div>
         <Mascot size={168} />
@@ -149,7 +148,7 @@ export function OnboardingScreen({
           ))}
         </dl>
         <p className="mt-auto text-xs text-neutral-400">
-          Sólo leemos datos públicos de tu cuenta. Elociencia no está avalado por Riot Games.
+          Sólo leemos datos públicos. Elociencia no está avalado por Riot Games.
         </p>
       </aside>
 
@@ -159,7 +158,7 @@ export function OnboardingScreen({
             <BrandLogo size={30} compact />
           </span>
           <ol aria-label="Progreso" className="grid flex-1 grid-cols-2 gap-3">
-            {["Conectar cuenta", "Revisar y empezar"].map((label, index) => {
+            {["Importar", "Revisar"].map((label, index) => {
               const active = index === 0 ? true : step === "result" || step === "manual";
               return (
                 <li key={label} className="flex flex-col gap-2">
@@ -186,9 +185,9 @@ export function OnboardingScreen({
         {step === "connect" ? (
           <form onSubmit={(event) => void search(event)} className="flex max-w-2xl flex-col gap-5">
             <header className="flex flex-col gap-1">
-              <h2 className="text-h1 font-medium">¿Cuál es tu Riot ID?</h2>
+              <h2 className="text-h1 font-medium">Tu Riot ID</h2>
               <p className="text-small text-neutral-300">
-                Lo encuentras en el cliente, junto a tu icono. Formato <strong>Nombre#TAG</strong>.
+                En el cliente, junto a tu icono: <strong>Nombre#TAG</strong>.
               </p>
             </header>
             <fieldset className="flex flex-col gap-2">
@@ -227,12 +226,11 @@ export function OnboardingScreen({
                 />
                 <Button type="submit" variant="primary" disabled={!riotId.includes("#")}>
                   <Search size={16} aria-hidden="true" />
-                  Buscar mi cuenta
+                  Buscar cuenta
                 </Button>
               </div>
               <p id="riot-id-help" className="text-xs text-neutral-400">
-                Leemos tu rango y tus campeones con más maestría. No pedimos tu contraseña de Riot
-                ni guardamos tu Riot ID.
+                Sin contraseña de Riot. No guardamos tu Riot ID.
               </p>
             </div>
             {error ? (
@@ -264,12 +262,12 @@ export function OnboardingScreen({
             <header className="flex flex-wrap items-end gap-3">
               <div className="flex min-w-0 flex-1 flex-col gap-1">
                 <h2 className="text-h1 font-medium">
-                  {step === "result" ? "¡Te encontramos!" : "Cuéntanos lo básico"}
+                  {step === "result" ? "Revisa tu perfil" : "Tu perfil"}
                 </h2>
                 <p className="text-small text-neutral-300">
                   {step === "result" && found
-                    ? `${found.riotId} · ${serverLabel} · revisa y ajusta lo que quieras`
-                    : "Todo opcional. Si lo dejas en blanco, te preguntamos el rango al preparar."}
+                    ? `${found.riotId} · ${serverLabel} `
+                    : "Opcional. Puedes completarlo después."}
                 </p>
               </div>
               {step === "result" ? (
@@ -285,8 +283,8 @@ export function OnboardingScreen({
                   {rankLabel(found.rank)}
                   {found.division ? ` ${found.division}` : ""}
                 </strong>
-                {found.leaguePoints !== null ? ` · ${found.leaguePoints} LP` : ""}. Usamos el tier
-                para el tono del plan; la división es sólo informativa.
+                {found.leaguePoints !== null ? ` · ${found.leaguePoints} LP` : ""}. El rango adapta
+                los consejos; la división es informativa.
               </p>
             ) : null}
             <ProfileEditor
@@ -316,11 +314,11 @@ export function OnboardingScreen({
         <footer className="mt-auto flex flex-col-reverse gap-2 border-t border-divider pt-4 sm:flex-row sm:items-center">
           {step === "manual" && riotConfigured ? (
             <Button variant="ghost" onClick={() => setStep("connect")}>
-              Usar mi Riot ID
+              Usar Riot ID
             </Button>
           ) : step !== "manual" && step !== "result" ? (
             <Button variant="ghost" onClick={() => setStep("manual")}>
-              Prefiero elegir a mano
+              Elegir a mano
             </Button>
           ) : null}
           <Button
@@ -329,7 +327,7 @@ export function OnboardingScreen({
             disabled={saving}
             className="hidden lg:inline-flex sm:ml-auto"
           >
-            Saltar por ahora
+            Saltar
           </Button>
           {step === "result" || step === "manual" ? (
             <Button
@@ -339,7 +337,7 @@ export function OnboardingScreen({
               loadingLabel="Guardando…"
               className="sm:ml-2"
             >
-              {rank || positions.length || selected.length ? "Guardar y empezar" : "Empezar"}
+              {rank || positions.length || selected.length ? "Guardar" : "Empezar"}
               <ArrowRight size={16} aria-hidden="true" />
             </Button>
           ) : null}

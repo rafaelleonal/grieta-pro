@@ -8,6 +8,7 @@ import { Chip } from "@/components/ui/tag";
 import { cn } from "@/components/ui/cn";
 import { isBotLane, RANKS, ROLES, roleName } from "@/lib/coach-draft";
 import type { CoachInput, Role } from "@/lib/types";
+import { ROLE_FOCUS } from "@/lib/role-focus";
 import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
 import { ChampionGrid } from "./champion-grid";
 import { MatchupCards } from "./matchup-cards";
@@ -95,10 +96,10 @@ export function PrepareScreen({
   }, []);
 
   const ctaLabel = !champion
-    ? "Elige tu campeón para continuar"
+    ? "Elige tu campeón"
     : !enemy
-      ? `Elige ${isBotLane(input.role) ? `su ${roleName(input.role)}` : "a tu rival"} para continuar`
-      : `Generar plan · ${champion.name}${input.allyDuo ? ` + ${champions.find((c) => c.id === input.allyDuo)?.name}` : ""} vs ${enemy.name}`;
+      ? slots.find((slot) => slot.key === "enemy")!.emptyTitle
+      : "Generar plan";
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7">
@@ -106,9 +107,7 @@ export function PrepareScreen({
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h1 className="text-h1 font-medium md:text-display">Prepara tu partida</h1>
           <p className="text-small text-neutral-400 md:text-body">
-            {isBotLane(input.role)
-              ? "En bot es 2 contra 2. Las parejas son opcionales."
-              : "Elige tu campeón y tu rival. El resto es opcional."}
+            {ROLE_FOCUS[input.role].preparation}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -154,7 +153,7 @@ export function PrepareScreen({
           </div>
           <Button onClick={onCapture}>
             <Camera size={16} aria-hidden="true" />
-            Desde foto o captura
+            Usar captura
           </Button>
         </div>
       </header>
@@ -178,9 +177,9 @@ export function PrepareScreen({
       >
         <div className="no-scrollbar flex items-center gap-3 overflow-x-auto">
           <span className="hidden flex-none text-overline font-medium uppercase text-neutral-500 sm:inline">
-            Tu línea
+            Tu rol
           </span>
-          <div role="group" aria-label="Tu línea" className="flex gap-2">
+          <div role="group" aria-label="Tu rol" className="flex gap-2">
             {ROLES.map((role) => (
               <button
                 key={role.id}
@@ -212,13 +211,29 @@ export function PrepareScreen({
           />
         ) : (
           <p role="status" className="text-small text-neutral-400">
-            Cargando campeones de Riot…
+            Cargando campeones…
           </p>
         )}
       </section>
 
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-small">
+        <p className="text-neutral-400">Los equipos afinan las peleas y los objetivos.</p>
+        <Button
+          variant="ghost"
+          aria-expanded={panel === "teams"}
+          aria-controls={panel === "teams" ? "prepare-extra" : undefined}
+          onClick={() => setPanel(panel === "teams" ? null : "teams")}
+        >
+          <Users size={16} aria-hidden="true" /> Añadir equipos · opcional
+        </Button>
+      </div>
+
       {panel ? (
-        <section aria-label="Contexto opcional" className="rounded-lg bg-surface/60 p-4 md:p-5">
+        <section
+          id="prepare-extra"
+          aria-label="Contexto opcional"
+          className="rounded-lg bg-surface/60 p-4 md:p-5"
+        >
           {panel === "teams" ? (
             <TeamsPanel
               input={input}
@@ -253,19 +268,6 @@ export function PrepareScreen({
             Añadir
           </span>
           <Chip
-            pressed={panel === "teams"}
-            onClick={() => setPanel(panel === "teams" ? null : "teams")}
-            className="flex-none"
-          >
-            <Users size={15} aria-hidden="true" />
-            Resto de equipos
-            {input.allies.length + input.enemies.length ? (
-              <span className="text-neutral-400">
-                · {input.allies.length + input.enemies.length}
-              </span>
-            ) : null}
-          </Chip>
-          <Chip
             pressed={panel === "note"}
             onClick={() => setPanel(panel === "note" ? null : "note")}
             className="flex-none"
@@ -279,7 +281,7 @@ export function PrepareScreen({
             className="flex-none"
           >
             <Swords size={15} aria-hidden="true" />
-            Importar con Riot ID
+            Riot ID
           </Chip>
           <Chip
             pressed={web.on}
@@ -289,11 +291,11 @@ export function PrepareScreen({
             title={
               web.allowed
                 ? `Buscar referencias · ${web.remaining} disponibles`
-                : "Las fuentes actuales están incluidas en Pro"
+                : "Fuentes web · Pro"
             }
           >
             <Globe size={15} aria-hidden="true" />
-            Fuentes actuales
+            Fuentes web
             <span className="rounded-sm bg-accent-800 px-1.5 text-overline font-semibold tracking-normal text-accent-200">
               PRO
             </span>

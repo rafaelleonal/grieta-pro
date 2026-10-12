@@ -23,6 +23,8 @@ Consulta [README](README.md), [Contribuir](CONTRIBUTING.md), [Seguridad](SECURIT
 
 ## Interfaz: decisiones obligatorias
 
+Lee las [directrices de diseño y experiencia](docs/design-guidelines.md) antes de modificar pantallas, copy o consejos del coach. Son reglas de contribución: sidebar contraíble, jerarquía y espaciado claros, recursos visuales del juego, copy mínimo, lectura del matchup y enfoque por rol y equipo. Incluyen criterios de aceptación y complementan las ADR siguientes.
+
 Estas reglas son decisiones del propietario registradas como ADR en `docs/adr/`. Léelas antes de tocar cualquier pantalla o estilo y no las cambies sin una ADR nueva aprobada por el usuario.
 
 - **Estilos con Tailwind CSS v4** ([ADR 0001](docs/adr/0001-tailwind-v4.md)). Utilidades de Tailwind con los tokens de `@theme` en `app/globals.css`. No escribas CSS nuevo en las hojas heredadas ni valores sueltos (hex, px de sombras, radios); al tocar una pantalla, migra sus estilos y borra las reglas antiguas.

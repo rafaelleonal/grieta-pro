@@ -15,7 +15,7 @@ import { useHistory } from "@/components/hooks/use-history";
 import { SessionPreview } from "./session-preview";
 import { groupRecords, recordSummary, relativeTime } from "./session-utils";
 
-/** Mis sesiones: lista privada agrupada por fecha, filtros, vista previa y borrado. */
+/** Sesiones: lista privada agrupada por fecha, filtros, vista previa y borrado. */
 export function SessionsScreen({
   owner,
   champions,
@@ -49,9 +49,9 @@ export function SessionsScreen({
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-4 py-10 text-center">
         <Mascot size={112} />
-        <h1 className="text-h1 font-medium">Tus planes se guardan en tu cuenta</h1>
+        <h1 className="text-h1 font-medium">Tus sesiones</h1>
         <p className="max-w-md text-small text-neutral-400">
-          Entra para consultar tus sesiones. Los ejemplos locales no se guardan.
+          Entra para ver tus planes. Los ejemplos no se guardan.
         </p>
         <Link href="/login" className={buttonClasses("primary")}>
           Entrar
@@ -63,14 +63,12 @@ export function SessionsScreen({
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7">
       <header className="flex flex-wrap items-end gap-4">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <h1 className="text-h1 font-medium md:text-display">Mis sesiones</h1>
-          <p className="text-small text-neutral-400 md:text-body">
-            Tus planes guardados. Solo tú puedes verlos.
-          </p>
+          <h1 className="text-h1 font-medium md:text-display">Sesiones</h1>
+          <p className="text-small text-neutral-400 md:text-body">Sólo tú puedes ver tus planes.</p>
         </div>
         <Button variant="primary" onClick={onNew}>
           <Plus size={17} aria-hidden="true" />
-          Nueva preparación
+          Nuevo plan
         </Button>
       </header>
 
@@ -133,14 +131,13 @@ export function SessionsScreen({
 
       {history.loading && !history.records.length ? (
         <p role="status" className="text-small text-neutral-400">
-          Cargando tus planes…
+          Cargando…
         </p>
       ) : !history.records.length ? (
         <div className="flex flex-col items-center gap-4 py-8">
           <Mascot size={96} />
-          <EmptyState icon={<History size={20} />} title="Aún no hay sesiones">
-            Tu primer plan aparecerá aquí después de consultar al coach. Los ejemplos locales no se
-            guardan.
+          <EmptyState icon={<History size={20} />} title="Aún no tienes planes">
+            Tu próximo plan aparecerá aquí. Los ejemplos no se guardan.
           </EmptyState>
         </div>
       ) : (
@@ -172,7 +169,7 @@ export function SessionsScreen({
                 </div>
               ))
             ) : (
-              <p className="p-4 text-small text-neutral-400">No hay sesiones con ese filtro.</p>
+              <p className="p-4 text-small text-neutral-400">Sin resultados.</p>
             )}
             {history.hasMore ? (
               <Button

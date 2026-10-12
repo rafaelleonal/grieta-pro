@@ -56,9 +56,7 @@ export function useAccountSession(handlers: {
       applyAccount(next);
     } catch {
       if (request === accountRequest.current)
-        setAccountError(
-          "No pudimos comprobar tu cuenta. Las consultas siguen protegidas en el servidor.",
-        );
+        setAccountError("No se pudo comprobar tu cuenta. Reintenta.");
     }
   }, [applyAccount]);
 
@@ -90,7 +88,7 @@ export function useAccountSession(handlers: {
         } catch {
           if (!abort.signal.aborted && identityRef.current === current)
             setConsumptionError(
-              "No pudimos confirmar el consumo todavía. Conservamos la reserva y no iniciamos otro análisis.",
+              "Consumo sin confirmar. Mantenemos la reserva; no iniciamos otra consulta.",
             );
         } finally {
           if (reconciliation.current?.abort === abort) {

@@ -101,11 +101,19 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
   const briefRaw = object(raw.brief);
   const briefSchema = shape.brief.unwrap().shape;
   const briefKnown = briefRaw && onlyKeys(briefRaw, Object.keys(briefSchema));
+  const matchup =
+    briefKnown && briefRaw.matchup !== undefined
+      ? read(briefRaw.matchup, briefSchema.matchup.unwrap(), "summary")
+      : undefined;
   const priority = read(
     briefKnown ? briefRaw.priority : undefined,
     briefSchema.priority.unwrap(),
     "summary",
   );
+  const teamfight =
+    briefKnown && briefRaw.teamfight !== undefined
+      ? read(briefRaw.teamfight, briefSchema.teamfight.unwrap(), "summary")
+      : undefined;
   const window = read(
     briefKnown ? briefRaw.window : undefined,
     briefSchema.window.unwrap(),
@@ -118,9 +126,11 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
   );
   if (raw.brief !== undefined && !briefKnown) mark("summary");
   const brief =
-    priority || window || briefAvoid
+    matchup || priority || teamfight || window || briefAvoid
       ? {
+          ...(matchup ? { matchup } : {}),
           ...(priority ? { priority } : {}),
+          ...(teamfight ? { teamfight } : {}),
           ...(window ? { window } : {}),
           ...(briefAvoid ? { avoid: briefAvoid } : {}),
         }

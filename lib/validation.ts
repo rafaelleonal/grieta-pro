@@ -96,7 +96,15 @@ const alternatives = {
 const summonerPair = z.tuple([catalogKey, catalogKey]);
 export const coachBriefSchema = z
   .object({
+    matchup: z
+      .object({
+        verdict: z.enum(["favored", "you_counter", "enemy_counter", "even", "uncertain"]),
+        reason: shortText,
+        condition: shortText,
+      })
+      .strict(),
     priority: shortText,
+    teamfight: z.object({ setup: shortText, job: shortText, fallback: shortText }).strict(),
     window: z.object({ trigger: z.string().trim().min(1).max(120), response: shortText }).strict(),
     avoid: shortText,
   })
