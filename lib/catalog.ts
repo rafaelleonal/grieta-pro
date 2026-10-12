@@ -197,8 +197,18 @@ export async function getCatalog(): Promise<Catalog> {
 
 export interface ChampionDetails {
   name: string;
-  passive: { name: string; description: string };
-  spells: { key: string; name: string; description: string; cooldown: number[] }[];
+  /** Icon URLs are optional: an unexpected file name never drops the ability data. */
+  passive: { name: string; description: string; image?: string };
+  spells: { key: string; name: string; description: string; cooldown: number[]; image?: string }[];
+}
+
+/** Data Dragon icon URL for a validated file name, or nothing. */
+function abilityImage(version: string, group: "spell" | "passive", image: unknown) {
+  const full =
+    image && typeof image === "object" && "full" in image ? (image as { full: unknown }).full : "";
+  return imageFile.safeParse(full).success
+    ? `${BASE}/cdn/${version}/img/${group}/${full as string}`
+    : undefined;
 }
 
 export async function getChampionDetails(
@@ -213,7 +223,11 @@ export async function getChampionDetails(
   )
     return null;
   try {
-    const abilitySchema = z.object({ name: plainLabel, description: z.string().max(30000) });
+    const abilitySchema = z.object({
+      name: plainLabel,
+      description: z.string().max(30000),
+      image: z.unknown().optional(),
+    });
     const result = z
       .object({
         data: z.record(
@@ -238,12 +252,14 @@ export async function getChampionDetails(
       passive: {
         name: champion.passive.name,
         description: stripMarkup(champion.passive.description),
+        image: abilityImage(catalog.version, "passive", champion.passive.image),
       },
       spells: champion.spells.map((spell, i) => ({
         key: ["Q", "W", "E", "R"][i],
         name: spell.name,
         description: stripMarkup(spell.description),
         cooldown: spell.cooldown,
+        image: abilityImage(catalog.version, "spell", spell.image),
       })),
     };
   } catch {

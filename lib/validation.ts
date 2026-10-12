@@ -2,6 +2,7 @@ import { z } from "zod";
 import type { Catalog, CoachInput, CoachPlan, DraftInput, DraftResult } from "./types";
 import { ApiError } from "./http";
 import { assertSafeInputText, assertSafeOutputText } from "./coach-safety";
+import { shardsFitRows } from "./rune-shards";
 
 export const MAX_IMAGE_BYTES = 2_500_000;
 const roles = z.enum(["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"]);
@@ -401,6 +402,7 @@ export function validateCoachRunes(
     })
   )
     throw invalid("secondary_runes");
+  if (!shardsFitRows(runesValue.shards)) throw invalid("primary_runes");
   if (alternative && !inSlot(alternative.keystone, alternative.style, 0))
     throw invalid("alternative_runes");
 }
