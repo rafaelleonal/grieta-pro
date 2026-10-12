@@ -184,9 +184,9 @@ async function main() {
         data: { userId: geminiPro.id, planId: seededPro.id, source: "COMPLIMENTARY" },
       });
       for (const [user, operation, hasImage, webSearch, expectedCost] of [
-        [geminiFree, "COACH", false, false, "0.552"],
+        [geminiFree, "COACH", false, false, "0.456"],
         [geminiFree, "DRAFT", true, false, "0.694146"],
-        [geminiPro, "COACH", false, true, "1.434"],
+        [geminiPro, "COACH", false, true, "1.242"],
       ] as const) {
         const policy = await usage.generationPolicy(user.id, usage.DEFAULT_MODEL, webSearch);
         assert.equal(policy.model, "google/gemini-3.1-pro-preview");

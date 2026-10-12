@@ -266,3 +266,94 @@ test("a structured skill priority is stored as the readable legacy string and va
   assert.deepEqual(recovered.meta.partial.invalid, ["skillOrder"]);
   assert.deepEqual(recovered.plan.build.core, ["3020", "3089"]);
 });
+
+test("the coach prompt sends compact, deduplicated items and bounded abilities", async () => {
+  const { promptItems } = await import("../lib/openrouter");
+  const { MAX_COACH_PROMPT_BYTES } = await import("../lib/usage");
+  const ids = promptItems(fixtureCatalog).map(({ id }) => id);
+  assert.ok(ids.includes("3075") && !ids.includes("323075"), "base Rift ID wins");
+  assert.equal(new Set(promptItems(fixtureCatalog).map(({ name }) => name)).size, ids.length);
+  const long = "x".repeat(5000);
+  const ability = { key: "Q", name: "Q", description: long, cooldown: [5] };
+  const details = {
+    champion: {
+      name: "Ahri",
+      passive: { name: "P", description: long },
+      spells: ["Q", "W", "E", "R"].map((key) => ({ ...ability, key })),
+    },
+    enemy: null,
+  };
+  await generateCoach(
+    { ...input, model: CLAUDE_MODELS[1] },
+    fixtureCatalog,
+    details,
+    async (_, init) => {
+      const body = JSON.parse(String(init?.body));
+      const context = JSON.parse(body.messages[1].content);
+      for (const row of context.purchasableRiftItems) {
+        assert.ok(Array.isArray(row) && (row.length === 3 || row.length === 4));
+        if (row.length === 4) assert.ok(row[2] >= 2200 && row[3].length <= 120);
+      }
+      assert.ok(context.purchasableRiftItems.some((row: unknown[]) => row[0] === "3075"));
+      assert.equal(context.champion.abilities.passive.description.length, 600);
+      assert.ok(
+        context.champion.abilities.spells.every(
+          (spell: { description: string }) => spell.description.length === 600,
+        ),
+      );
+      assert.deepEqual(Object.keys(context.runeStyles[0]), ["key", "name"]);
+      const items =
+        body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.build.properties
+          .core.items.enum;
+      assert.deepEqual(items, ids);
+      assert.ok(
+        Buffer.byteLength(
+          JSON.stringify({
+            messages: body.messages,
+            schema: body.response_format.json_schema.schema,
+          }),
+        ) <= MAX_COACH_PROMPT_BYTES,
+      );
+      return response(completeTransportPlan());
+    },
+  );
+});
+
+test("a coach prompt above its reserved bound is rejected before dispatch", async () => {
+  let calls = 0,
+    dispatches = 0;
+  const bloated = {
+    ...fixtureCatalog,
+    items: Array.from({ length: 900 }, (_, index) => ({
+      id: String(100_000 + index),
+      name: `Objeto ${index}`,
+      image: "",
+      description: "y".repeat(160),
+      gold: 3000,
+    })),
+  };
+  await assert.rejects(
+    generateCoach(
+      { ...input, model: CLAUDE_MODELS[1] },
+      bloated,
+      undefined,
+      async () => {
+        calls++;
+        return response(completeTransportPlan());
+      },
+      undefined,
+      {
+        apiKey: "synthetic-bound-key",
+        model: CLAUDE_MODELS[1],
+        policy: MODEL_POLICIES[CLAUDE_MODELS[1]],
+        onDispatch: async () => {
+          dispatches++;
+        },
+        onUsage: async () => {},
+      },
+    ),
+    (error: unknown) => error instanceof ApiError && error.status === 413,
+  );
+  assert.equal(calls, 0);
+  assert.equal(dispatches, 0);
+});

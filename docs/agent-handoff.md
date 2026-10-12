@@ -59,8 +59,10 @@ Lectura táctica de Darius–Yorick (una persona, no la rúbrica completa): Opus
 ### Continuación recomendada
 
 1. Añadir un identificador finito de la regla de seguridad que bloquea una salida, sin registrar el texto, para distinguir falsos positivos.
-2. Decidir el modelo predeterminado con el usuario. Opus reserva USD 1.008 por consulta frente al presupuesto diario Pro de USD 2; `pnpm db:seed --enable-opus` lo añade a Pro existente; se aplicó a la base local, no a Production.
+2. Decidir el modelo predeterminado con el usuario. Opus reserva USD 0.816 por consulta en curso (coste medido USD 0.24 con el prompt anterior); `pnpm db:seed --enable-opus` lo añade a Pro existente; se aplicó a la base local, no a Production.
 3. Evaluar con [la rúbrica](coaching-quality.md) más casos y revisores. Cualquier llamada real adicional requiere autorización con tope y número de llamadas.
+
+Después de la comparación se compactó el prompt del coach: objetos deduplicados por nombre (se descartan variantes de otros modos como 323075), filas `[id, nombre, oro]` con efectos sólo en objetos completos, habilidades limitadas a 600 caracteres y estilos de runas sin repetir sus ranuras. El caso típico pasó de 84.8 KB a 51.6 KB y el peor medido es de 57 KB. La reserva del coach usa un límite propio de 72 000 bytes. El ahorro real no se ha medido con llamadas pagadas.
 
 La reserva incierta de USD 0.454 de la prueba anterior de Sonnet sigue sin cambios.
 

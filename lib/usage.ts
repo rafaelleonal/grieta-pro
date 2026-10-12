@@ -63,6 +63,10 @@ export const MODEL_POLICIES = {
   },
 } as const satisfies Record<string, ModelPolicy>;
 export const MAX_PROMPT_BYTES = 96_000;
+// Coach prompts send compact catalog rows and bounded ability text. The worst
+// measured case (Data Dragon 16.20.1, longest abilities, 5v5, full notes) was
+// 57 KB; the margin absorbs catalog growth. Larger prompts are rejected unsent.
+export const MAX_COACH_PROMPT_BYTES = 72_000;
 export const MAX_COACH_COMPLETION_TOKENS = 7000;
 export const MAX_DRAFT_COMPLETION_TOKENS = 1600;
 // One normalized image <=1024x1024. Conservative allowance, separate from text.
@@ -74,9 +78,17 @@ export function completionTokenLimit(model: string, operation: AiOperation): num
     : (policy?.draftCompletionTokens ?? MAX_DRAFT_COMPLETION_TOKENS);
 }
 
+export function promptByteLimit(operation: AiOperation): number {
+  return operation === "COACH" ? MAX_COACH_PROMPT_BYTES : MAX_PROMPT_BYTES;
+}
+
 /** Conservative token bound shared by admission and the final provider request. */
-export function maximumInputTokens(hasImage = false, webSearch = false): number {
-  return MAX_PROMPT_BYTES + (hasImage ? MAX_IMAGE_TOKENS : 0) + (webSearch ? 40_000 : 0);
+export function maximumInputTokens(
+  operation: AiOperation,
+  hasImage = false,
+  webSearch = false,
+): number {
+  return promptByteLimit(operation) + (hasImage ? MAX_IMAGE_TOKENS : 0) + (webSearch ? 40_000 : 0);
 }
 type BucketRef = { scope: UsageScope; scopeId: string; period: string };
 type Tx = Prisma.TransactionClient;
@@ -184,7 +196,7 @@ export function maximumCost(
   if (!policy) throw new ApiError(403, "Este modelo no está disponible.");
   // UTF-8 bytes bound text tokens conservatively; allow the longest cache-write
   // premium and high-context tariff. Reasoning shares the completion cap.
-  const inputTokens = maximumInputTokens(hasImage, webSearch);
+  const inputTokens = maximumInputTokens(operation, hasImage, webSearch);
   if (policy.maxInputTokens && inputTokens > policy.maxInputTokens)
     throw new ApiError(413, "Esta combinación supera el contexto permitido para el modelo.");
   const turns = webSearch ? 2 : 1;

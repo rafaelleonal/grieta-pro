@@ -58,16 +58,16 @@ test("Gemini reserves all capped reasoning and output tokens plus bounded image 
   assert.equal(MODEL_POLICIES[GEMINI_PRO_MODEL].reasoning, true);
   assert.equal(completionTokenLimit(GEMINI_PRO_MODEL, "COACH"), 14_000);
   assert.equal(completionTokenLimit(GEMINI_PRO_MODEL, "DRAFT"), 4_000);
-  assert.equal(maximumCost(GEMINI_PRO_MODEL, "COACH").toString(), "0.552");
+  assert.equal(maximumCost(GEMINI_PRO_MODEL, "COACH").toString(), "0.456");
   assert.equal(maximumCost(GEMINI_PRO_MODEL, "DRAFT", true).toString(), "0.694146");
-  assert.equal(maximumCost(GEMINI_PRO_MODEL, "COACH", false, true).toString(), "1.434");
+  assert.equal(maximumCost(GEMINI_PRO_MODEL, "COACH", false, true).toString(), "1.242");
   assert.throws(
-    () => maximumCost(GEMINI_PRO_MODEL, "COACH", true, true),
+    () => maximumCost(GEMINI_PRO_MODEL, "DRAFT", true, true),
     (error) => error instanceof ApiError && error.status === 413,
   );
   // Existing requests and explicit economy selections retain their old policies.
   assert.equal(completionTokenLimit("openai/gpt-5.6-luna", "COACH"), 7_000);
-  assert.equal(maximumCost("openai/gpt-5.6-luna", "COACH").toString(), "0.0468");
+  assert.equal(maximumCost("openai/gpt-5.6-luna", "COACH").toString(), "0.0372");
 });
 
 test("Gemini capture uses reasoning and the same model-specific cap that is reserved", async () => {

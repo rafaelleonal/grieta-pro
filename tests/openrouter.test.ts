@@ -766,7 +766,7 @@ test("server-funded resolution fails closed in production; personal keys remain 
 });
 
 test("new plans keep the full catalog prompt bounded and use the reserved Gemini completion cap", async () => {
-  const { completionTokenLimit, MAX_PROMPT_BYTES, maximumCost, MODEL_POLICIES } =
+  const { completionTokenLimit, MAX_COACH_PROMPT_BYTES, maximumCost, MODEL_POLICIES } =
     await import("../lib/usage");
   let dispatched = 0;
   const execution = {
@@ -798,7 +798,7 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
             messages: body.messages,
             schema: body.response_format.json_schema.schema,
           }),
-        ) <= MAX_PROMPT_BYTES,
+        ) <= MAX_COACH_PROMPT_BYTES,
       );
       assertCompatibleTransportSchema(body.response_format.json_schema.schema);
       assert.match(
@@ -833,10 +833,10 @@ test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every in
   // Both image and web allowances fit below Luna's 272,000-token price tier.
   assert.ok(MAX_PROMPT_BYTES + 65_536 + 40_000 < 272_000);
   const scenarios = [
-    ["COACH", false, false, "0.0468"],
-    ["COACH", true, false, "0.0730144"],
-    ["COACH", false, true, "0.1356"],
-    ["COACH", true, true, "0.1880288"],
+    ["COACH", false, false, "0.0372"],
+    ["COACH", true, false, "0.0634144"],
+    ["COACH", false, true, "0.1164"],
+    ["COACH", true, true, "0.1688288"],
     ["DRAFT", false, false, "0.04032"],
     ["DRAFT", true, false, "0.0665344"],
     ["DRAFT", false, true, "0.12264"],
@@ -849,9 +849,12 @@ test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every in
       `${operation}: image=${hasImage}, web=${webSearch}`,
     );
   // Existing models retain their policies; historical requests keep stored prices.
-  assert.equal(maximumCost("anthropic/claude-haiku-5.5", "COACH").toString(), "0.1135");
+  assert.equal(maximumCost("anthropic/claude-haiku-5.5", "COACH").toString(), "0.0895");
   assert.ok("openai/gpt-6-luna" in MODEL_POLICIES);
   assert.ok("anthropic/claude-sonnet-5.5" in MODEL_POLICIES);
+  // Coach prompts are bounded tighter than drafts, which keep the original allowance.
+  assert.equal(maximumCost("anthropic/claude-sonnet-5.5", "COACH").toString(), "0.408");
+  assert.equal(maximumCost("anthropic/claude-opus-5.5", "COACH").toString(), "0.816");
 });
 
 test("enemy key names and base cooldowns come from Riot, while absent or conditional timing stays uncertain", async () => {
