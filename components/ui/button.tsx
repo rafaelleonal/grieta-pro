@@ -4,18 +4,18 @@ import { cn } from "./cn";
 export type ButtonVariant = "primary" | "secondary" | "ghost" | "danger" | "icon";
 
 const BASE =
-  "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-md border border-transparent px-4 text-sm font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-500";
+  "inline-flex min-h-11 items-center justify-center gap-2 whitespace-nowrap rounded-md border px-4 text-sm font-medium leading-tight transition-colors disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-transparent disabled:text-neutral-500";
 
 const VARIANTS: Record<ButtonVariant, string> = {
-  // Contorno de acento sobre --a900: nunca relleno sólido (ADR 0003).
+  // Contorno Grafito sobre --color-accent-900; sin relleno sólido (ADR 0004).
   primary:
     "min-h-12 rounded-control border-accent bg-accent-900 px-4.5 text-control text-accent-200 enabled:hover:bg-accent-800 enabled:hover:text-accent-100",
   secondary:
-    "border-neutral-700 text-text enabled:hover:border-neutral-500 enabled:hover:bg-neutral-800/40",
+    "border-control-border text-text enabled:hover:border-neutral-500 enabled:hover:bg-neutral-800/40",
   ghost:
-    "px-3.5 text-neutral-300 enabled:hover:bg-neutral-900 enabled:hover:text-text disabled:border-transparent",
+    "border-transparent px-3.5 text-neutral-300 enabled:hover:bg-neutral-900 enabled:hover:text-text disabled:border-transparent",
   danger: "border-danger-border bg-danger-bg text-danger-text enabled:hover:border-danger",
-  icon: "size-11 rounded-full bg-neutral-800 p-0 text-neutral-300 enabled:hover:bg-neutral-700 enabled:hover:text-text",
+  icon: "size-11 rounded-full border-transparent bg-neutral-800 p-0 text-neutral-300 enabled:hover:bg-neutral-700 enabled:hover:text-text",
 };
 
 /** Clases de botón para usar también en enlaces (`<a>`, `<Link>`). */

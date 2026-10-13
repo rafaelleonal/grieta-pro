@@ -36,19 +36,19 @@
 3. **Imagen social (ya generada):** `brand/elociencia/png/og-image.png` (1200 × 630). Úsala como `app/opengraph-image.png` y `app/twitter-image.png`. Para regenerarla, la fuente está en `brand/elociencia/source/og.html`.
    - Logotipo con mascota: `png/logo-mascota.png` (fondo oscuro) y `png/logo-mascota-claro.png` (fondo claro). En la barra lateral usa el mapache sobre disco lima de 32 px más `svg/word.svg`.
 4. **Mascota (mapache con monóculo):**
-   - Es casi negra: nunca la pongas directamente sobre `#161826`. Colócala sobre un disco lima `#c6f36b` o crema `#f6efe2`, o añádele un contorno tipo sticker (lima o crema, unos 14 px a 1024).
+   - Es casi negra: nunca la pongas directamente sobre el fondo oscuro. Colócala sobre un disco lima `#c6f36b` o crema `#f6efe2`, o añádele un contorno tipo sticker (lima o crema, unos 14 px a 1024).
    - Úsala en el onboarding (panel izquierdo), en estados vacíos (sin sesiones), en la carga del plan y en la imagen OG.
    - No la uses en «En partida».
 5. **Colores de marca:**
    - Lima `#c6f36b` como acento de marca.
-   - Tinta `#ecebf5`.
-   - Violeta Nocturne `#9184d9` para la interfaz.
-   - Fondo `#161826`.
-   - Sobre fondo claro no uses lima para texto: usa violeta 700 `#5d5294`.
+   - Tinta `#ededed`.
+   - Grafito sustituye a Nocturne en la interfaz, según la [ADR 0004 aprobada](../../docs/adr/0004-paleta-grafito.md): fondo `#0c0c0c`, navegación `#090909`, superficies `#141414`, acento neutro claro.
+   - Divisores `#2b2b2b`; bordes de controles `#737373`. No son intercambiables.
+   - Sobre fondo claro no uses lima para texto: usa un neutro oscuro con contraste AA.
 
 ## Fase 2 · Tokens y componentes (`app/globals.css`, `components/`)
 
-- Tokens Nocturne y escala de acento y neutros, como en el lienzo «Fundamentos».
+- Tokens Grafito y escala neutra de `app/globals.css` (ADR 0004). Los colores Nocturne del lienzo «Fundamentos» y exportaciones anteriores son referencias históricas; para la interfaz prevalece Grafito.
 - Ámbar para «cuidado», verde para «listo», rojo para «peligro».
 - Radios 4/8/14 y foco de 2 px + 2 px.
 - Botón primario: contorno acento sobre `--a900`, nunca relleno sólido. Secundario, fantasma, peligro e icono, con sus estados.

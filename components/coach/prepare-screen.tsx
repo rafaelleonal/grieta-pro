@@ -110,7 +110,7 @@ export function PrepareScreen({
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7">
-      <header className="flex flex-wrap items-end gap-4">
+      <header className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h1 className="text-h1 font-medium md:text-display">Prepara tu partida</h1>
           <p className="text-small text-neutral-400 md:text-body">
@@ -139,7 +139,7 @@ export function PrepareScreen({
                 id="rank-picker"
                 role="group"
                 aria-label="Tu rango"
-                className="absolute right-0 z-20 mt-2 grid w-80 grid-cols-4 gap-2 rounded-lg bg-surface p-3 shadow-lg"
+                className="absolute left-0 z-20 mt-2 grid w-80 grid-cols-4 gap-2 rounded-lg bg-surface p-3 shadow-lg md:right-0 md:left-auto"
               >
                 {RANKS.map((rank) => (
                   <button

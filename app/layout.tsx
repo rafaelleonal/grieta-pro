@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { connection } from "next/server";
+import { APP_THEME_COLOR } from "@/lib/design-tokens";
 import "./globals.css";
 import "@/components/ui.css";
 
@@ -35,7 +36,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#161826",
+  themeColor: APP_THEME_COLOR,
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",

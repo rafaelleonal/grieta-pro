@@ -7,7 +7,7 @@ import type {
 import { cn } from "./cn";
 
 const CONTROL =
-  "w-full min-h-11 rounded-md border border-neutral-800 bg-bg px-3.5 text-control text-text transition-colors placeholder:text-neutral-500 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent-800 aria-invalid:border-danger-border";
+  "w-full min-h-11 rounded-md border border-control-border bg-bg px-3.5 text-control text-text transition-colors placeholder:text-neutral-500 focus-visible:border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-300 aria-invalid:border-danger";
 
 export const inputClasses = CONTROL;
 

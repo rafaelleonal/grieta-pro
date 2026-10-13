@@ -1,34 +1,36 @@
 @import "tailwindcss";
 
 /*
- * Tokens de Elociencia (ADR 0001). `static` los emite siempre como variables CSS para
+ * Tokens Grafito de Elociencia (ADR 0001 y 0004). `static` los emite siempre como variables CSS para
  * las hojas heredadas; la paleta por defecto de Tailwind se vacía para usar sólo estos.
  */
 @theme static {
   --color-*: initial;
-  --color-bg: #161826;
-  --color-surface: #232532;
-  --color-text: #e9e9ed;
-  --color-accent: #9184d9;
-  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
-  --color-neutral-100: #f3f5fe;
-  --color-neutral-200: #e4e7f5;
-  --color-neutral-300: #cfd3e5;
-  --color-neutral-400: #b2b6ca;
-  --color-neutral-500: #9397ab;
-  --color-neutral-600: #75798c;
-  --color-neutral-700: #595d6c;
-  --color-neutral-800: #3f424d;
-  --color-neutral-900: #292b31;
-  --color-accent-100: #f5f4ff;
-  --color-accent-200: #e7e5fe;
-  --color-accent-300: #d2cefd;
-  --color-accent-400: #b5abfc;
-  --color-accent-500: #968ae0;
-  --color-accent-600: #796cbf;
-  --color-accent-700: #5d5294;
-  --color-accent-800: #423a6a;
-  --color-accent-900: #2b2741;
+  --color-bg: #0c0c0c;
+  --color-surface: #141414;
+  --color-sidebar: #090909;
+  --color-control-border: #737373;
+  --color-text: #ededed;
+  --color-accent: #ededed;
+  --color-divider: #2b2b2b;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #939393;
+  --color-neutral-600: #858585;
+  --color-neutral-700: #737373;
+  --color-neutral-800: #353535;
+  --color-neutral-900: #1d1d1d;
+  --color-accent-100: #fafafa;
+  --color-accent-200: #ededed;
+  --color-accent-300: #e5e5e5;
+  --color-accent-400: #d4d4d4;
+  --color-accent-500: #b5b5b5;
+  --color-accent-600: #a3a3a3;
+  --color-accent-700: #737373;
+  --color-accent-800: #292929;
+  --color-accent-900: #191919;
   --color-warning: oklch(0.74 0.11 75);
   --color-warning-text: oklch(0.85 0.08 78);
   --color-warning-bg: oklch(0.25 0.03 75);
@@ -44,9 +46,9 @@
   --color-danger-border: oklch(0.48 0.1 25);
   /* Marca: lima sólo como acento, nunca texto sobre fondo claro. */
   --color-brand-lime: #c6f36b;
-  --color-brand-ink: #ecebf5;
+  --color-brand-ink: #ededed;
   --color-brand-cream: #f6efe2;
-  --color-brand-tile: #1d1f30;
+  --color-brand-tile: #141414;
   --color-black: #000;
   --color-white: #fff;
   --color-transparent: transparent;
@@ -87,9 +89,9 @@
   --tracking-tag: 0.08em;
   --tracking-status: 0.04em;
 
-  --shadow-sm: 0 0 0 1px #3f424d;
-  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgb(0 0 0 / 55%);
-  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgb(0 0 0 / 65%);
+  --shadow-sm: 0 0 0 1px #353535;
+  --shadow-md: 0 0 0 1px #737373, 0 6px 18px rgb(0 0 0 / 55%);
+  --shadow-lg: 0 0 0 1px #939393, 0 16px 40px rgb(0 0 0 / 65%);
 
   --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-in: cubic-bezier(0.4, 0, 1, 1);
@@ -132,14 +134,14 @@
     0%,
     100% {
       box-shadow:
-        inset 0 0 0 2px #9184d9,
-        0 0 0 4px rgb(145 132 217 / 18%);
+        inset 0 0 0 2px var(--color-accent),
+        0 0 0 4px color-mix(in srgb, var(--color-accent) 12%, transparent);
     }
     50% {
       box-shadow:
-        inset 0 0 0 2px #b5abfc,
-        0 0 0 10px rgb(145 132 217 / 5%),
-        0 0 40px rgb(145 132 217 / 25%);
+        inset 0 0 0 2px var(--color-accent-400),
+        0 0 0 10px color-mix(in srgb, var(--color-accent) 3%, transparent),
+        0 0 40px color-mix(in srgb, var(--color-accent) 10%, transparent);
     }
   }
   @keyframes ui-spin {

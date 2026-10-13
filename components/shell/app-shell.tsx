@@ -62,7 +62,7 @@ export function AppShell({
       <aside
         aria-label="Navegación principal"
         className={cn(
-          "sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-divider px-3.5 py-5",
+          "sticky top-0 hidden h-dvh flex-col overflow-y-auto border-r border-divider bg-sidebar px-3.5 py-5",
           !collapsed && "xl:flex",
         )}
       >
@@ -135,7 +135,7 @@ export function AppShell({
       <aside
         aria-label="Navegación principal"
         className={cn(
-          "sticky top-0 hidden h-dvh flex-col items-center gap-2 overflow-y-auto border-r border-divider py-4 md:flex",
+          "sticky top-0 hidden h-dvh flex-col items-center gap-2 overflow-y-auto border-r border-divider bg-sidebar py-4 md:flex",
           !collapsed && "xl:hidden",
         )}
       >
@@ -174,7 +174,7 @@ export function AppShell({
 
       <div className="flex min-w-0 flex-col pb-[calc(72px+env(safe-area-inset-bottom))] md:pb-0">
         {/* Móvil: barra superior */}
-        <header className="sticky top-0 z-30 flex min-h-15 items-center gap-2 border-b border-divider bg-bg/95 px-4 backdrop-blur md:hidden">
+        <header className="sticky top-0 z-30 flex min-h-15 items-center gap-2 border-b border-divider bg-sidebar/95 px-4 backdrop-blur md:hidden">
           <button
             type="button"
             onClick={() => onNavigate("coach")}
@@ -237,7 +237,7 @@ export function AppShell({
       {/* Móvil: pestañas inferiores */}
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-divider bg-bg/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-divider bg-sidebar/95 pb-[env(safe-area-inset-bottom)] backdrop-blur md:hidden"
       >
         {NAV_ITEMS.map((item) => (
           <button

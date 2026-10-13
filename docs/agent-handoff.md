@@ -4,6 +4,10 @@ Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar de
 
 ## Continuación del 12 de octubre: lectura progresiva
 
+**Diseño: Grafito aprobado e implementado localmente.** La [ADR 0004](adr/0004-paleta-grafito.md) actualiza los tokens de interfaz, navegación y PWA con neutros oscuros. Conserva lima de marca, colores semánticos y recursos del juego. Los controles tienen un borde distinto de los divisores y foco claro de 2 px + 2 px. Esta iteración no cambia generación, datos, cuotas ni activa Laminar.
+
+[Verificación de Grafito](grafito-qa.md): 390/834/1440 px, teclado, contraste de tokens, `pnpm check` (259 pruebas) y build correctos. También se corrigieron los bordes anulados de botones y el encabezado móvil de preparación. El propietario autorizó el push de esta iteración después de revisar el resultado.
+
 **Continuación: Laminar preparado en código.** [Configuración y límites](laminar.md): trazas opcionales con métricas explícitas y exportación después de responder; sin prompts, planes ni identidad. No hay claves configuradas ni recepción real validada. `pnpm eval:coach` reproduce la revisión sintética de seis casos, sin nuevas llamadas de IA; publicación explícita disponible para Laminar. No es una nueva validación táctica. El usuario autorizó publicar estos cambios y las correcciones de contexto pendientes; Flash sigue sin promoverse y Laminar permanece apagado por defecto.
 
 **Correcciones de contexto y evaluación:** [evaluación táctica](tactical-coach-evaluation.md). Se incorporan tooltips detallados, alcance básico, referencias mecánicas por versión y veredicto incierto de bot sin parejas explícitas (avance y final). Se consumieron las **18 consultas adicionales autorizadas**, USD **0.39103050**; no repetir ni reutilizar esa autorización. Esfuerzo medio fue lento y se revirtió; Flash continúa con esfuerzo bajo y Pro sigue como predeterminado. Últimos seis: estructura completa, avance 2.843–5.268 s, pero errores factuales en Yasuo, Espinas y Sterak impiden promover Flash a predeterminado. No se ejecutaron los casos reservados. Ver el informe antes de continuar; mejorar sólo instrucciones no ha bastado.

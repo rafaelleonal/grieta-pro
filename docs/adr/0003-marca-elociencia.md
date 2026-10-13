@@ -3,6 +3,8 @@
 - **Estado:** aceptada, 12 de octubre de 2026.
 - **Decisión de:** propietario del proyecto.
 
+**Actualización:** la [ADR 0004 · Grafito](0004-paleta-grafito.md) sustituye los colores de interfaz del punto 3. El resto de las decisiones de marca continúa vigente.
+
 ## Decisión
 
 1. La marca es **Elociencia** («La ciencia de subir de elo»), dirección A: la casilla «1 · El · elociencia». GrietaPro y «No Era el Jungla» están retiradas; no deben volver a aparecer en código ni interfaz.
