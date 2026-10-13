@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import type { HistoryRecord } from "@/components/account-controls";
+import type { HistoryRecord } from "@/lib/types";
 
 /**
  * Historial privado del dueño de la sesión. El servidor filtra por propietario en la

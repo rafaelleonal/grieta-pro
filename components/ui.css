@@ -1,7 +1,7 @@
 /*
  * Elociencia · estilos que no son utilidades (ADR 0001).
  * Los componentes compartidos viven en components/ui/*.tsx con Tailwind; aquí sólo
- * queda la paleta de las casillas de rango y la capa temporal de clases heredadas.
+ * queda la paleta de las casillas de rango.
  */
 
 @layer components {
@@ -43,6 +43,16 @@
     text-align: center;
     font-size: 1em;
     font-weight: 500;
+  }
+  .rank-tile-plain {
+    flex: 1;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    font-size: 1.15em;
+    font-weight: 600;
+    line-height: 1.15;
+    overflow-wrap: anywhere;
   }
   .rank-tile--compact {
     min-width: 36px;
@@ -113,64 +123,5 @@
     --rank-bg: #1b2734;
     --rank-ring: #8fc7ef;
     --rank-text: #d9effd;
-  }
-}
-
-@layer components {
-  /*
- * Capa temporal: clases heredadas alineadas con el sistema hasta migrar cada pantalla: primario con contorno de acento sobre
- * --a900 (nunca relleno), secundario de contorno neutro y áreas táctiles de 44 px.
- */
-  .primary-button {
-    min-height: 48px;
-    padding: 0 18px;
-    border: 1px solid var(--color-accent);
-    border-radius: 10px;
-    background: var(--color-accent-900);
-    box-shadow: none;
-    color: var(--color-accent-200);
-    font-size: 14.5px;
-    font-weight: 500;
-    transform: none;
-    transition:
-      background-color var(--dur-micro) var(--ease-out),
-      color var(--dur-micro) var(--ease-out);
-  }
-  .primary-button:hover:not(:disabled) {
-    background: var(--color-accent-800);
-    border-color: var(--color-accent);
-    color: var(--color-accent-100);
-    transform: none;
-  }
-  .primary-button:disabled {
-    opacity: 1;
-    border-color: var(--color-neutral-800);
-    background: transparent;
-    color: var(--color-neutral-500);
-  }
-  .secondary-button {
-    min-height: 44px;
-    padding: 0 16px;
-    border: 1px solid var(--color-neutral-700);
-    border-radius: var(--radius-md);
-    background: transparent;
-    color: var(--color-text);
-    font-size: 14px;
-  }
-  .secondary-button:hover:not(:disabled) {
-    border-color: var(--color-neutral-500);
-    background: color-mix(in srgb, var(--color-neutral-800) 40%, transparent);
-  }
-  .text-button {
-    min-height: 44px;
-    color: var(--color-accent-300);
-    font-size: 14px;
-  }
-  .text-button:hover {
-    color: var(--color-accent-200);
-  }
-  .icon-button {
-    min-width: 44px;
-    min-height: 44px;
   }
 }

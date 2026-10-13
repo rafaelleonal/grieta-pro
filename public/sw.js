@@ -1,7 +1,7 @@
 "use strict";
 
 const CACHE_PREFIX = "cholo-coach-public-";
-const CACHE_NAME = `${CACHE_PREFIX}v3`;
+const CACHE_NAME = `${CACHE_PREFIX}v4`;
 const OFFLINE_URL = "/offline.html";
 const PUBLIC_ASSETS = [
   OFFLINE_URL,

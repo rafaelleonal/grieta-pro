@@ -1,5 +1,5 @@
 import { coachBrief } from "@/lib/coach-presentation";
-import type { HistoryRecord } from "@/components/account-controls";
+import type { HistoryRecord } from "@/lib/types";
 
 export type DateGroup = "Hoy" | "Ayer" | "Esta semana" | "Este mes" | "Anteriores";
 

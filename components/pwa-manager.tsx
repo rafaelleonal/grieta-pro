@@ -1,179 +1,103 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
-import { Check, Download, Shield, Smartphone, WifiOff } from "lucide-react";
-import { Modal } from "@/components/modal";
+import { Check, Download, WifiOff } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog } from "@/components/ui/dialog";
+import { Alert } from "@/components/ui/feedback";
+import { usePwaInstall } from "@/components/hooks/use-pwa-install";
 
-interface InstallPromptEvent extends Event {
-  prompt(): Promise<{ outcome: "accepted" | "dismissed" }>;
-  userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
-}
+const BENEFITS = [
+  "Abre directo en pantalla completa",
+  "Toma la foto de la selección más rápido",
+  "Sólo guarda archivos públicos, nunca tus planes",
+];
 
-export function PwaInstall({ onOpen }: { onOpen: () => void }) {
+/**
+ * Botón y hoja «Instalar app». `trigger` permite dibujar el botón según el contexto
+ * (sidebar, cuenta); se oculta cuando la app ya está instalada.
+ */
+export function PwaInstall({ trigger }: { trigger: (open: () => void) => ReactNode }) {
+  const pwa = usePwaInstall();
   const [open, setOpen] = useState(false);
-  const [installed, setInstalled] = useState(false);
-  const [secure, setSecure] = useState(true);
-  const [prompt, setPrompt] = useState<InstallPromptEvent | null>(null);
-  const [installing, setInstalling] = useState(false);
-  const [message, setMessage] = useState("");
-  const [workerFailed, setWorkerFailed] = useState(false);
-
-  useEffect(() => {
-    let disposed = false;
-    const standalone = window.matchMedia("(display-mode: standalone)");
-    const isInstalled = () =>
-      standalone.matches || Boolean((navigator as Navigator & { standalone?: boolean }).standalone);
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- Synchronize the initial browser display mode before subscribing to installation events.
-    setInstalled(isInstalled());
-    setSecure(window.isSecureContext);
-    const displayChanged = () => setInstalled(isInstalled());
-    const available = (event: Event) => {
-      event.preventDefault();
-      setPrompt(event as InstallPromptEvent);
-    };
-    const completed = () => {
-      setInstalled(true);
-      setPrompt(null);
-      setMessage("App instalada.");
-    };
-    standalone.addEventListener("change", displayChanged);
-    window.addEventListener("beforeinstallprompt", available);
-    window.addEventListener("appinstalled", completed);
-    if (
-      process.env.NODE_ENV === "production" &&
-      window.isSecureContext &&
-      "serviceWorker" in navigator
-    ) {
-      void navigator.serviceWorker
-        .register("/sw.js", { scope: "/", updateViaCache: "none" })
-        .catch(() => {
-          if (!disposed) setWorkerFailed(true);
-        });
-    }
-    return () => {
-      disposed = true;
-      standalone.removeEventListener("change", displayChanged);
-      window.removeEventListener("beforeinstallprompt", available);
-      window.removeEventListener("appinstalled", completed);
-    };
-  }, []);
-
-  async function install() {
-    if (!prompt || installing) return;
-    setInstalling(true);
-    setMessage("");
-    try {
-      // Keep the browser prompt directly attached to the user's click.
-      await prompt.prompt();
-      const choice = await prompt.userChoice;
-      setMessage(
-        choice.outcome === "accepted"
-          ? "Sigue los pasos del navegador."
-          : "Puedes instalarla después desde el navegador.",
-      );
-    } catch {
-      setMessage("Menú del navegador → Instalar app o Añadir a pantalla de inicio.");
-    } finally {
-      setPrompt(null);
-      setInstalling(false);
-    }
-  }
-
   return (
     <>
-      {!installed ? (
-        <button
-          className="nav-item"
-          type="button"
-          aria-label="Instalar app"
-          onClick={() => {
-            onOpen();
-            setOpen(true);
-          }}
+      {!pwa.installed ? trigger(() => setOpen(true)) : null}
+      {open ? (
+        <Dialog
+          title={pwa.installed ? "App instalada" : "Instala Elociencia"}
+          description="Ábrela como una app desde tu pantalla de inicio."
+          onClose={() => setOpen(false)}
+          footer={
+            <>
+              <Button variant="ghost" onClick={() => setOpen(false)}>
+                {pwa.installed ? "Listo" : "Ahora no"}
+              </Button>
+              {pwa.canPrompt && !pwa.installed ? (
+                <Button
+                  variant="primary"
+                  loading={pwa.installing}
+                  loadingLabel="Abriendo instalación…"
+                  onClick={() => void pwa.install()}
+                >
+                  <Download size={16} aria-hidden="true" />
+                  Instalar
+                </Button>
+              ) : null}
+            </>
+          }
         >
-          <Download size={17} />
-          <span>Instalar app</span>
-        </button>
+          <div className="flex items-center gap-3">
+            <Image
+              src="/icons/icon-192.png"
+              alt=""
+              width={56}
+              height={56}
+              unoptimized
+              className="rounded-control"
+            />
+            <div className="flex flex-col">
+              <strong className="text-h3 font-medium">Elociencia</strong>
+              <span className="text-small text-neutral-400">La ciencia de subir de elo</span>
+            </div>
+          </div>
+          <ul className="flex flex-col gap-2.5">
+            {BENEFITS.map((benefit) => (
+              <li key={benefit} className="flex items-center gap-3 text-control">
+                <Check size={17} aria-hidden="true" className="text-success" />
+                {benefit}
+              </li>
+            ))}
+          </ul>
+          {!pwa.secure ? (
+            <Alert tone="warning">Abre la versión HTTPS para instalar la app.</Alert>
+          ) : null}
+          <div className="rounded-control bg-bg p-3.5 text-small text-neutral-300">
+            En iPhone: toca <strong className="text-text">Compartir</strong> y luego{" "}
+            <strong className="text-text">Añadir a pantalla de inicio</strong>. En Android o
+            computadora: menú del navegador → <strong className="text-text">Instalar app</strong>.
+          </div>
+          <p className="text-xs text-neutral-400">
+            Requiere internet para generar planes. Fotos, claves y planes no se guardan en caché.
+          </p>
+          {pwa.workerFailed ? (
+            <p className="text-xs text-warning-text">
+              No se activó el modo sin conexión. Reabre la app con internet.
+            </p>
+          ) : null}
+          {pwa.message ? (
+            <p role="status" className="text-small text-success-text">
+              {pwa.message}
+            </p>
+          ) : null}
+        </Dialog>
       ) : null}
-      {open
-        ? createPortal(
-            <Modal
-              title={installed ? "App instalada" : "Instalar Elociencia"}
-              onClose={() => setOpen(false)}
-            >
-              <div className="pwa-app-preview">
-                <Image src="/icons/icon-192.png" alt="" width={58} height={58} unoptimized />
-                <div>
-                  <strong>Elociencia</strong>
-                  <span>La ciencia de subir de elo</span>
-                </div>
-                <Smartphone size={23} />
-              </div>
-              <p className="modal-intro">Abre Elociencia desde tu pantalla de inicio.</p>
-              {!secure ? (
-                <p className="notice-alert pwa-note">Abre la versión HTTPS para instalar la app.</p>
-              ) : null}
-              <div className="help-steps pwa-instructions">
-                <div className="help-step">
-                  <span className="level-number">1</span>
-                  <div>
-                    <h3>iPhone o iPad</h3>
-                    <p>Safari → Compartir → Añadir a pantalla de inicio.</p>
-                  </div>
-                </div>
-                <div className="help-step">
-                  <span className="level-number">2</span>
-                  <div>
-                    <h3>Android o computadora</h3>
-                    <p>Chrome o Edge → Menú → Instalar app o Añadir a pantalla de inicio.</p>
-                  </div>
-                </div>
-              </div>
-              <div className="privacy-note">
-                <Shield size={15} />
-                <span>Requiere internet. Fotos, claves y planes no se guardan en caché.</span>
-              </div>
-              {workerFailed ? (
-                <p className="field-help">
-                  No se activó el modo sin conexión. Reabre la app con internet.
-                </p>
-              ) : null}
-              {message ? (
-                <p className="pwa-install-message" role="status">
-                  {message}
-                </p>
-              ) : null}
-              <div className="modal-footer">
-                <button className="secondary-button" type="button" onClick={() => setOpen(false)}>
-                  Listo
-                </button>
-                {prompt && !installed ? (
-                  <button
-                    className="primary-button"
-                    type="button"
-                    onClick={() => void install()}
-                    disabled={installing}
-                  >
-                    <Download size={14} />
-                    {installing ? "Abriendo instalación…" : "Instalar Elociencia"}
-                  </button>
-                ) : installed ? (
-                  <span className="pwa-installed">
-                    <Check size={14} />
-                    App instalada
-                  </span>
-                ) : null}
-              </div>
-            </Modal>,
-            document.body,
-          )
-        : null}
     </>
   );
 }
 
+/** Aviso sin conexión: se puede preparar la selección, pero generar requiere internet. */
 export function OfflineNotice() {
   const [offline, setOffline] = useState(false);
   useEffect(() => {
@@ -187,12 +111,9 @@ export function OfflineNotice() {
     };
   }, []);
   return offline ? (
-    <div className="notice-alert pwa-offline-notice" role="status">
-      <WifiOff size={16} />
-      <span>
-        Sin conexión. Puedes preparar tu selección; analizar requiere internet. No hay reintentos
-        automáticos.
-      </span>
-    </div>
+    <Alert tone="warning" icon={<WifiOff size={18} />}>
+      Sin conexión. Puedes preparar tu selección; generar un plan requiere internet. No hay
+      reintentos automáticos.
+    </Alert>
   ) : null;
 }

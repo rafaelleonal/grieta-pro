@@ -2,8 +2,9 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Crown, LogOut, ShieldCheck } from "lucide-react";
-import { AdminControls } from "@/components/account-controls";
+import { Crown, Download, LogOut, ShieldCheck } from "lucide-react";
+import { PwaInstall } from "@/components/pwa-manager";
+import { AdminControls } from "./admin-controls";
 import { Mascot, RankTile } from "@/components/brand";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Alert, Meter } from "@/components/ui/feedback";
@@ -261,6 +262,21 @@ export function AccountScreen({
             >
               Política de privacidad
             </Link>
+          </Section>
+
+          <Section id="instalar" title="Instalar app">
+            <p className="text-small text-neutral-300">
+              Ábrela desde tu pantalla de inicio, en pantalla completa. Sólo guarda archivos
+              públicos, nunca tus planes.
+            </p>
+            <PwaInstall
+              trigger={(open) => (
+                <Button onClick={open} className="self-start">
+                  <Download size={16} aria-hidden="true" />
+                  Instalar app
+                </Button>
+              )}
+            />
           </Section>
         </div>
 

@@ -10,7 +10,7 @@ import { Alert, EmptyState, Overline } from "@/components/ui/feedback";
 import { cn } from "@/components/ui/cn";
 import { ROLES, roleName } from "@/lib/coach-draft";
 import type { Champion, Role } from "@/lib/types";
-import type { HistoryRecord } from "@/components/account-controls";
+import type { HistoryRecord } from "@/lib/types";
 import { useHistory } from "@/components/hooks/use-history";
 import { SessionPreview } from "./session-preview";
 import { groupRecords, recordSummary, relativeTime } from "./session-utils";
@@ -85,7 +85,7 @@ export function SessionsScreen({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             placeholder="Buscar campeón o rival"
-            className="min-h-11 w-full rounded-full bg-surface pr-4 pl-11 text-control placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent-800"
+            className="min-h-11 w-full rounded-full bg-surface pr-4 pl-11 text-control text-text ring-1 ring-inset ring-neutral-800 placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent-800 focus-visible:ring-accent"
           />
         </label>
         <div

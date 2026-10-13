@@ -1,5 +1,5 @@
-import { AccountVerification } from "@/components/account-auth-form";
+import { VerifyEmail } from "@/components/auth/verify-email";
 
 export default function VerifyEmailPage() {
-  return <AccountVerification />;
+  return <VerifyEmail />;
 }

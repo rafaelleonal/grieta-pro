@@ -137,12 +137,19 @@ export function RankTile({
       aria-hidden="true"
       title={name}
     >
-      <span className="rank-tile-meta">
-        <span>{element?.number || "·"}</span>
-        {!compact && element ? <span>{element.mass}</span> : null}
-      </span>
-      <span className="rank-tile-symbol">{element?.symbol || name.slice(0, 2)}</span>
-      <span className="rank-tile-name">{name}</span>
+      {element ? (
+        <>
+          <span className="rank-tile-meta">
+            <span>{element.number}</span>
+            {!compact ? <span>{element.mass}</span> : null}
+          </span>
+          <span className="rank-tile-symbol">{element.symbol}</span>
+          <span className="rank-tile-name">{name}</span>
+        </>
+      ) : (
+        // Not an element: a plain tile with the rank's name, never an invented symbol.
+        <span className="rank-tile-plain">{compact ? null : name}</span>
+      )}
     </span>
   );
 }

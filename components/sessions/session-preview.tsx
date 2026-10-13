@@ -8,7 +8,7 @@ import { Overline } from "@/components/ui/feedback";
 import { roleName } from "@/lib/coach-draft";
 import { modelLabel } from "@/lib/model-labels";
 import type { Champion } from "@/lib/types";
-import type { HistoryRecord } from "@/components/account-controls";
+import type { HistoryRecord } from "@/lib/types";
 import { recordSummary } from "./session-utils";
 
 export function SessionPreview({

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AccountScreen } from "@/components/account/account-screen";
 import { ConnectionDialog } from "@/components/account/connection-dialog";
 import { CoachScreen } from "@/components/coach/coach-screen";
@@ -34,6 +34,19 @@ export default function Home() {
     });
   });
   const positions: Role[] = profile.positions;
+  const exampleRequested = useRef(false);
+
+  // «Ver un plan de ejemplo sin cuenta» (/?ejemplo=1): se abre tras leer la sesión para que
+  // el cambio de identidad no lo borre, y se retira de la URL.
+  const accountRead = Boolean(ws.session.account);
+  useEffect(() => {
+    if (!accountRead || exampleRequested.current) return;
+    exampleRequested.current = true;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("ejemplo") !== "1") return;
+    window.history.replaceState(null, "", "/");
+    ws.showExample();
+  }, [accountRead, ws]);
   const champions = ws.catalog?.champions || [];
 
   async function finishOnboarding(result: OnboardingResult) {

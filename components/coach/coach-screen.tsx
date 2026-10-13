@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ComponentProps } from "react";
 import { AlertCircle, Info } from "lucide-react";
 import { CoachFailure } from "@/components/coach-failure";
 import { Alert } from "@/components/ui/feedback";
@@ -22,7 +22,7 @@ export function CoachScreen({
 }: {
   onRankChange: (rank: string) => void;
   ws: CoachWorkspace;
-  preferences: { favorites: Record<Role, string[]> };
+  preferences: ComponentProps<typeof PrepareScreen>["preferences"];
   positions: Role[];
   onOpenSessions: () => void;
 }) {

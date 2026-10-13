@@ -12,10 +12,10 @@ import type {
   CoachInput,
   Credentials,
   DraftResult,
+  HistoryRecord,
   RiotResult,
   SavedCoachResult,
 } from "@/lib/types";
-import type { HistoryRecord } from "@/components/account-controls";
 import { useAccountSession } from "./use-account-session";
 import { useAppData } from "./use-app-data";
 import { useCapture } from "./use-capture";

@@ -21,7 +21,10 @@ export function ChampionGrid({
   picked,
   choosingLabel,
   onPick,
+  favoritesEditor,
 }: {
+  /** Edición de favoritos de este rol; sólo con cuenta verificada y preferencias cargadas. */
+  favoritesEditor?: { toggle: (championId: string) => void; saving: boolean; error: string };
   champions: Champion[];
   role: Role;
   roleName: string;
@@ -33,6 +36,8 @@ export function ChampionGrid({
 }) {
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const editingFavorites = Boolean(favoritesEditor && editing);
   const searchId = useId();
   const options = championOptions(champions, { role, favorites, query, showAll });
   const visible = query || showAll ? options : options.slice(0, GRID_SIZE);
@@ -80,16 +85,23 @@ export function ChampionGrid({
               <li key={champion.id}>
                 <button
                   type="button"
-                  onClick={() => onPick(champion.id)}
-                  disabled={!choosingLabel}
-                  aria-pressed={Boolean(tag)}
-                  aria-label={`${champion.name}${tag ? ` · ${tag}` : ""}`}
+                  onClick={() =>
+                    editingFavorites ? favoritesEditor?.toggle(champion.id) : onPick(champion.id)
+                  }
+                  disabled={editingFavorites ? Boolean(favoritesEditor?.saving) : !choosingLabel}
+                  aria-pressed={editingFavorites ? favoriteSet.has(champion.id) : Boolean(tag)}
+                  aria-label={
+                    editingFavorites
+                      ? `${champion.name}: ${favoriteSet.has(champion.id) ? "quitar de" : "añadir a"} favoritos de ${roleName}`
+                      : `${champion.name}${tag ? ` · ${tag}` : ""}`
+                  }
                   className="group flex w-full flex-col items-center gap-1.5 text-xs text-neutral-300 disabled:cursor-default disabled:text-neutral-300"
                 >
                   <span
                     className={cn(
                       "relative block aspect-square w-full max-w-19 overflow-hidden rounded-control ring-1 ring-inset ring-neutral-800 transition-shadow group-enabled:group-hover:ring-neutral-500",
-                      tag && "ring-2 ring-accent",
+                      !editingFavorites && tag && "ring-2 ring-accent",
+                      editingFavorites && favoriteSet.has(champion.id) && "ring-2 ring-warning",
                     )}
                   >
                     <Image
@@ -101,14 +113,28 @@ export function ChampionGrid({
                       unoptimized
                       className="size-full object-cover"
                     />
-                    {favoriteSet.has(champion.id) ? (
+                    {editingFavorites ? (
+                      <span
+                        aria-hidden="true"
+                        className="absolute top-1 left-1 grid size-5 place-items-center rounded-full bg-bg/80"
+                      >
+                        <Star
+                          size={12}
+                          className={
+                            favoriteSet.has(champion.id)
+                              ? "fill-warning text-warning"
+                              : "text-neutral-200"
+                          }
+                        />
+                      </span>
+                    ) : favoriteSet.has(champion.id) ? (
                       <Star
                         size={12}
                         aria-hidden="true"
                         className="absolute top-1 left-1 fill-warning text-warning drop-shadow"
                       />
                     ) : null}
-                    {tag ? (
+                    {tag && !editingFavorites ? (
                       <span className="absolute inset-x-1 bottom-1 truncate rounded-sm bg-accent-800 px-1 text-center text-overline leading-4 font-semibold tracking-normal uppercase text-accent-200">
                         {tag}
                       </span>
@@ -126,8 +152,15 @@ export function ChampionGrid({
         </p>
       )}
 
+      {favoritesEditor?.error ? (
+        <p role="alert" className="text-xs text-danger-text">
+          {favoritesEditor.error}
+        </p>
+      ) : null}
       <div className="flex flex-wrap items-center gap-3 text-xs text-neutral-400">
-        {favorites.length ? (
+        {editingFavorites ? (
+          <span aria-live="polite">Toca un campeón para marcarlo o quitarlo de {roleName}.</span>
+        ) : favorites.length ? (
           <span className="inline-flex items-center gap-1.5">
             <Star size={12} aria-hidden="true" className="fill-warning text-warning" />
             Tus favoritos primero · mostrando {roleName}
@@ -135,6 +168,21 @@ export function ChampionGrid({
         ) : (
           <span>Comunes en {roleName}. Busca para ver cualquier campeón.</span>
         )}
+        {favoritesEditor ? (
+          <button
+            type="button"
+            aria-pressed={editing}
+            onClick={() => setEditing(!editing)}
+            className="inline-flex min-h-11 items-center gap-1.5 text-small text-accent-300 hover:text-accent-200 aria-pressed:text-warning-text"
+          >
+            <Star
+              size={14}
+              aria-hidden="true"
+              className={editing ? "fill-warning text-warning" : ""}
+            />
+            {editing ? (favoritesEditor.saving ? "Guardando…" : "Listo") : "Editar favoritos"}
+          </button>
+        ) : null}
         {!query && options.length > GRID_SIZE ? (
           <button
             type="button"

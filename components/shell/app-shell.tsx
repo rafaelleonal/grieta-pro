@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ChevronRight, Settings2, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronRight, Download, PanelLeftClose, PanelLeftOpen, Settings2 } from "lucide-react";
 import { BrandLogo, BrandTile } from "@/components/brand";
 import { PwaInstall } from "@/components/pwa-manager";
 import { useSidebar } from "@/components/hooks/use-sidebar";
@@ -94,7 +94,13 @@ export function AppShell({
           >
             {NEW_PREPARATION.label}
           </SidebarLink>
-          <PwaInstall onOpen={() => undefined} />
+          <PwaInstall
+            trigger={(open) => (
+              <SidebarLink icon={<Download size={18} aria-hidden="true" />} onClick={open}>
+                Instalar app
+              </SidebarLink>
+            )}
+          />
         </nav>
         <div className="mt-auto flex flex-col gap-3">
           <p className="flex items-center gap-2 px-2.5 text-xs text-neutral-400">

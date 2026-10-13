@@ -5,7 +5,7 @@ import vm from "node:vm";
 
 const origin = "https://coach.example";
 const source = readFileSync(new URL("../public/sw.js", import.meta.url), "utf8");
-const cacheName = "cholo-coach-public-v3";
+const cacheName = "cholo-coach-public-v4";
 const publicPaths = [
   "/offline.html",
   "/icons/icon-192.png",

@@ -240,3 +240,11 @@ export interface RiotResult {
   self: string;
   gameMode: string;
 }
+
+/** Plan guardado en el historial privado del jugador. */
+export type HistoryRecord = {
+  id: string;
+  input: CoachInput;
+  result: SavedCoachResult;
+  createdAt: string;
+};

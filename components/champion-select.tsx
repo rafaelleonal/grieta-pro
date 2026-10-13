@@ -2,25 +2,15 @@
 
 import { useEffect, useId, useRef, useState } from "react";
 import Image from "next/image";
-import {
-  ArrowDown,
-  ArrowUp,
-  Check,
-  ChevronDown,
-  LoaderCircle,
-  Search,
-  Star,
-  X,
-} from "lucide-react";
-import {
-  championOptions,
-  moveChampionFavorite,
-  toggleChampionFavorite,
-} from "@/lib/champion-roles";
+import { Check, ChevronDown, Search, X } from "lucide-react";
+import { cn } from "@/components/ui/cn";
+import { championOptions } from "@/lib/champion-roles";
 import type { Champion, Role } from "@/lib/types";
 
-const NO_FAVORITES: readonly string[] = [];
-
+/**
+ * Selector de campeón con búsqueda (resto de equipos). Muestra primero los habituales del
+ * rol, pero cualquier campeón se puede elegir; Escape o clic fuera lo cierran.
+ */
 export function ChampionSelect({
   champions,
   value,
@@ -29,14 +19,6 @@ export function ChampionSelect({
   compact = false,
   optional = false,
   role,
-  favorites = NO_FAVORITES,
-  onFavoritesChange,
-  canPersonalize = false,
-  preferencesReady = false,
-  preferencesLoading = false,
-  preferencesSaving = false,
-  preferencesError = "",
-  onPreferencesRetry,
 }: {
   champions: Champion[];
   value: string;
@@ -45,29 +27,15 @@ export function ChampionSelect({
   compact?: boolean;
   optional?: boolean;
   role?: Role;
-  favorites?: readonly string[];
-  onFavoritesChange?: (ids: string[]) => void;
-  canPersonalize?: boolean;
-  preferencesReady?: boolean;
-  preferencesLoading?: boolean;
-  preferencesSaving?: boolean;
-  preferencesError?: string;
-  onPreferencesRetry?: () => void;
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
-  const [showAll, setShowAll] = useState(false);
   const wrapper = useRef<HTMLDivElement>(null);
   const search = useRef<HTMLInputElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
   const id = useId();
   const champion = champions.find((entry) => entry.id === value);
-  const filtered = championOptions(champions, { role, favorites, query, showAll });
-  const favoriteSet = new Set(favorites);
-  const favoriteOptions = filtered.filter((entry) => favoriteSet.has(entry.id));
-  const otherOptions = filtered.filter((entry) => !favoriteSet.has(entry.id));
-  const personal = Boolean(onFavoritesChange);
-  const canSave = canPersonalize && preferencesReady && !preferencesLoading && !preferencesSaving;
+  const options = championOptions(champions, { role, query, showAll: !role || Boolean(query) });
 
   useEffect(() => {
     if (!open) return;
@@ -86,67 +54,10 @@ export function ChampionSelect({
     trigger.current?.focus();
   }
 
-  function championRow(entry: Champion, favorite: boolean) {
-    const position = favorites.indexOf(entry.id);
-    return (
-      <div key={entry.id} className="champion-option-row">
-        <button
-          type="button"
-          className="champion-option"
-          onClick={() => select(entry.id)}
-          aria-pressed={entry.id === value}
-        >
-          <Image src={entry.image} alt="" width={28} height={28} loading="lazy" unoptimized />
-          <span>{entry.name}</span>
-          {entry.id === value ? <Check size={13} /> : null}
-        </button>
-        {personal && canPersonalize ? (
-          <div className="champion-option-actions">
-            {favorite ? (
-              <>
-                <button
-                  type="button"
-                  className="champion-favorite-action"
-                  disabled={!canSave || position <= 0}
-                  aria-label={`Subir prioridad de ${entry.name}`}
-                  title="Subir prioridad"
-                  onClick={() => onFavoritesChange?.(moveChampionFavorite(favorites, entry.id, -1))}
-                >
-                  <ArrowUp size={14} />
-                </button>
-                <button
-                  type="button"
-                  className="champion-favorite-action"
-                  disabled={!canSave || position === favorites.length - 1}
-                  aria-label={`Bajar prioridad de ${entry.name}`}
-                  title="Bajar prioridad"
-                  onClick={() => onFavoritesChange?.(moveChampionFavorite(favorites, entry.id, 1))}
-                >
-                  <ArrowDown size={14} />
-                </button>
-              </>
-            ) : null}
-            <button
-              type="button"
-              className="champion-favorite-action"
-              disabled={!canSave}
-              aria-label={`${favorite ? "Quitar" : "Añadir"} ${entry.name} ${favorite ? "de" : "a"} favoritos de ${role}`}
-              aria-pressed={favorite}
-              title={favorite ? "Quitar favorito" : "Añadir favorito"}
-              onClick={() => onFavoritesChange?.(toggleChampionFavorite(favorites, entry.id))}
-            >
-              <Star size={15} fill={favorite ? "currentColor" : "none"} />
-            </button>
-          </div>
-        ) : null}
-      </div>
-    );
-  }
-
   return (
     <div
-      className="champion-select"
       ref={wrapper}
+      className="relative"
       onKeyDown={(event) => {
         if (event.key === "Escape") {
           setOpen(false);
@@ -157,7 +68,6 @@ export function ChampionSelect({
       <button
         ref={trigger}
         type="button"
-        className={`champion-trigger ${compact ? "compact" : ""}`}
         aria-label={`${label}: ${champion?.name || value || "Elegir campeón"}`}
         aria-expanded={open}
         aria-controls={id}
@@ -165,127 +75,108 @@ export function ChampionSelect({
         onClick={() => {
           setOpen(!open);
           setQuery("");
-          setShowAll(false);
         }}
+        className={cn(
+          "flex w-full items-center gap-2.5 rounded-md bg-bg px-2.5 text-left ring-1 ring-inset ring-neutral-800 transition-colors hover:ring-neutral-600",
+          compact ? "min-h-12" : "min-h-16",
+          !champion && "border border-dashed border-neutral-700 ring-0",
+        )}
       >
         {champion ? (
-          <Image src={champion.image} alt="" width={40} height={40} unoptimized />
+          <Image
+            src={champion.image}
+            alt=""
+            width={compact ? 32 : 40}
+            height={compact ? 32 : 40}
+            unoptimized
+            className="rounded-md"
+          />
         ) : (
-          <div className="champion-placeholder">
-            <Search size={17} />
-          </div>
+          <span
+            aria-hidden="true"
+            className="grid size-8 place-items-center rounded-md bg-neutral-900 text-neutral-500"
+          >
+            <Search size={15} />
+          </span>
         )}
-        <span className="champion-info">
-          <strong>{champion?.name || value || "Elegir campeón"}</strong>
-          {!compact ? <small>{champion?.title || "Busca entre todos los campeones"}</small> : null}
+        <span className="flex min-w-0 flex-1 flex-col">
+          <strong
+            className={cn(
+              "truncate text-sm font-medium",
+              !champion && "font-normal text-neutral-400",
+            )}
+          >
+            {champion?.name || value || (optional ? "Sin especificar" : "Elegir campeón")}
+          </strong>
+          {!compact && champion ? (
+            <span className="truncate text-xs text-neutral-400">{champion.title}</span>
+          ) : null}
         </span>
-        <ChevronDown size={14} />
+        <ChevronDown size={15} aria-hidden="true" className="flex-none text-neutral-500" />
       </button>
       {open ? (
-        <div className="champion-popover" id={id} role="dialog" aria-label={`Seleccionar ${label}`}>
-          <div className="champion-picker-heading">
-            <strong>{label}</strong>
-            <button
-              type="button"
-              className="champion-favorite-action"
-              aria-label={`Cerrar selección de ${label}`}
-              onClick={() => {
-                setOpen(false);
-                trigger.current?.focus();
-              }}
-            >
-              <X size={16} />
-            </button>
-          </div>
-          <div className="search-wrap">
-            <Search size={14} />
+        <div
+          id={id}
+          role="dialog"
+          aria-label={`Seleccionar ${label}`}
+          className="absolute z-30 mt-2 flex max-h-80 w-full min-w-64 flex-col gap-2 rounded-lg bg-surface p-2 shadow-lg"
+        >
+          <label className="relative">
+            <span className="sr-only">Buscar campeón</span>
+            <Search
+              size={15}
+              aria-hidden="true"
+              className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-neutral-500"
+            />
             <input
               ref={search}
-              placeholder="Buscar entre todos..."
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              aria-label="Buscar campeón"
+              placeholder="Buscar entre todos…"
+              className="min-h-11 w-full rounded-md bg-bg pr-3 pl-9 text-control text-text ring-1 ring-inset ring-neutral-800 placeholder:text-neutral-500 focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:outline-accent-800 focus-visible:ring-accent"
             />
-          </div>
-          {role ? (
-            <>
-              <div className="champion-filter-tabs" role="group" aria-label="Filtrar campeones">
-                <button
-                  type="button"
-                  aria-pressed={!showAll}
-                  onClick={() => {
-                    setShowAll(false);
-                    setQuery("");
-                  }}
-                >
-                  Habituales
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={showAll}
-                  onClick={() => {
-                    setShowAll(true);
-                    setQuery("");
-                  }}
-                >
-                  Todos
-                </button>
-              </div>
-              <p className="champion-picker-hint">
-                Los habituales son orientativos. Puedes elegir cualquiera.
-              </p>
-            </>
-          ) : null}
-          {personal ? (
-            <div className="champion-preferences-status" aria-live="polite">
-              {preferencesLoading || preferencesSaving ? (
-                <span>
-                  <LoaderCircle size={13} className="spin" />
-                  {preferencesSaving ? "Guardando favoritos..." : "Cargando favoritos..."}
-                </span>
-              ) : !canPersonalize ? (
-                <span>Entra con tu cuenta verificada para guardar favoritos por posición.</span>
-              ) : null}
-              {preferencesError ? <p role="alert">{preferencesError}</p> : null}
-              {preferencesError && !preferencesLoading && !preferencesSaving ? (
-                <button className="text-button" type="button" onClick={onPreferencesRetry}>
-                  Actualizar favoritos
-                </button>
-              ) : null}
-            </div>
-          ) : null}
-          <div className="champion-list">
+          </label>
+          <ul className="flex min-h-0 flex-col overflow-y-auto">
             {optional ? (
-              <button className="champion-option" type="button" onClick={() => select("")}>
-                <X size={15} />
-                Sin especificar
-              </button>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => select("")}
+                  className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 text-left text-sm text-neutral-300 hover:bg-neutral-900"
+                >
+                  <X size={15} aria-hidden="true" />
+                  Sin especificar
+                </button>
+              </li>
             ) : null}
-            {favoriteOptions.length ? (
-              <>
-                <div className="champion-group-title">
-                  Favoritos · {role}
-                  <small>Primero los que prefieres</small>
-                </div>
-                {favoriteOptions.map((entry) => championRow(entry, true))}
-              </>
+            {options.map((entry) => (
+              <li key={entry.id}>
+                <button
+                  type="button"
+                  onClick={() => select(entry.id)}
+                  aria-pressed={entry.id === value}
+                  className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-2.5 text-left text-sm hover:bg-neutral-900 aria-pressed:bg-accent-900 aria-pressed:text-accent-200"
+                >
+                  <Image
+                    src={entry.image}
+                    alt=""
+                    width={28}
+                    height={28}
+                    loading="lazy"
+                    unoptimized
+                    className="rounded-md"
+                  />
+                  <span className="flex-1 truncate">{entry.name}</span>
+                  {entry.id === value ? <Check size={14} aria-hidden="true" /> : null}
+                </button>
+              </li>
+            ))}
+            {!options.length ? (
+              <li className="px-2.5 py-3 text-small text-neutral-400">
+                No encontramos ese campeón.
+              </li>
             ) : null}
-            {favoriteOptions.length && otherOptions.length ? (
-              <div className="champion-group-title">
-                {query.trim()
-                  ? "Más resultados"
-                  : showAll || !role
-                    ? "Todos los campeones"
-                    : "Habituales"}
-              </div>
-            ) : null}
-            {otherOptions.map((entry) => championRow(entry, false))}
-            {!filtered.length ? (
-              <span className="search-empty">
-                No encontramos ese campeón. Prueba otra búsqueda o elige Todos.
-              </span>
-            ) : null}
-          </div>
+          </ul>
         </div>
       ) : null}
     </div>

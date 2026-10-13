@@ -6,6 +6,7 @@ import { RankTile } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/tag";
 import { cn } from "@/components/ui/cn";
+import { toggleChampionFavorite } from "@/lib/champion-roles";
 import { isBotLane, RANKS, ROLES, roleName } from "@/lib/coach-draft";
 import type { CoachInput, Role } from "@/lib/types";
 import { ROLE_FOCUS } from "@/lib/role-focus";
@@ -21,7 +22,13 @@ import {
 } from "./prepare-extras";
 import { matchupSlots, nextSlot, slotValue, type SlotKey } from "./slots";
 
-type Preferences = { favorites: Record<Role, string[]> };
+type Preferences = {
+  favorites: Record<Role, string[]>;
+  ready: boolean;
+  saving: boolean;
+  error: string;
+  save: (role: Role, champions: string[]) => Promise<void>;
+};
 
 /**
  * Preparar partida: el matchup ocupa la pantalla, la cuadrícula cambia al rol de la
@@ -205,6 +212,19 @@ export function PrepareScreen({
             role={gridRole}
             roleName={roleName(gridRole)}
             favorites={preferences.favorites[gridRole] || []}
+            favoritesEditor={
+              preferences.ready
+                ? {
+                    toggle: (championId) =>
+                      void preferences.save(
+                        gridRole,
+                        toggleChampionFavorite(preferences.favorites[gridRole] || [], championId),
+                      ),
+                    saving: preferences.saving,
+                    error: preferences.error,
+                  }
+                : undefined
+            }
             picked={picked}
             choosingLabel={activeSlot ? activeSlot.choosing : null}
             onPick={pick}
