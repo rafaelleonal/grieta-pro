@@ -29,6 +29,7 @@ import {
 } from "./validation";
 import { recoverCoachPlan } from "./coach-recovery";
 import { coachRolePolicy } from "./coach-role-policy";
+import { coachMechanics, contextualizeCoachBrief, TACTICAL_INSTRUCTIONS } from "./coach-mechanics";
 import {
   compactCoachEnvelopeSchema,
   COMPACT_COACH_INSTRUCTIONS,
@@ -81,7 +82,7 @@ const uniqueEnum = <T extends string>(values: T[], fallback: z.ZodType<string>) 
 /** Items with full effects only for completed items; shorter entries keep the prompt bounded. */
 const PROMPT_ITEM_DETAIL_GOLD = 2200;
 const PROMPT_ITEM_DETAIL_CHARS = 120;
-const PROMPT_ABILITY_CHARS = 600;
+const PROMPT_ABILITY_CHARS = 1100;
 
 /**
  * One entry per item name. Data Dragon also lists other-mode variants of some
@@ -104,15 +105,16 @@ export function promptItems(catalog: Catalog): Catalog["items"] {
 const promptAbilities = (details: ChampionDetails | null) =>
   details && {
     name: details.name,
+    attackRange: details.attackRange,
     passive: {
       name: details.passive.name,
       description: details.passive.description.slice(0, PROMPT_ABILITY_CHARS),
     },
     // Icon URLs are display data; the model only needs names, text and cooldowns.
-    spells: details.spells.map(({ key, name, description, cooldown }) => ({
+    spells: details.spells.map(({ key, name, description, tooltip, cooldown }) => ({
       key,
       name,
-      description: description.slice(0, PROMPT_ABILITY_CHARS),
+      description: (tooltip || description).slice(0, PROMPT_ABILITY_CHARS),
       cooldown,
     })),
   };
@@ -1096,6 +1098,7 @@ export async function generateCoach(
     return potion !== undefined && gold + potion <= 500 ? [[id], [id, "2003"]] : [[id]];
   });
   const context = {
+    mechanics: coachMechanics(input, catalog),
     ...(startingOptions.length ? { startingOptions } : {}),
     champion: {
       id: input.champion,
@@ -1143,6 +1146,7 @@ export async function generateCoach(
         : [item.id, item.name, item.gold],
     ),
   };
+  const onBrief = execution?.onBrief;
   const completion = await structuredCompletion(
     {
       credentials: input,
@@ -1154,7 +1158,12 @@ export async function generateCoach(
       ),
       webSearch: input.webSearch,
       signal,
-      execution,
+      execution: execution && {
+        ...execution,
+        ...(onBrief
+          ? { onBrief: (brief: CoachBrief) => onBrief(contextualizeCoachBrief(brief, input)) }
+          : {}),
+      },
       messages: [
         {
           role: "system",
@@ -1162,12 +1171,13 @@ export async function generateCoach(
             SAFETY_POLICY,
             `Eres un coach experto de League of Legends que prepara a un jugador de rango ${input.rank} para ESTA partida con ${name(input.champion)} (${input.role}). Rival de referencia: ${name(input.enemy)}. Escribe en español de México, con frases cortas y ejecutables. No afirmes un rango Challenger acreditado ni garantices ganar.`,
             coachRolePolicy(input.role),
+            TACTICAL_INSTRUCTIONS,
             ...(compact
               ? [
                   COMPACT_COACH_INSTRUCTIONS,
                   ...(fastContext
                     ? [
-                        "Contexto compacto: runes son filas [key,nombre,style,slot]. Los objetos son [id,nombre,oro,efectos opcionales]. Usa esos efectos; si no aparecen, no inventes estadísticas ni pasivas. Mantén brief conciso: cada texto con una acción concreta, idealmente 15–25 palabras. Orden de salida obligatorio: decision, plan; dentro de plan primero format, luego brief y después el resto del plan.",
+                        "Contexto compacto: runes son filas [key,nombre,style,slot]. Los objetos son [id,nombre,oro,efectos opcionales]. Usa esos efectos; si no aparecen, no inventes estadísticas ni pasivas. Mantén brief conciso: cada texto con una acción concreta, idealmente 12–18 palabras. No uses absolutos como «sin daño», «sin control», «ganas el duelo» o «garantiza» al describir ventajas parciales. Orden de salida obligatorio: decision, plan; dentro de plan primero format, luego brief y después el resto del plan.",
                       ]
                     : []),
                 ]
@@ -1255,6 +1265,8 @@ export async function generateCoach(
     };
   });
   // Riot content is external data too; validate after enriching display fields.
+  if (sanitized.plan.brief)
+    sanitized.plan.brief = contextualizeCoachBrief(sanitized.plan.brief, input);
   try {
     if (partial) assertSafeOutput(sanitized.plan);
     else sanitized.plan = sanitizeCoachPlan(sanitized.plan, catalog, input).plan;

@@ -52,6 +52,9 @@ async function main() {
   delete process.env.OPENROUTER_API_KEY;
   delete process.env.RESEND_API_KEY;
   delete process.env.RIOT_API_KEY;
+  process.env.LAMINAR_ENABLED = "false";
+  delete process.env.LMNR_PROJECT_API_KEY;
+  delete process.env.LMNR_EVAL_API_KEY;
   process.env.OPENROUTER_MODEL = "openai/gpt-5.6-luna";
 
   let cleanupDb: ReturnType<typeof DatabaseFactory> | undefined;

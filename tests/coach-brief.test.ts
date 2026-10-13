@@ -293,10 +293,10 @@ test("the coach prompt sends compact, deduplicated items and bounded abilities",
         if (row.length === 4) assert.ok(row[2] >= 2200 && row[3].length <= 120);
       }
       assert.ok(context.purchasableRiftItems.some((row: unknown[]) => row[0] === "3075"));
-      assert.equal(context.champion.abilities.passive.description.length, 600);
+      assert.equal(context.champion.abilities.passive.description.length, 1100);
       assert.ok(
         context.champion.abilities.spells.every(
-          (spell: { description: string }) => spell.description.length === 600,
+          (spell: { description: string }) => spell.description.length === 1100,
         ),
       );
       assert.deepEqual(Object.keys(context.runeStyles[0]), ["key", "name"]);

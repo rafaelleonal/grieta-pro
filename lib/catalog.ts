@@ -197,9 +197,26 @@ export async function getCatalog(): Promise<Catalog> {
 
 export interface ChampionDetails {
   name: string;
+  attackRange?: number;
   /** Icon URLs are optional: an unexpected file name never drops the ability data. */
   passive: { name: string; description: string; image?: string };
-  spells: { key: string; name: string; description: string; cooldown: number[]; image?: string }[];
+  spells: {
+    key: string;
+    name: string;
+    description: string;
+    tooltip?: string;
+    cooldown: number[];
+    image?: string;
+  }[];
+}
+
+/** Unresolved Riot formulas are unknown values, never numbers to guess. */
+export function cleanAbilityTooltip(value: string): string {
+  return stripMarkup(
+    value
+      .replace(/\{\{\s*spellmodifierdescriptionappend\s*\}\}/g, "")
+      .replace(/\{\{[^}]*\}\}/g, "[dato no disponible]"),
+  ).replace(/\s+([.,;:!?])/g, "$1");
 }
 
 /** Data Dragon icon URL for a validated file name, or nothing. */
@@ -234,10 +251,12 @@ export async function getChampionDetails(
           gameKey,
           z.object({
             name: plainLabel,
+            stats: z.object({ attackrange: z.number().finite().min(0).max(2000) }).optional(),
             passive: abilitySchema,
             spells: z
               .array(
                 abilitySchema.extend({
+                  tooltip: z.string().max(30000).optional(),
                   cooldown: z.array(z.number().finite().min(0).max(3600)).min(1).max(18),
                 }),
               )
@@ -249,6 +268,7 @@ export async function getChampionDetails(
     const champion = result.data[id];
     return {
       name: champion.name,
+      attackRange: champion.stats?.attackrange,
       passive: {
         name: champion.passive.name,
         description: stripMarkup(champion.passive.description),
@@ -258,6 +278,7 @@ export async function getChampionDetails(
         key: ["Q", "W", "E", "R"][i],
         name: spell.name,
         description: stripMarkup(spell.description),
+        tooltip: spell.tooltip ? cleanAbilityTooltip(spell.tooltip) : undefined,
         cooldown: spell.cooldown,
         image: abilityImage(catalog.version, "spell", spell.image),
       })),

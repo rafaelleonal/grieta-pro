@@ -1,5 +1,7 @@
 # Cómo evaluar el coaching de Elociencia
 
+La [evaluación táctica posterior](tactical-coach-evaluation.md) revisa 18 respuestas reales adicionales: mantiene la rapidez con esfuerzo bajo, pero identifica contradicciones que impiden promover Flash. La completitud del formato se informa separada de la calidad del consejo.
+
 La [comparación de modelos rápidos del 12 de octubre](fast-coach-evaluation.md) contiene evidencia posterior y sus límites. Esta guía define una comparación más amplia futura; no contiene un benchmark ejecutado ni demuestra que un modelo sea el mejor coach. El 11 de octubre de 2026 se revisaron el prompt, la validación y las pruebas actuales. No se realizaron consultas de pago para preparar este documento.
 
 El coaching combina hechos comprobables y decisiones contextuales. Una habilidad, un objeto o un rango de habilidad pueden ser incorrectos. Decidir cuándo presionar, intercambiar o rotar admite varias respuestas útiles según la oleada, los recursos y la información disponible. Se evalúa la calidad de esa decisión bajo condiciones explícitas, sin exigir una redacción única ni usar una victoria aislada como prueba.
@@ -118,3 +120,7 @@ El resumen añade tres decisiones: **Antes**, **Tu trabajo** y **Si no conviene 
 `brief.teamfight` usa tres textos acotados y un objeto estricto; se valida y recupera de forma independiente. No añade solicitudes, reintentos, modelos ni excepciones de cuota. Los planes anteriores muestran la ausencia del bloque; no se regeneran ni reciben consejos de otro registro. El identificador técnico `reactions.linea` se conserva por compatibilidad, pero significa inicio de partida y sus etiquetas se adaptan al rol.
 
 Las pruebas simuladas comprueban los cinco prompts, una sola solicitud, contrato, rechazo de instrucciones inseguras, recuperación de contenido válido, conservación del historial y copia del plan. No evalúan si un modelo real seguirá bien estas instrucciones: eso requiere una comparación táctica autorizada con casos de jungla, soportes de distintos kits y composiciones completas/incompletas.
+
+## Observación y evaluación
+
+Consulta [Laminar](laminar.md) para medir las generaciones y comparar revisiones sintéticas sin confundir formato completo con precisión táctica. La integración es opcional y no activa nuevas consultas pagadas.

@@ -1,0 +1,86 @@
+{
+  "name": "flash-final-2026-10-12-archived-review-v1",
+  "model": "google/gemini-3.8-flash",
+  "catalog": "16.20.1",
+  "evidenceDate": "2026-10-12",
+  "cases": [
+    {
+      "id": "Darius-Yorick",
+      "role": "TOP",
+      "firstUsefulMs": 3855,
+      "totalMs": 11474,
+      "complete": true,
+      "mechanics": "unreviewed",
+      "context": "unreviewed",
+      "expertReview": "unreviewed",
+      "findings": ["Pendiente revisar las condiciones para pelear contra la Doncella."],
+      "references": []
+    },
+    {
+      "id": "Ahri-Yasuo",
+      "role": "MID",
+      "firstUsefulMs": 2843,
+      "totalMs": 10484,
+      "complete": true,
+      "mechanics": "failed",
+      "context": "unreviewed",
+      "expertReview": "unreviewed",
+      "findings": [
+        "Confunde el bando de los súbditos sobre los que Yasuo puede usar E: necesita enemigos de Yasuo, aliados de Ahri."
+      ],
+      "references": [
+        "https://ddragon.leagueoflegends.com/cdn/16.20.1/data/en_US/champion/Yasuo.json"
+      ]
+    },
+    {
+      "id": "Jinx-Caitlyn",
+      "role": "ADC",
+      "firstUsefulMs": 4278,
+      "totalMs": 15598,
+      "complete": true,
+      "mechanics": "unreviewed",
+      "context": "unreviewed",
+      "expertReview": "unreviewed",
+      "findings": ["La afirmación sobre daño de cohetes al subir Q necesita verificación."],
+      "references": []
+    },
+    {
+      "id": "Darius-Jax",
+      "role": "TOP",
+      "firstUsefulMs": 3698,
+      "totalMs": 12625,
+      "complete": true,
+      "mechanics": "failed",
+      "context": "unreviewed",
+      "expertReview": "unreviewed",
+      "findings": ["Espinas (3075) devuelve daño mágico; la respuesta afirma físico."],
+      "references": ["https://ddragon.leagueoflegends.com/cdn/16.20.1/data/es_MX/item.json"]
+    },
+    {
+      "id": "LeeSin-Rengar",
+      "role": "JUNGLE",
+      "firstUsefulMs": 3471,
+      "totalMs": 13263,
+      "complete": true,
+      "mechanics": "failed",
+      "context": "unreviewed",
+      "expertReview": "unreviewed",
+      "findings": ["Sterak (3053) se activa bajo 30% de vida; la respuesta afirma un tercio."],
+      "references": ["https://ddragon.leagueoflegends.com/cdn/16.20.1/data/es_MX/item.json"]
+    },
+    {
+      "id": "Janna-Nautilus",
+      "role": "SUPPORT",
+      "firstUsefulMs": 5268,
+      "totalMs": 16858,
+      "complete": true,
+      "mechanics": "unreviewed",
+      "context": "failed",
+      "expertReview": "unreviewed",
+      "findings": [
+        "El veredicto no expresa incertidumbre sin parejas explícitas. Corregido después en código; esta muestra conserva el fallo anterior."
+      ],
+      "references": []
+    }
+  ]
+}

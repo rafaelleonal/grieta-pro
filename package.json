@@ -19,6 +19,7 @@
     "audit:security": "pnpm audit --audit-level=moderate",
     "test": "node --import tsx --test tests/*.test.ts",
     "eval:security": "node --import tsx --test tests/coach-safety.test.ts tests/security-evaluation.test.ts",
+    "eval:coach": "node --import tsx scripts/eval-coach.ts",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
     "db:generate": "prisma generate",
     "db:local": "tsx scripts/db-local.ts",

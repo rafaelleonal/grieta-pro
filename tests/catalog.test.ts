@@ -222,6 +222,7 @@ test("champion ability context requires four finite, bounded cooldown lists", as
   const ability = {
     name: "Habilidad",
     description: "<b>Daño</b> mágico",
+    tooltip: "Otorga <b>visión verdadera</b> al impactar durante {{ duration }} segundos.",
     cooldown: [8, 7, 6, 5, 4],
   };
   globalThis.fetch = async () =>
@@ -229,6 +230,7 @@ test("champion ability context requires four finite, bounded cooldown lists", as
       data: {
         Ahri: {
           name: "Ahri",
+          stats: { attackrange: 550 },
           passive: { name: "Pasiva", description: "<b>Curación</b>" },
           spells: Array.from({ length: 4 }, () => ability),
         },
@@ -237,6 +239,11 @@ test("champion ability context requires four finite, bounded cooldown lists", as
   const details = await getChampionDetails("Ahri", catalog);
   assert.equal(details?.spells[0].key, "Q");
   assert.equal(details?.spells[0].description, "Daño mágico");
+  assert.equal(details?.attackRange, 550);
+  assert.equal(
+    details?.spells[0].tooltip,
+    "Otorga visión verdadera al impactar durante [dato no disponible] segundos.",
+  );
   globalThis.fetch = async () =>
     Response.json({
       data: {

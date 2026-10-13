@@ -277,7 +277,7 @@ test("late unsafe output revokes a preview and never becomes a saved result", as
   assert.equal(shown, 1);
 });
 
-test("Flash keeps its low-effort policy, compact contract and single request", async () => {
+test("Flash keeps low effort, grounded context, capped output and a single request", async () => {
   const { GEMINI_FLASH_MODEL, MODEL_POLICIES, maximumCost } = await import("../lib/usage");
   assert.equal(maximumCost(GEMINI_FLASH_MODEL, "COACH").toString(), "0.13425");
   let calls = 0;
@@ -319,6 +319,37 @@ test("Flash keeps its low-effort policy, compact contract and single request", a
     },
   );
   assert.equal(calls, 1);
+});
+
+test("missing bot context is uncertain in both the preview and final result without another request", async () => {
+  let calls = 0;
+  let preview: unknown;
+  const result = await generateCoach(
+    { ...input, role: "ADC" },
+    fixtureCatalog,
+    undefined,
+    async () => {
+      calls++;
+      return new Response(
+        stream(delta(JSON.stringify({ decision: "coach", plan: compact() })) + end),
+        { headers: { "content-type": "text/event-stream" } },
+      );
+    },
+    undefined,
+    {
+      apiKey: "synthetic-stream-key",
+      model: input.model!,
+      policy: { prompt: 0.2, completion: 0.75, reasoning: false, coachCompactPrompt: true },
+      onDispatch: async () => {},
+      onUsage: async () => {},
+      onBrief: (b) => {
+        preview = b;
+      },
+    },
+  );
+  assert.equal(calls, 1);
+  assert.equal(result.plan.brief?.matchup?.verdict, "uncertain");
+  assert.deepEqual(preview, result.plan.brief);
 });
 
 test("a second value for an already visible field is rejected before it reaches the UI", async () => {
