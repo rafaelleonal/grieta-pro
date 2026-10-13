@@ -1,5 +1,5 @@
 import { ApiError } from "./errors";
-import type { CoachBrief, GeneratedCoachResult } from "./types";
+import type { CoachBrief, CoachPreparation, GeneratedCoachResult } from "./types";
 
 /** One admitted operation, one final persisted result; progress is transient. */
 export function coachStreamResponse(
@@ -7,6 +7,7 @@ export function coachStreamResponse(
   work: (
     onBrief: (brief: CoachBrief) => void,
     signal: AbortSignal,
+    onPreparation: (preparation: CoachPreparation) => void,
   ) => Promise<GeneratedCoachResult>,
 ): Response {
   const cancelled = new AbortController();
@@ -25,7 +26,11 @@ export function coachStreamResponse(
         }
       };
       try {
-        const result = await work((brief) => send({ type: "brief", brief }), signal);
+        const result = await work(
+          (brief) => send({ type: "brief", brief }),
+          signal,
+          (preparation) => send({ type: "preparation", preparation }),
+        );
         send({ type: "result", result });
       } catch (error) {
         send({

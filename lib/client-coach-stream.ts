@@ -1,4 +1,4 @@
-import type { CoachBrief, GeneratedCoachResult } from "./types";
+import type { CoachBrief, CoachPreparation, GeneratedCoachResult } from "./types";
 
 /** No automatic retries: a disconnected request may already be billable. */
 export async function postCoachStream(
@@ -6,6 +6,7 @@ export async function postCoachStream(
   signal: AbortSignal,
   key: string,
   onBrief: (brief: CoachBrief) => void,
+  onPreparation?: (preparation: CoachPreparation) => void,
 ): Promise<GeneratedCoachResult> {
   const response = await fetch("/api/coach", {
     method: "POST",
@@ -27,13 +28,14 @@ export async function postCoachStream(
     return data as GeneratedCoachResult;
   }
   if (!response.ok || !response.body) throw new Error("No pudimos abrir el plan.");
-  return readCoachStream(response.body, signal, onBrief);
+  return readCoachStream(response.body, signal, onBrief, onPreparation);
 }
 
 export async function readCoachStream(
   body: ReadableStream<Uint8Array>,
   signal: AbortSignal,
   onBrief: (brief: CoachBrief) => void,
+  onPreparation?: (preparation: CoachPreparation) => void,
 ): Promise<GeneratedCoachResult> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
@@ -60,6 +62,12 @@ export async function readCoachStream(
         const event = JSON.parse(line);
         if (event.type === "brief" && event.brief && typeof event.brief === "object")
           onBrief(event.brief);
+        else if (
+          event.type === "preparation" &&
+          event.preparation &&
+          typeof event.preparation === "object"
+        )
+          onPreparation?.(event.preparation);
         else if (event.type === "result" && event.result?.plan && event.result?.meta)
           return event.result;
         else if (event.type === "error")
@@ -69,7 +77,9 @@ export async function readCoachStream(
         else throw new Error("El servidor devolvió un formato inesperado.");
       }
     }
-    throw new Error("La conexión terminó antes de completar el plan. Comprueba su estado.");
+    throw new Error(
+      "La conexión terminó antes de completar el plan. Puedes buscarlo en tus sesiones.",
+    );
   } finally {
     signal.removeEventListener("abort", cancelRead);
     void reader.cancel().catch(() => {});

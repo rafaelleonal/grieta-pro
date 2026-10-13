@@ -28,16 +28,17 @@ No se exportan prompts, planes, razonamiento, capturas, notas, Riot IDs, cookies
 
 Los atributos usan el prefijo `elociencia.` y se consultan como atributos personalizados en Laminar:
 
-| Atributo                                    | Significado                                                                                                 |
-| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| `catalog_ms`                                | Tiempo hasta tener catálogo y ambos campeones.                                                              |
-| `provider_start_ms`                         | Inicio del trabajo de generación, después de admisión/reserva. No acredita que el proveedor haya facturado. |
-| `first_useful_ms`                           | Primera prioridad y matchup validados, listos para el stream; no primer token. Ausente si no hubo avance.   |
-| `total_ms`                                  | Final de la operación con persistencia, o fallo.                                                            |
-| `outcome`                                   | `complete`, `partial`, `failed` o `cancelled`.                                                              |
-| `replay`                                    | Reutilización de una respuesta: excluirla al comparar modelos.                                              |
-| `input_tokens`, `output_tokens`, `cost_usd` | Consumo comunicado por el proveedor y registrado; ausente no significa cero.                                |
-| `quality`                                   | Siempre `unreviewed` en runtime.                                                                            |
+| Atributo                                    | Significado                                                                                                       |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `catalog_ms`                                | Tiempo hasta tener catálogo y ambos campeones.                                                                    |
+| `provider_start_ms`                         | Inicio del trabajo de generación, después de admisión/reserva. No acredita que el proveedor haya facturado.       |
+| `first_preparation_ms`                      | Primera elección de hechizos, compra inicial o runas validada. Ausente si no llegó.                               |
+| `first_useful_ms`                           | Primer avance validado (preparación o resumen), listo para el stream; no primer token. Ausente si no hubo avance. |
+| `total_ms`                                  | Final de la operación con persistencia, o fallo.                                                                  |
+| `outcome`                                   | `complete`, `partial`, `failed` o `cancelled`.                                                                    |
+| `replay`                                    | Reutilización de una respuesta: excluirla al comparar modelos.                                                    |
+| `input_tokens`, `output_tokens`, `cost_usd` | Consumo comunicado por el proveedor y registrado; ausente no significa cero.                                      |
+| `quality`                                   | Siempre `unreviewed` en runtime.                                                                                  |
 
 El reloj comienza después de verificar sesión y admisión, antes de leer el cuerpo. No incluye autenticación, la red del navegador ni renderizado: **no es latencia visual de extremo a extremo**. `catalog_ms` también incluye lectura y validación de entrada. El span raíz termina antes de exportar. No hay capturas automáticas de subllamadas ni del contenido de LLM.
 

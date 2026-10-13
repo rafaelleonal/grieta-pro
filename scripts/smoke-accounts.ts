@@ -98,7 +98,7 @@ async function main() {
     const seededPro = await db.plan.findUniqueOrThrow({ where: { code: "PRO" } });
     const seededModels = [
       usage.DEFAULT_MODEL,
-      usage.GEMINI_FLASH_MODEL,
+      usage.GEMINI_PRO_MODEL,
       "openai/gpt-5.6-luna",
       "anthropic/claude-haiku-5.5",
       "openai/gpt-6-luna",

@@ -142,11 +142,12 @@ export function AccountScreen({
                         loadingLabel="Comprobando…"
                         onClick={() => void session.checkConsumption()}
                       >
-                        Comprobar estado
+                        Actualizar saldo
                       </Button>
                     }
                   >
-                    Hay consultas o costes pendientes. Comprobar su estado no inicia otro análisis.
+                    Estas solicitudes cuentan en tu saldo hasta confirmar su consumo. Lo revisamos
+                    automáticamente.
                   </Alert>
                 ) : null}
                 {session.consumptionError ? (

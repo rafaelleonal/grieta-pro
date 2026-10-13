@@ -248,3 +248,8 @@ export type HistoryRecord = {
   result: SavedCoachResult;
   createdAt: string;
 };
+
+/** Validated, transient champion-select choices; never persisted separately. */
+export type CoachPreparation = Partial<
+  Pick<CoachPlan["build"], "summoners" | "starting" | "runes">
+>;

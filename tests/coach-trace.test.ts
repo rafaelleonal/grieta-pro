@@ -63,6 +63,8 @@ test("trace waits for settlement, keeps first progress time and exports only all
   trace.catalogReady();
   trace.provider("google/gemini-3.8-flash");
   trace.usage({ id: "PRIVATE PROVIDER ID", promptTokens: 100, completionTokens: 40, cost: "0.01" });
+  now = 2100;
+  trace.preparation();
   now = 3300;
   trace.brief();
   now = 4200;
@@ -77,7 +79,8 @@ test("trace waits for settlement, keeps first progress time and exports only all
   assert.equal(calls, 1);
   assert.doesNotMatch(exported, /PRIVATE|telemetry-secret|input":|output":/);
   const [span] = JSON.parse(exported);
-  assert.equal(span.attributes["elociencia.first_useful_ms"], 3300);
+  assert.equal(span.attributes["elociencia.first_useful_ms"], 2100);
+  assert.equal(span.attributes["elociencia.first_preparation_ms"], 2100);
   assert.equal(span.attributes["elociencia.total_ms"], 13000);
   assert.equal(span.attributes["elociencia.cost_usd"], 0.01);
   assert.equal(span.attributes["elociencia.quality"], "unreviewed");

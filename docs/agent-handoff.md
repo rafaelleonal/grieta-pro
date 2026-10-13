@@ -4,6 +4,10 @@ Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar de
 
 ## Continuación del 12 de octubre: lectura progresiva
 
+**Selección de campeón primero (iteración local):** hechizos, compra inicial y runas encabezan el plan; prioridad, matchup y ventana ocupan la segunda columna. Mapa/peleas queda dentro del detalle inferior. Flash recibe build primero y la respuesta emite elecciones completas y validadas por bloques mediante `preparation`, sin una segunda llamada. El historial conserva su contrato. [Alcance y verificación](preparation-layout.md).
+
+**Actualización posterior: Flash para prepartida.** El propietario cambió el criterio de producto: aprovechar Flash mientras se itera la precisión. Ahora es el predeterminado en código y en la configuración local; Pro sigue permitido. Se conserva streaming, validación y contabilidad. La preparación deja de mostrar reservas inciertas cuando queda cuota; los detalles permanecen en Cuenta y la conciliación automática continúa. [Pruebas y límites de esta iteración](flash-prepartida.md). Los párrafos siguientes describen la decisión anterior de mantener Pro y las evaluaciones históricas.
+
 **Diseño: Grafito aprobado e implementado localmente.** La [ADR 0004](adr/0004-paleta-grafito.md) actualiza los tokens de interfaz, navegación y PWA con neutros oscuros. Conserva lima de marca, colores semánticos y recursos del juego. Los controles tienen un borde distinto de los divisores y foco claro de 2 px + 2 px. Esta iteración no cambia generación, datos, cuotas ni activa Laminar.
 
 [Verificación de Grafito](grafito-qa.md): 390/834/1440 px, teclado, contraste de tokens, `pnpm check` (259 pruebas) y build correctos. También se corrigieron los bordes anulados de botones y el encabezado móvil de preparación. El propietario autorizó el push de esta iteración después de revisar el resultado.
@@ -29,7 +33,7 @@ Para habilitar Flash en planes existentes: `pnpm db:seed --enable-flash`, verifi
 
 - Coach educativo de LoL en español: rol primero, campeón y rival, rango y composición opcional. Todos los campeones permanecen disponibles fuera de posición.
 - Favorecer consejos breves y ejecutables. No prometer estadísticas óptimas, victorias ni un rango Challenger acreditado.
-- Resultado primero con **prioridad, ventana y qué evitar**; niveles, mecánicas, preparación y mapa se despliegan después. Preservar consejos válidos cuando falle un detalle.
+- Resultado primero con **hechizos, compra inicial y runas**, junto a prioridad, matchup, ventana y riesgo; niveles, mecánicas, compras posteriores y mapa se despliegan después. Preservar consejos válidos cuando falle un detalle.
 - Entrada manual, texto y foto/galería móvil. El límite de 30 MB corresponde al archivo original; la imagen se optimiza antes de subir y se valida/recodifica en el servidor.
 - Cuentas con Better Auth, correo verificado, historial privado y favoritos por rol. Invitación opcional en registro abierto; los planes Free/Pro y el rol de administrador son independientes.
 - PWA instalada con HTTPS y caché exclusivamente pública; sin caché ni reintentos offline de IA.

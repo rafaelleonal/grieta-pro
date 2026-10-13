@@ -17,12 +17,12 @@ El jugador debe entender rápidamente qué priorizar, cuándo actuar y cómo con
 
 El resumen debe permitir encontrar estas respuestas sin abrir todas las secciones:
 
-1. **Tu prioridad:** la decisión principal para tu rol y contexto.
-2. **Lectura del matchup:** quién tiene ventaja, por qué y bajo qué condición cambia.
-3. **Tu papel en las peleas:** cómo prepararte, qué trabajo cumplir y qué hacer si no conviene pelear.
-4. **Cuándo actuar y qué evitar:** oportunidades y riesgos concretos.
+1. **Hechizos de invocador:** pareja elegida, iconos y motivo breve. Es la primera decisión en selección de campeón.
+2. **Compra inicial y runas:** objetos con su coste validado, página de runas y fragmentos, visibles sin desplegar detalles.
+3. **Plan de inicio:** prioridad por rol, lectura compacta del matchup, ventana y riesgo.
+4. **Durante la partida:** niveles, reacciones, compras posteriores y mapa/peleas, en secciones independientes más abajo.
 
-Los niveles, reacciones, compras, runas, hechizos y mapa amplían ese resumen mediante secciones independientes. Usa detalle progresivo: el usuario debe poder consultar una sección sin desplegar un bloque enorme de contenido.
+En escritorio y tablet, coloca preparación e inicio en **dos columnas** y aprovecha el ancho disponible. En móvil, conserva el orden hechizos → compra inicial → runas → inicio, sin desbordamiento. Evita tarjetas grandes de una sola frase y encabezados repetidos. El papel en peleas, objetivos y late pertenece al detalle de mapa; no debe retrasar las elecciones de prepartida.
 
 - Evita repetir los mismos campeones, contexto y títulos en varias cabeceras consecutivas.
 - Mantén las fuentes y el alcance del consejo accesibles, con menor peso que las acciones de juego.
@@ -117,10 +117,10 @@ Puntos de entrada para contribuir:
 
 ### Entrega progresiva
 
-- Objetivo: mostrar prioridad y matchup en 3–5 segundos con un modelo rápido. Medir desde el clic, además del tiempo del proveedor; una muestra local no garantiza latencia de producción.
+- Objetivo: mostrar las elecciones de prepartida y el inicio en 3–5 segundos con un modelo rápido. Medir desde el clic, además del tiempo del proveedor; una muestra local no garantiza latencia de producción.
 - Mostrar sólo campos completos que hayan pasado esquema, alcance y protección de secretos. No renderizar tokens sueltos, JSON, razonamiento ni frases a medio escribir.
 - La lectura inicial es provisional: indicar que faltan detalles y guardar únicamente después de validar el resultado final. Un fallo, cancelación o cambio de cuenta retira el avance.
-- Mantener prioridad y matchup en el mismo orden al llegar peleas, ventanas y compras. El contenido nuevo se agrega debajo, sin desplazar la decisión que se está leyendo.
+- Mantener los espacios de preparación e inicio durante el streaming y el resultado final. Emitir hechizos, compra inicial y runas completos antes de esperar niveles y mapa; validar pares, catálogo, presupuesto inicial y ranuras. Los detalles posteriores se agregan debajo. Nunca inventar una elección mientras se espera.
 - Una sola llamada admitida: no generar un resumen con otro modelo ni reintentar automáticamente para completar secciones.
 - No promover un modelo por velocidad o JSON válido solamente. Comparar también mecánicas, compras, condiciones y roles; publicar los límites del ensayo. Véase [la comparación de modelos rápidos](fast-coach-evaluation.md).
 

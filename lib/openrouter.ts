@@ -1,3 +1,4 @@
+import { validatedPreparation } from "./coach-preparation";
 import { readProviderStream, type CoachProgress } from "./provider-stream";
 import { anthropicCoachRequest, anthropicCoachResponse } from "./anthropic-transport";
 import { z } from "zod";
@@ -5,6 +6,7 @@ import type { ChampionDetails } from "./catalog";
 import type {
   AppStatus,
   CoachBrief,
+  CoachPreparation,
   Catalog,
   CoachInput,
   CoachResult,
@@ -61,6 +63,7 @@ export interface ProviderExecution {
   model: string;
   policy: ModelPolicy;
   onBrief?: CoachProgress;
+  onPreparation?: (preparation: CoachPreparation) => void;
   onDispatch: () => Promise<void>;
   onUsage: (usage: ProviderUsage) => Promise<void>;
 }
@@ -706,7 +709,9 @@ async function structuredCompletion(
   const schemaInPrompt = operation === "COACH" && model.startsWith("anthropic/");
   const nativeTaskBudget = operation === "COACH" ? policy?.coachTaskBudgetTokens : undefined;
   const streaming =
-    operation === "COACH" && Boolean(options.execution?.onBrief) && !nativeTaskBudget;
+    operation === "COACH" &&
+    Boolean(options.execution?.onBrief || options.execution?.onPreparation) &&
+    !nativeTaskBudget;
   const messages = schemaInPrompt
     ? [
         ...options.messages,
@@ -874,6 +879,7 @@ async function structuredCompletion(
   }
   let data: Record<string, unknown>;
   let emittedBrief: CoachBrief | undefined;
+  let emittedPreparation: unknown;
   try {
     data =
       response.ok &&
@@ -903,6 +909,13 @@ async function structuredCompletion(
             },
             async (id) => {
               await options.execution?.onUsage({ id });
+            },
+            (value) => {
+              assertNoProtectedOutput(value, options, apiKey);
+              assertSafeOutput(value);
+              // Semantic validation is applied by generateCoach before forwarding.
+              emittedPreparation = value;
+              options.execution?.onPreparation?.(value as CoachPreparation);
             },
           )
         : await readProviderBody(response, signal);
@@ -1018,6 +1031,22 @@ async function structuredCompletion(
   } catch (error) {
     diagnose("output_rejected", "protected_output", response.status);
     throw error;
+  }
+  if (emittedPreparation) {
+    const finalBuild = (json as { plan?: { build?: unknown } })?.plan?.build;
+    // Prefix reader rejects duplicate keys; final JSON must preserve every complete choice.
+    for (const key of ["summoners", "starting", "runes"] as const) {
+      const previous = (emittedPreparation as CoachPreparation)[key];
+      if (
+        previous !== undefined &&
+        JSON.stringify(previous) !==
+          JSON.stringify((finalBuild as CoachPreparation | undefined)?.[key])
+      )
+        throw new ApiError(
+          502,
+          "La preparación cambió durante la respuesta. Tu selección sigue guardada.",
+        );
+    }
   }
   if (emittedBrief) {
     const finalBrief = coachBriefSchema.safeParse(
@@ -1147,6 +1176,7 @@ export async function generateCoach(
     ),
   };
   const onBrief = execution?.onBrief;
+  let lastPreparation = "";
   const completion = await structuredCompletion(
     {
       credentials: input,
@@ -1160,6 +1190,16 @@ export async function generateCoach(
       signal,
       execution: execution && {
         ...execution,
+        onPreparation:
+          execution.onPreparation &&
+          ((value) => {
+            const preparation = validatedPreparation(value, catalog);
+            const fingerprint = JSON.stringify(preparation);
+            if (Object.keys(preparation).length && fingerprint !== lastPreparation) {
+              lastPreparation = fingerprint;
+              execution.onPreparation?.(preparation);
+            }
+          }),
         ...(onBrief
           ? { onBrief: (brief: CoachBrief) => onBrief(contextualizeCoachBrief(brief, input)) }
           : {}),
@@ -1177,7 +1217,7 @@ export async function generateCoach(
                   COMPACT_COACH_INSTRUCTIONS,
                   ...(fastContext
                     ? [
-                        "Contexto compacto: runes son filas [key,nombre,style,slot]. Los objetos son [id,nombre,oro,efectos opcionales]. Usa esos efectos; si no aparecen, no inventes estadísticas ni pasivas. Mantén brief conciso: cada texto con una acción concreta, idealmente 12–18 palabras. No uses absolutos como «sin daño», «sin control», «ganas el duelo» o «garantiza» al describir ventajas parciales. Orden de salida obligatorio: decision, plan; dentro de plan primero format, luego brief y después el resto del plan.",
+                        "Preparación antes de jugar: prioriza un objetivo inicial por rol, una ventana observable, un riesgo y tu trabajo en equipo. No conoces el estado en vivo. Cada consejo debe poder recordarse al entrar; no añadas porcentajes, umbrales ni tipos de daño innecesarios. Identifica actores y objetivos por nombre: usa «tus súbditos» o «los súbditos de Yasuo» según corresponda, nunca «enemigos» sin perspectiva clara. Contexto compacto: runes son filas [key,nombre,style,slot]. Los objetos son [id,nombre,oro,efectos opcionales]. Usa esos efectos; si no aparecen, no inventes estadísticas ni pasivas. Mantén brief conciso: cada texto con una acción concreta, idealmente 12–18 palabras. No uses absolutos como «sin daño», «sin control», «ganas el duelo» o «garantiza» al describir ventajas parciales. Orden de salida obligatorio: decision, plan; dentro de plan primero format y build (summoners, starting, runes, core, situational, skillOrder), luego brief (priority, matchup, window, avoid, teamfight), levels, reactions y macro. Hechizos, compra inicial y runas son decisiones urgentes de selección de campeón; escribe esas elecciones antes de desarrollar el mapa y las peleas.",
                       ]
                     : []),
                 ]

@@ -55,13 +55,9 @@ export function CoachScreen({
         ) : null}
         {failure ? (
           <CoachFailure
-            checking={ws.session.checkingConsumption}
-            checked={ws.recoveryChecked}
             uncertain={ws.session.hasReservedRequests}
             error={ws.error}
-            checkError={ws.session.consumptionError}
             previousPlan={Boolean(ws.result)}
-            onCheck={ws.checkRecovery}
             onHistory={onOpenSessions}
           />
         ) : null}
@@ -72,6 +68,7 @@ export function CoachScreen({
           catalog={ws.catalog}
           onCancel={ws.cancel}
           preview={ws.preview}
+          preparation={ws.preparation}
         />
       ) : showPlan ? (
         <PlanScreen ws={ws} />

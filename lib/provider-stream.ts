@@ -1,31 +1,62 @@
 import type { CoachBrief } from "./types";
 
-/** Extract only completed fields at the first brief boundary; never expose partial strings. */
-export function firstStreamBrief(text: string): unknown | undefined {
-  const prefix =
-    /^\s*\{\s*"decision"\s*:\s*"coach"\s*,\s*"plan"\s*:\s*\{\s*(?:"format"\s*:\s*"compact-v1"\s*,\s*)?"brief"\s*:\s*/.exec(
-      text,
-    );
-  if (!prefix || text[prefix[0].length] !== "{") return;
-  const start = prefix[0].length;
-  let lastBoundary: number | undefined;
-  let depth = 0,
-    quoted = false,
-    escaped = false;
-  for (let i = start; i < text.length; i++) {
-    const c = text[i];
-    if (quoted) {
-      if (escaped) escaped = false;
-      else if (c === "\\") escaped = true;
-      else if (c === '"') quoted = false;
-    } else if (c === '"') quoted = true;
-    else if (c === "," && depth === 1) lastBoundary = i;
-    else if (c === "{" || c === "[") depth++;
-    else if (c === "}" || c === "]") {
-      if (--depth === 0) return JSON.parse(text.slice(start, i + 1));
+/** Reads complete JSON values only, descending into an unfinished object for progress.
+ * Arrays and strings are never repaired. Duplicate keys are rejected, including nested ones.
+ */
+function objectPrefix(text: string, start: number, level = 0): { value: Obj; end?: number } {
+  if (level > 32) throw new Error("Excessive stream nesting");
+  const value: Obj = {};
+  let pos = start + 1;
+  while (pos < text.length) {
+    const key = /^\s*(?:,\s*)?"((?:[^"\\]|\\.)*)"\s*:\s*/.exec(text.slice(pos));
+    if (!key)
+      return {
+        value,
+        ...(text.slice(pos).trimStart().startsWith("}")
+          ? { end: pos + text.slice(pos).indexOf("}") + 1 }
+          : {}),
+      };
+    const name: string = JSON.parse(`"${key[1]}"`);
+    if (["__proto__", "constructor", "prototype"].includes(name))
+      throw new Error("Invalid stream field");
+    if (Object.hasOwn(value, name)) throw new Error("Duplicate stream field");
+    pos += key[0].length;
+    if (text[pos] === "{") {
+      const child = objectPrefix(text, pos, level + 1);
+      if (child.end || level === 0) value[name] = child.value;
+      if (!child.end) return { value };
+      pos = child.end;
+      continue;
     }
+    const from = pos;
+    let depth = 0,
+      quoted = false,
+      escaped = false;
+    for (; pos < text.length; pos++) {
+      const c = text[pos];
+      if (quoted) {
+        if (escaped) escaped = false;
+        else if (c === "\\") escaped = true;
+        else if (c === '"') quoted = false;
+      } else if (c === '"') quoted = true;
+      else if (c === "[" || c === "{") depth++;
+      else if ((c === "," || c === "}") && depth === 0) break;
+      else if (c === "]" || c === "}") depth--;
+    }
+    if (pos === text.length) return { value };
+    value[name] = JSON.parse(text.slice(from, pos));
   }
-  if (lastBoundary !== undefined) return JSON.parse(text.slice(start, lastBoundary) + "}");
+  return { value };
+}
+
+export function firstStreamPlan(text: string): Obj | undefined {
+  const prefix = /^\s*\{\s*"decision"\s*:\s*"coach"\s*,\s*"plan"\s*:\s*/.exec(text);
+  if (!prefix || text[prefix[0].length] !== "{") return;
+  return objectPrefix(text, prefix[0].length).value;
+}
+export function firstStreamBrief(text: string): unknown | undefined {
+  const brief = firstStreamPlan(text)?.brief;
+  return brief && Object.keys(brief).length ? brief : undefined;
 }
 
 type Obj = Record<string, unknown>;
@@ -40,6 +71,7 @@ export async function readProviderStream(
   signal: AbortSignal,
   onBrief: (value: unknown) => void,
   onGenerationId?: (id: string) => Promise<void>,
+  onPreparation?: (value: unknown) => void,
 ): Promise<Obj> {
   if (!response.body) throw new Error("Missing stream");
   const reader = response.body.getReader();
@@ -48,6 +80,7 @@ export async function readProviderStream(
     content = "",
     bytes = 0,
     lastPreview = "",
+    lastPreparation = "",
     doneMarker = false;
   let id: unknown, model: unknown, usage: unknown, error: unknown, finish: unknown;
   let refusal: unknown,
@@ -94,7 +127,14 @@ export async function readProviderStream(
     if (Array.isArray(delta.annotations)) annotations.push(...delta.annotations);
     if (choice.finish_reason) finish = choice.finish_reason;
     if (!refusal && !tool && !error) {
-      const brief = firstStreamBrief(content);
+      const plan = firstStreamPlan(content);
+      const build = plan?.build;
+      const preparationFingerprint = JSON.stringify(build);
+      if (build !== undefined && preparationFingerprint !== lastPreparation) {
+        lastPreparation = preparationFingerprint;
+        onPreparation?.(build);
+      }
+      const brief = plan?.brief && Object.keys(plan.brief).length ? plan.brief : undefined;
       const fingerprint = JSON.stringify(brief);
       if (brief !== undefined && fingerprint !== lastPreview) {
         lastPreview = fingerprint;

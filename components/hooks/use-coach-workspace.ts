@@ -1,4 +1,5 @@
 "use client";
+import type { CoachPreparation } from "@/lib/types";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -42,6 +43,7 @@ export function useCoachWorkspace() {
   const [coachFailure, setCoachFailure] = useState(false);
   const [recoveryChecked, setRecoveryChecked] = useState(false);
   const [notice, setNotice] = useState("");
+  const [preparation, setPreparation] = useState<CoachPreparation | null>(null);
   const [preview, setPreview] = useState<CoachBrief | null>(null);
   const [result, setResult] = useState<SavedCoachResult | null>(null);
   const [resultInput, setResultInput] = useState<CoachInput | null>(null);
@@ -58,6 +60,7 @@ export function useCoachWorkspace() {
     controller.current = null;
     setBusy(null);
     setPreview(null);
+    setPreparation(null);
     resetCapture();
     resetRiot();
     setCredentials({});
@@ -154,6 +157,7 @@ export function useCoachWorkspace() {
     controller.current = abort;
     setBusy(task);
     setPreview(null);
+    setPreparation(null);
     clearMessages();
     return abort;
   }
@@ -166,6 +170,7 @@ export function useCoachWorkspace() {
       controller.current = null;
       setBusy(null);
       setPreview(null);
+      setPreparation(null);
     }
   }
   /** Dejar de esperar no prueba que la consulta fuera gratuita: se concilia el consumo. */
@@ -174,6 +179,7 @@ export function useCoachWorkspace() {
     controller.current = null;
     setBusy(null);
     setPreview(null);
+    setPreparation(null);
     setNotice(
       "Espera cancelada. Si la consulta ya se envió, puede consumir cuota. Tu selección sigue aquí.",
     );
@@ -286,14 +292,31 @@ export function useCoachWorkspace() {
       if (!intent || abort.signal.aborted) return true;
       key = intent.key;
       if (intent.attempt?.state === "UNKNOWN" && !intent.attempt.hasResponse) {
-        setError("Coste por confirmar. Usa Comprobar estado; puedes seguir si tienes cuota.");
+        setError("Esta solicitud sigue pendiente. Espera antes de volver a generar el mismo plan.");
         return true;
       }
       if (!ensureCredentials("coach", Boolean(intent.attempt?.hasResponse))) return true;
-      const next = await postCoachStream(body, abort.signal, key, (brief) => {
-        if (!abort.signal.aborted && controller.current === abort && identityRef.current === owner)
-          setPreview(brief);
-      });
+      const next = await postCoachStream(
+        body,
+        abort.signal,
+        key,
+        (brief) => {
+          if (
+            !abort.signal.aborted &&
+            controller.current === abort &&
+            identityRef.current === owner
+          )
+            setPreview(brief);
+        },
+        (choices) => {
+          if (
+            !abort.signal.aborted &&
+            controller.current === abort &&
+            identityRef.current === owner
+          )
+            setPreparation(choices);
+        },
+      );
       if (abort.signal.aborted) return true;
       session.intentsRef.current.complete(key);
       setResult(next);
@@ -329,7 +352,7 @@ export function useCoachWorkspace() {
       if (!intent || abort.signal.aborted) return;
       key = intent.key;
       if (intent.attempt?.state === "UNKNOWN" && !intent.attempt.hasResponse) {
-        setError("Coste por confirmar. Usa Comprobar estado antes de repetir la lectura.");
+        setError("Esta captura sigue pendiente. Espera antes de volver a enviarla.");
         return;
       }
       if (!ensureCredentials("draft", Boolean(intent.attempt?.hasResponse))) return;
@@ -486,6 +509,7 @@ export function useCoachWorkspace() {
     setNotice,
     result,
     preview,
+    preparation,
     resultInput,
     sample,
     editing,

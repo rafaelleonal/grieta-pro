@@ -1,6 +1,6 @@
 import { loadEnvConfig } from "@next/env";
 import { getDb } from "../lib/db";
-import { DEFAULT_MODEL, GEMINI_FLASH_MODEL, OPUS_MODEL } from "../lib/usage";
+import { DEFAULT_MODEL, GEMINI_FLASH_MODEL, GEMINI_PRO_MODEL, OPUS_MODEL } from "../lib/usage";
 
 export async function seedPlans(
   options: {
@@ -15,6 +15,7 @@ export async function seedPlans(
     ...new Set([
       DEFAULT_MODEL,
       GEMINI_FLASH_MODEL,
+      GEMINI_PRO_MODEL,
       "openai/gpt-5.6-luna",
       "anthropic/claude-haiku-5.5",
       "openai/gpt-6-luna",

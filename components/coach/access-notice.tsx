@@ -21,7 +21,7 @@ export function AccessNotice({
   session: AccountSession;
   recoveryVisible?: boolean;
 }) {
-  const { account, accountError, consumptionError, checkingConsumption } = session;
+  const { account, accountError } = session;
   const link = (href: string, label: string) => (
     <Link href={href} className={buttonClasses("ghost")}>
       {label}
@@ -65,31 +65,20 @@ export function AccessNotice({
         Verifica tu correo para generar planes.
       </Alert>
     );
-  // The recovery panel owns this status and its action while a plan has failed.
-  if (account.usage?.pending || account.usage?.uncertain || consumptionError) {
-    if (recoveryVisible) return null;
+  // Accounting is reconciled in the session hook; only show actionable game status here.
+  if (account.usage?.pending && !recoveryVisible)
     return (
-      <Alert
-        tone="warning"
-        icon={<ShieldCheck size={18} />}
-        action={
-          <Button
-            variant="ghost"
-            onClick={() => void session.checkConsumption()}
-            loading={checkingConsumption}
-            loadingLabel="Comprobando…"
-          >
-            Comprobar estado
-          </Button>
-        }
-      >
-        {consumptionError ||
-          (account.usage?.pending
-            ? "Consulta en curso. Comprobamos su estado automáticamente."
-            : "Coste por confirmar. La reserva se mantiene; puedes seguir si tienes cuota.")}
+      <Alert tone="info" icon={<ShieldCheck size={18} />}>
+        Tu plan sigue en preparación. Espera antes de generar otro.
       </Alert>
     );
-  }
+  if (account.usage?.uncertain && account.usage.coachRemaining === 0 && !recoveryVisible)
+    return (
+      <Alert tone="warning" icon={<ShieldCheck size={18} />}>
+        No tienes planes disponibles por ahora. Hay una solicitud anterior por confirmar;
+        revisaremos tu saldo automáticamente.
+      </Alert>
+    );
   if (account.usage?.coachRemaining === 0)
     return (
       <Alert tone="warning" icon={<ShieldCheck size={18} />}>

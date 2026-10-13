@@ -58,6 +58,10 @@ export function createCoachTrace(
         if (bounded(cost, 1_000)) attributes["elociencia.cost_usd"] = cost;
       }
     },
+    preparation() {
+      attributes["elociencia.first_preparation_ms"] ??= elapsed();
+      attributes["elociencia.first_useful_ms"] ??= elapsed();
+    },
     brief() {
       attributes["elociencia.first_useful_ms"] ??= elapsed();
     },

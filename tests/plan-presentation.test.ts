@@ -48,7 +48,7 @@ test("the detail view preserves older format advice without requiring modern bui
   assert.ok(
     renderToStaticMarkup(
       createElement(CoachBriefView, { result: legacy, input: demoInput }),
-    ).includes("no incluye una valoración"),
+    ).includes("Sin valoración"),
   );
 });
 

@@ -1,7 +1,7 @@
 import { after } from "next/server";
 import { createCoachTrace } from "@/lib/coach-trace";
 import { coachStreamResponse } from "@/lib/coach-stream-response";
-import type { CoachBrief } from "@/lib/types";
+import type { CoachBrief, CoachPreparation } from "@/lib/types";
 import { getCatalog, getChampionDetails } from "@/lib/catalog";
 import { assertSameOrigin, errorResponse, jsonResponse, readJsonBody } from "@/lib/http";
 import { generateCoach } from "@/lib/openrouter";
@@ -33,7 +33,11 @@ export async function POST(request: Request): Promise<Response> {
       getChampionDetails(input.enemy, catalog),
     ]);
     observation.catalogReady();
-    const work = async (onBrief?: (brief: CoachBrief) => void, signal = request.signal) => {
+    const work = async (
+      onBrief?: (brief: CoachBrief) => void,
+      signal = request.signal,
+      onPreparation?: (preparation: CoachPreparation) => void,
+    ) => {
       try {
         const result = await runGeneration(request, {
           operation: "COACH",
@@ -44,6 +48,12 @@ export async function POST(request: Request): Promise<Response> {
             observation.provider(execution.model);
             return generateCoach(input, catalog, { champion, enemy }, fetch, signal, {
               ...execution,
+              onPreparation:
+                onPreparation &&
+                ((preparation) => {
+                  observation.preparation();
+                  onPreparation(preparation);
+                }),
               onUsage: async (usage) => {
                 await execution.onUsage(usage);
                 observation.usage(usage);

@@ -130,21 +130,24 @@ test("jungle and support presentation stop describing the opening as a solo lane
   );
 });
 
-test("priority and matchup stay above incoming teamfight details; old plans get no invented advice", () => {
+test("opening advice stays compact and teamfight moves to map details; old plans get no invented advice", () => {
   const result = { ...demoResult, plan: { ...demoResult.plan, brief } };
   const html = renderToStaticMarkup(createElement(CoachBriefView, { result, input: demoInput }));
-  assert.ok(html.indexOf("Tu prioridad") < html.indexOf("Tu papel en las peleas"));
-  assert.ok(html.indexOf("Tu prioridad") < html.indexOf("Matchup de mid"));
-  assert.ok(html.indexOf("Matchup de mid") < html.indexOf("Tu papel en las peleas"));
+  assert.ok(html.indexOf("Plan de inicio") < html.indexOf("Matchup de mid"));
+  assert.ok(!html.includes("Tu papel en las peleas"));
+  const details = renderToStaticMarkup(
+    createElement(PlanDetails, { result, input: demoInput, maps: catalogMaps(fixtureCatalog) }),
+  );
+  assert.ok(details.indexOf('id="plan-map"') < details.indexOf("Tu papel en las peleas"));
   for (const value of Object.values(teamfight)) {
-    assert.ok(html.includes(value));
+    assert.ok(details.includes(value));
     assert.ok(planText(result, catalogMaps(fixtureCatalog), false, demoInput).includes(value));
   }
   assert.equal(coachBrief(demoResult).teamfight, undefined);
   const old = renderToStaticMarkup(
     createElement(CoachBriefView, { result: demoResult, input: demoInput }),
   );
-  assert.ok(old.includes("no incluye una lectura de peleas"));
+  assert.ok(!old.includes("Tu papel en las peleas"));
   assert.ok(!old.includes(teamfight.job));
 });
 

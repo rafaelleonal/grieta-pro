@@ -1,23 +1,15 @@
-import { AlertCircle, ChevronDown, History, RefreshCw } from "lucide-react";
+import { AlertCircle, ChevronDown, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CoachFailure({
-  checking,
-  checked,
   uncertain,
   error,
-  checkError,
   previousPlan,
-  onCheck,
   onHistory,
 }: {
-  checking: boolean;
-  checked: boolean;
   uncertain: boolean;
   error: string;
-  checkError?: string;
   previousPlan: boolean;
-  onCheck: () => void;
   onHistory: () => void;
 }) {
   return (
@@ -32,36 +24,17 @@ export function CoachFailure({
           <p className="text-body text-neutral-300">Tu selección sigue guardada.</p>
           {uncertain ? (
             <p className="text-small text-warning-text">
-              El coste sigue por confirmar. Conservamos la reserva.
+              La solicitud anterior aún cuenta en tu saldo hasta que confirmemos su consumo.
             </p>
           ) : null}
         </div>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        <Button
-          variant="primary"
-          onClick={onCheck}
-          disabled={checking}
-          loading={checking}
-          loadingLabel="Comprobando…"
-        >
-          <RefreshCw size={16} aria-hidden="true" />
-          Comprobar estado
-        </Button>
-        <Button onClick={onHistory}>
+        <Button variant="primary" onClick={onHistory}>
           <History size={16} aria-hidden="true" />
           Ver mis planes
         </Button>
       </div>
-      {checked ? (
-        <p className="text-small text-neutral-300" role="status">
-          {checkError
-            ? "Estado sin confirmar. No iniciamos otra consulta."
-            : uncertain
-              ? "Consulta pendiente o coste por confirmar. No iniciamos otra consulta."
-              : "Sin consultas pendientes. No llegó el plan; puedes generar otro."}
-        </p>
-      ) : null}
       {previousPlan ? (
         <p className="text-small text-neutral-300">El plan de abajo es de una consulta anterior.</p>
       ) : null}

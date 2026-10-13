@@ -1,3 +1,5 @@
+import { TeamfightView } from "./teamfight-view";
+import { coachBrief } from "@/lib/coach-presentation";
 import { Layers, Crosshair, ShoppingBag, Map, Users } from "lucide-react";
 import { cn } from "@/components/ui/cn";
 import { ROLE_FOCUS } from "@/lib/role-focus";
@@ -163,6 +165,7 @@ export function PlanDetails({
         title="Mapa y peleas"
         hint="Rotaciones, objetivos y decisiones de equipo"
       >
+        <TeamfightView plan={coachBrief(result).teamfight} input={input} />
         {modern
           ? (["mid", "late"] as const).map((phase) =>
               modern.phases[phase].length ? (

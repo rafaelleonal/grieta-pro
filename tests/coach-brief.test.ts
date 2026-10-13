@@ -234,7 +234,7 @@ test("Claude sends a fixed named JSON contract without compiling a provider gram
       original = text;
       const plan = schema.properties.plan.anyOf[0];
       assert.equal(plan.properties.format.const, "compact-v1");
-      assert.deepEqual(plan.required, ["format", "brief", "levels", "reactions", "build", "macro"]);
+      assert.deepEqual(plan.required, ["format", "build", "brief", "levels", "reactions", "macro"]);
       assert.equal(plan.properties.levels.items.properties.level.type, "string");
       assert.equal(plan.properties.build.properties.core.items.type, "string");
       assert.equal(plan.additionalProperties, false);

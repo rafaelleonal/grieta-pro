@@ -33,7 +33,7 @@ export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-6">
+    <div className="mx-auto flex w-full flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-6">
       <div className="flex flex-wrap items-center gap-3">
         <div className="flex min-w-0 flex-wrap items-center gap-2">
           {[champion, enemy].map((entry, index) =>

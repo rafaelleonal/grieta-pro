@@ -13,7 +13,7 @@ import {
 } from "../lib/openrouter";
 import { fixtureCatalog, fixturePlan } from "./coach-fixtures";
 import type { Catalog, CoachInput, CoachPlan } from "../lib/types";
-import type { ProviderUsage } from "../lib/usage";
+import { GEMINI_PRO_MODEL, type ProviderUsage } from "../lib/usage";
 
 const catalog: Catalog = {
   ...fixtureCatalog,
@@ -26,6 +26,7 @@ const catalog: Catalog = {
   ],
 };
 const input: CoachInput = {
+  model: GEMINI_PRO_MODEL,
   champion: "Ahri",
   enemy: "Yasuo",
   role: "MID",
@@ -136,7 +137,7 @@ test("builds one bounded structured request with current context and credentials
     assert.ok(init?.signal);
     assert.equal(init?.redirect, "error");
     const body = JSON.parse(String(init?.body));
-    assert.equal(body.model, DEFAULT_MODEL);
+    assert.equal(body.model, GEMINI_PRO_MODEL);
     assert.equal(body.stream, false);
     assert.equal(body.provider.require_parameters, true);
     assert.equal(body.provider.allow_fallbacks, false);
@@ -747,7 +748,7 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.equal(status.riotConfigured, false);
       assert.equal(status.accessRequired, true);
       assert.equal(status.defaultModel, DEFAULT_MODEL);
-      assert.equal(DEFAULT_MODEL, "google/gemini-3.1-pro-preview");
+      assert.equal(DEFAULT_MODEL, "google/gemini-3.8-flash");
       assert.equal(resolveCredentials({ apiKey: "personal-key" }).model, DEFAULT_MODEL);
       assert.deepEqual(Object.keys(status).sort(), [
         "accessRequired",
@@ -786,13 +787,18 @@ test("server-funded resolution fails closed in production; personal keys remain 
 });
 
 test("new plans keep the full catalog prompt bounded and use the reserved Gemini completion cap", async () => {
-  const { completionTokenLimit, MAX_COACH_PROMPT_BYTES, maximumCost, MODEL_POLICIES } =
-    await import("../lib/usage");
+  const {
+    GEMINI_PRO_MODEL,
+    completionTokenLimit,
+    MAX_COACH_PROMPT_BYTES,
+    maximumCost,
+    MODEL_POLICIES,
+  } = await import("../lib/usage");
   let dispatched = 0;
   const execution = {
     apiKey: "synthetic-test-key",
-    model: DEFAULT_MODEL,
-    policy: MODEL_POLICIES[DEFAULT_MODEL],
+    model: GEMINI_PRO_MODEL,
+    policy: MODEL_POLICIES[GEMINI_PRO_MODEL],
     onDispatch: async () => {
       dispatched++;
     },
@@ -805,7 +811,7 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
     async (_, init) => {
       const body = JSON.parse(String(init?.body));
       assert.equal(body.model, "google/gemini-3.1-pro-preview");
-      assert.equal(body.max_completion_tokens, completionTokenLimit(DEFAULT_MODEL, "COACH"));
+      assert.equal(body.max_completion_tokens, completionTokenLimit(GEMINI_PRO_MODEL, "COACH"));
       assert.deepEqual(body.reasoning, { enabled: true, effort: "medium", exclude: true });
       assert.deepEqual(body.provider, {
         require_parameters: true,
@@ -833,7 +839,9 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
   );
   assert.equal(dispatched, 1);
   assert.equal(result.meta.formatVersion, 2);
-  assert.ok(maximumCost(DEFAULT_MODEL, "COACH").greaterThan(maximumCost(DEFAULT_MODEL, "DRAFT")));
+  assert.ok(
+    maximumCost(GEMINI_PRO_MODEL, "COACH").greaterThan(maximumCost(GEMINI_PRO_MODEL, "DRAFT")),
+  );
 });
 
 test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every input scenario", async () => {

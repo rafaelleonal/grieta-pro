@@ -97,7 +97,11 @@ export function ConnectionForm({
           }}
           aria-describedby="model-help"
         >
-          <option value="">Modelo recomendado</option>
+          <option value="">
+            {status?.defaultModel
+              ? `${modelLabel(status.defaultModel)} · predeterminado`
+              : "Predeterminado de la app"}
+          </option>
           {models.map((model) => (
             <option key={model} value={model} title={model}>
               {modelLabel(model)}

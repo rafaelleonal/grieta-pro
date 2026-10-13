@@ -10,30 +10,10 @@ const reaction = z.object({ trigger: cell, response: cell, champions: ids }).str
 export const compactCoachPlanSchema = z
   .object({
     format: z.literal("compact-v1"),
-    brief: z
-      .object({
-        matchup: z.object({ verdict: cell, reason: cell, condition: cell }).strict(),
-        priority: cell,
-        teamfight: z.object({ setup: cell, job: cell, fallback: cell }).strict(),
-        window: z.object({ trigger: cell, response: cell }).strict(),
-        avoid: cell,
-      })
-      .strict(),
-    levels: z
-      .array(
-        z
-          .object({ level: cell, cue: cell, text: cell, edge: cell, skill: cell, champions: ids })
-          .strict(),
-      )
-      .max(6),
-    reactions: z.object({ linea: z.array(reaction).max(3) }).strict(),
     build: z
       .object({
+        summoners: z.object({ pick: z.array(cell).max(2), why: cell }).strict(),
         starting: z.array(cell).max(3),
-        core: z.array(cell).max(3),
-        situational: z
-          .array(z.object({ item: cell, reason: cell, champions: ids }).strict())
-          .max(3),
         runes: z
           .object({
             primary: z
@@ -44,10 +24,30 @@ export const compactCoachPlanSchema = z
             why: cell,
           })
           .strict(),
-        summoners: z.object({ pick: z.array(cell).max(2), why: cell }).strict(),
+        core: z.array(cell).max(3),
+        situational: z
+          .array(z.object({ item: cell, reason: cell, champions: ids }).strict())
+          .max(3),
         skillOrder: z.object({ first6: z.array(cell).max(6), max: z.array(cell).max(3) }).strict(),
       })
       .strict(),
+    brief: z
+      .object({
+        priority: cell,
+        matchup: z.object({ verdict: cell, reason: cell, condition: cell }).strict(),
+        window: z.object({ trigger: cell, response: cell }).strict(),
+        avoid: cell,
+        teamfight: z.object({ setup: cell, job: cell, fallback: cell }).strict(),
+      })
+      .strict(),
+    levels: z
+      .array(
+        z
+          .object({ level: cell, cue: cell, text: cell, edge: cell, skill: cell, champions: ids })
+          .strict(),
+      )
+      .max(6),
+    reactions: z.object({ linea: z.array(reaction).max(3) }).strict(),
     macro: z.array(cell).max(3),
   })
   .strict();

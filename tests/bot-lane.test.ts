@@ -70,10 +70,15 @@ test("stored inputs and fingerprints only gain partner fields when they exist", 
 
 test("the prompt describes the 2v2 lane and allows both partners as references", async () => {
   let body: ReturnType<typeof JSON.parse> | undefined;
-  await generateCoach(bot, fixtureCatalog, undefined, async (_url, init) => {
-    body = JSON.parse(String(init?.body));
-    throw new Error("stop");
-  }).catch(() => undefined);
+  await generateCoach(
+    { ...bot, model: "google/gemini-3.1-pro-preview" },
+    fixtureCatalog,
+    undefined,
+    async (_url, init) => {
+      body = JSON.parse(String(init?.body));
+      throw new Error("stop");
+    },
+  ).catch(() => undefined);
   assert.ok(body, "the provider request was built");
   const context = JSON.parse(body.messages[1].content);
   assert.equal(context.botLane.yourPartner.id, "Thresh");

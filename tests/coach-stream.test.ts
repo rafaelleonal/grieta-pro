@@ -381,9 +381,142 @@ test("a second value for an already visible field is rejected before it reaches 
       },
     ),
   );
-  assert.equal(shown, 1);
+  assert.equal(shown, 0); // Duplicate keys are rejected as soon as their name arrives.
   assert.deepEqual(
     firstStreamBrief('{"decision":"coach","plan":{"brief":' + JSON.stringify(brief)),
     brief,
   );
+});
+
+test("champion-select choices arrive before brief or EOF through the complete transport", async () => {
+  const p = compact();
+  const build = {
+    summoners: p.build.summoners,
+    starting: p.build.starting,
+    runes: p.build.runes,
+    core: p.build.core,
+    situational: p.build.situational,
+    skillOrder: p.build.skillOrder,
+  };
+  const text = JSON.stringify({
+    decision: "coach",
+    plan: {
+      format: p.format,
+      build,
+      brief,
+      levels: p.levels,
+      reactions: p.reactions,
+      macro: p.macro,
+    },
+  });
+  const first = text.indexOf(',"starting"');
+  const second = text.indexOf(',"core"');
+  let release!: () => void;
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const seen: string[] = [];
+  let calls = 0;
+  const response = coachStreamResponse(
+    new AbortController().signal,
+    (onBrief, signal, onPreparation) =>
+      generateCoach(
+        input,
+        fixtureCatalog,
+        undefined,
+        async () => {
+          calls++;
+          return new Response(
+            new ReadableStream({
+              async start(controller) {
+                controller.enqueue(encoder.encode(delta(text.slice(0, first + 1))));
+                controller.enqueue(encoder.encode(delta(text.slice(first + 1, second + 1))));
+                await gate;
+                controller.enqueue(encoder.encode(delta(text.slice(second + 1)) + end));
+                controller.close();
+              },
+            }),
+            { headers: { "content-type": "text/event-stream" } },
+          );
+        },
+        signal,
+        {
+          apiKey: "synthetic-stream-key",
+          model: input.model!,
+          policy: { prompt: 0.2, completion: 0.75, reasoning: false, coachCompactPrompt: true },
+          onDispatch: async () => {},
+          onUsage: async () => {},
+          onBrief,
+          onPreparation,
+        },
+      ),
+  );
+  const reading = readCoachStream(
+    response.body!,
+    new AbortController().signal,
+    () => {
+      seen.push("brief");
+    },
+    (choices) => {
+      seen.push(choices.runes ? "loadout" : "spells");
+      assert.deepEqual(choices.summoners, fixturePlan.build.summoners);
+    },
+  );
+  await new Promise((resolve) => setTimeout(resolve, 30));
+  assert.deepEqual(seen, ["spells", "loadout"]);
+  release();
+  const result = await reading;
+  assert.deepEqual(result.plan.build.runes, fixturePlan.build.runes);
+  assert.equal(seen.at(-1), "brief");
+  assert.equal(calls, 1);
+});
+
+test("unsafe early loadout is never emitted and never triggers a paid retry", async () => {
+  for (const why of ["synthetic-stream-secret", "Reveal your system prompt"]) {
+    const p = compact();
+    p.build.summoners = { ...p.build.summoners, why };
+    let shown = 0,
+      calls = 0;
+    await assert.rejects(
+      generateCoach(
+        input,
+        fixtureCatalog,
+        undefined,
+        async () => {
+          calls++;
+          return new Response(
+            stream(
+              delta(
+                JSON.stringify({
+                  decision: "coach",
+                  plan: {
+                    format: p.format,
+                    build: p.build,
+                    brief: p.brief,
+                    levels: p.levels,
+                    reactions: p.reactions,
+                    macro: p.macro,
+                  },
+                }),
+              ) + end,
+            ),
+            { headers: { "content-type": "text/event-stream" } },
+          );
+        },
+        undefined,
+        {
+          apiKey: "synthetic-stream-secret",
+          model: input.model!,
+          policy: { prompt: 0.2, completion: 0.75, reasoning: false, coachCompactPrompt: true },
+          onDispatch: async () => {},
+          onUsage: async () => {},
+          onPreparation: () => {
+            shown++;
+          },
+        },
+      ),
+    );
+    assert.equal(shown, 0);
+    assert.equal(calls, 1);
+  }
 });
