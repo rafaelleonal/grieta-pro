@@ -2,6 +2,7 @@
 import { useMemo } from "react";
 import { ExternalLink, Info } from "lucide-react";
 import { CoachBriefView } from "./coach-brief";
+import { ItemDetails } from "./plan/item-details";
 import { Preparation } from "./plan/preparation";
 import { PlanDetails } from "./plan/plan-details";
 import { PlanActions } from "./plan/plan-actions";
@@ -48,6 +49,12 @@ export function CoachingResult({
         <Preparation build={result.plan.build} maps={maps} />
         <CoachBriefView result={result} input={input} />
       </div>
+      <section
+        aria-label="Próximas compras"
+        className="rounded-lg border border-divider bg-surface p-4 md:p-5"
+      >
+        <ItemDetails build={result.plan.build} maps={maps} />
+      </section>
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-divider pt-4">
         <div>
           <h2 className="text-h3 font-medium">Durante la partida</h2>

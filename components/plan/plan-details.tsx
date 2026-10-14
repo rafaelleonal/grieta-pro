@@ -1,11 +1,11 @@
 import { TeamfightView } from "./teamfight-view";
 import { coachBrief } from "@/lib/coach-presentation";
-import { Layers, Crosshair, ShoppingBag, Map, Users } from "lucide-react";
+import { Layers, Crosshair, Gem, Map, Users } from "lucide-react";
 import { cn } from "@/components/ui/cn";
 import { ROLE_FOCUS } from "@/lib/role-focus";
 import type { CoachInput, SavedCoachResult } from "@/lib/types";
 import { isCurrentCoachResult, isPartialCoachResult } from "@/lib/types";
-import { BuildDetails } from "./build-details";
+import { LoadoutDetails } from "./loadout-details";
 import { Advice, PHASES, PlanSection, Portrait, type Maps } from "./shared";
 
 export function PlanDetails({
@@ -153,11 +153,11 @@ export function PlanDetails({
       </PlanSection>
       <PlanSection
         id="plan-build"
-        icon={ShoppingBag}
-        title="Compras y preparación"
-        hint="Objetos, runas, hechizos y habilidades"
+        icon={Gem}
+        title="Preparación en detalle"
+        hint="Motivos, alternativas y orden de habilidades"
       >
-        <BuildDetails result={result} maps={maps} />
+        <LoadoutDetails build={result.plan.build} maps={maps} />
       </PlanSection>
       <PlanSection
         id="plan-map"

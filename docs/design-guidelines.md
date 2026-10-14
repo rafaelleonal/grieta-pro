@@ -20,7 +20,8 @@ El resumen debe permitir encontrar estas respuestas sin abrir todas las seccione
 1. **Hechizos de invocador:** pareja elegida, iconos y motivo breve. Es la primera decisión en selección de campeón.
 2. **Compra inicial y runas:** objetos con su coste validado, página de runas y fragmentos, visibles sin desplegar detalles.
 3. **Plan de inicio:** prioridad por rol, lectura compacta del matchup, ventana y riesgo.
-4. **Durante la partida:** niveles, reacciones, compras posteriores y mapa/peleas, en secciones independientes más abajo.
+4. **Próximas compras:** núcleo en orden y opciones situacionales con su condición, visibles justo después de preparación e inicio, sin abrir un desplegable.
+5. **Durante la partida:** niveles, reacciones, detalles de preparación y mapa/peleas, en secciones independientes más abajo.
 
 En escritorio y tablet, coloca preparación e inicio en **dos columnas** y aprovecha el ancho disponible. En móvil, conserva el orden hechizos → compra inicial → runas → inicio, sin desbordamiento. Evita tarjetas grandes de una sola frase y encabezados repetidos. El papel en peleas, objetivos y late pertenece al detalle de mapa; no debe retrasar las elecciones de prepartida.
 

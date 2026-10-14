@@ -1,7 +1,7 @@
 import { Coins, ShoppingBag } from "lucide-react";
 import type { SavedCoachResult } from "@/lib/types";
 import { CatalogArt, resolveEntry } from "./catalog-art";
-import { DetailHeading, type Maps } from "./shared";
+import { type Maps } from "./shared";
 
 function Item({
   id,
@@ -24,7 +24,7 @@ function Item({
             Compra {order}
           </p>
         ) : null}
-        <h5 className="text-body font-semibold leading-snug text-text">{entry?.name || id}</h5>
+        <h3 className="text-body font-semibold leading-snug text-text">{entry?.name || id}</h3>
         {entry ? (
           <p className="flex items-center gap-1.5 text-small text-warning-text">
             <Coins size={14} aria-hidden="true" />
@@ -43,39 +43,28 @@ export function ItemDetails({
   build: SavedCoachResult["plan"]["build"];
   maps: Maps;
 }) {
-  const groups = [
-    { title: "Objetos iniciales", ids: build.starting },
-    { title: "Compras principales", ids: build.core },
-  ];
   return (
-    <div className="space-y-8">
-      <DetailHeading
-        icon={ShoppingBag}
-        title="Tu ruta de compra"
-        description="El núcleo va en orden. Ajusta los situacionales a lo que ocurra en la partida."
-      />
-      {groups.map(({ title, ids }, group) => (
-        <section key={title} className="space-y-4">
-          <h4 className="text-h3 font-semibold text-neutral-100">{title}</h4>
-          {ids.length ? (
-            <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {ids.map((id, i) => (
-                <Item
-                  key={`${id}-${i}`}
-                  id={id}
-                  maps={maps}
-                  order={group === 1 ? i + 1 : undefined}
-                />
-              ))}
-            </ul>
-          ) : (
-            <p className="text-small text-neutral-400">No se incluyeron objetos.</p>
-          )}
-        </section>
-      ))}
+    <div className="space-y-5">
+      <div>
+        <h2 className="flex items-center gap-2 text-h3 font-semibold">
+          <ShoppingBag size={18} aria-hidden="true" /> Próximas compras
+        </h2>
+        <p className="mt-2 text-small text-neutral-400">
+          Compra en este orden; ajusta los situacionales a la partida.
+        </p>
+      </div>
+      {build.core.length ? (
+        <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {build.core.map((id, i) => (
+            <Item key={`${id}-${i}`} id={id} maps={maps} order={i + 1} />
+          ))}
+        </ol>
+      ) : (
+        <p className="text-small text-neutral-400">No se incluyeron compras principales.</p>
+      )}
       {build.situational.length ? (
         <section className="space-y-4">
-          <h4 className="text-h3 font-semibold text-neutral-100">Situacionales · cuándo cambiar</h4>
+          <h3 className="text-h3 font-semibold text-neutral-100">Situacionales · cuándo cambiar</h3>
           <ul className="grid gap-4 md:grid-cols-2">
             {build.situational.map((item, i) => (
               <Item key={`${item.item}-${i}`} id={item.item} maps={maps} reason={item.reason} />
@@ -84,8 +73,10 @@ export function ItemDetails({
         </section>
       ) : null}
       {"nowByPhase" in build && Object.values(build.nowByPhase).some((ids) => ids.length) ? (
-        <div className="space-y-5 border-t border-divider pt-6">
-          <h4 className="text-h3 font-semibold">Compras por fase</h4>
+        <details className="space-y-5 border-t border-divider">
+          <summary className="min-h-11 cursor-pointer py-3 text-small text-neutral-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent">
+            Compras por fase
+          </summary>
           {Object.entries(build.nowByPhase)
             .filter(([, ids]) => ids.length)
             .map(([phase, ids]) => (
@@ -111,7 +102,7 @@ export function ItemDetails({
                 </ul>
               </div>
             ))}
-        </div>
+        </details>
       ) : null}
     </div>
   );
