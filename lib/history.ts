@@ -12,7 +12,12 @@ function publicRecord(row: CoachRecord) {
       plan: row.plan,
       meta: {
         ...meta,
-        formatVersion: "formatVersion" in meta && meta.formatVersion === 3 ? 3 : current ? 2 : 1,
+        formatVersion:
+          "formatVersion" in meta && (meta.formatVersion === 3 || meta.formatVersion === 4)
+            ? meta.formatVersion
+            : current
+              ? 2
+              : 1,
       },
     },
     createdAt: row.createdAt.toISOString(),

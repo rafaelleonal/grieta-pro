@@ -1,23 +1,20 @@
 "use client";
 import { useMemo } from "react";
-import { CoachBriefContent } from "@/components/coach-brief";
 import { Preparation } from "@/components/plan/preparation";
 import { catalogMaps } from "@/components/plan/shared";
 import { Button, Spinner } from "@/components/ui/button";
-import type { Catalog, CoachBrief, CoachInput, CoachPreparation } from "@/lib/types";
+import type { Catalog, CoachInput, CoachPreparation } from "@/lib/types";
 
-/** Same two slots throughout generation: new details never push choices down. */
+/** Show only validated build choices while the same request finishes. */
 export function GeneratingScreen({
   input,
   catalog,
   onCancel,
-  preview,
   preparation,
 }: {
   input: CoachInput;
   catalog: Catalog | null;
   onCancel: () => void;
-  preview?: CoachBrief | null;
   preparation?: CoachPreparation | null;
 }) {
   const maps = useMemo(() => (catalog ? catalogMaps(catalog) : null), [catalog]);
@@ -31,9 +28,9 @@ export function GeneratingScreen({
           </h1>
           <p role="status" className="mt-1 flex items-center gap-2 text-small text-neutral-400">
             <Spinner className="size-3.5" />
-            {preparation?.runes && preview
-              ? "Completando niveles, compras y mapa…"
-              : "Preparando tus elecciones y el inicio…"}
+            {preparation?.runes
+              ? "Completando tus compras…"
+              : "Preparando build, hechizos y runas…"}
           </p>
         </div>
         <Button onClick={onCancel}>Cancelar</Button>
@@ -44,10 +41,9 @@ export function GeneratingScreen({
         ) : (
           <p role="status">Cargando catálogo…</p>
         )}
-        <CoachBriefContent brief={preview || {}} input={input} pending />
       </div>
       <p className="text-xs text-neutral-400">
-        Avance provisional. El plan se guarda al terminar. Cancelar puede consumir cuota.
+        Avance provisional. Se guarda al terminar. Cancelar puede consumir cuota.
       </p>
     </section>
   );

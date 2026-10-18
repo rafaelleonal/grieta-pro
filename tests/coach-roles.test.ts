@@ -7,10 +7,9 @@ import { coachBrief } from "../lib/coach-presentation";
 import { ApiError } from "../lib/errors";
 import { isPartialCoachResult, type CoachInput, type Role } from "../lib/types";
 import { GEMINI_PRO_MODEL } from "../lib/usage";
-import { fixtureCatalog } from "./coach-fixtures";
+import { fixtureCatalog, fixturePlan } from "./coach-fixtures";
 import { demoInput, demoResult } from "../lib/demo";
-import { CoachBriefView } from "../components/coach-brief";
-import { PlanDetails } from "../components/plan/plan-details";
+import { CoachingResult } from "../components/coaching-result";
 import { TeamfightView } from "../components/plan/teamfight-view";
 import { planText } from "../components/plan/plan-text";
 import { catalogMaps } from "../components/plan/shared";
@@ -35,15 +34,8 @@ const response = (value: unknown) =>
     ],
   });
 
-test("all five roles receive a distinct opening and team objective policy in one request", async () => {
-  const checks: Record<Role, RegExp> = {
-    TOP: /presión lateral/,
-    JUNGLE: /ruta inicial condicional/,
-    MID: /acceso al río/,
-    ADC: /daño al objetivo alcanzable/,
-    SUPPORT: /cuándo NO abandonar a tu ADC/,
-  };
-  for (const role of Object.keys(checks) as Role[]) {
+test("all five roles request only loadout choices using their role and starter context", async () => {
+  for (const role of ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"] as Role[]) {
     let calls = 0;
     const result = await generateCoach(
       { ...input, role, allies: [], enemies: [] },
@@ -52,23 +44,39 @@ test("all five roles receive a distinct opening and team objective policy in one
       async (_, init) => {
         calls++;
         const body = JSON.parse(String(init?.body));
-        const policy = body.messages[0].content;
-        assert.match(policy, checks[role]);
-        assert.match(policy, /preparación, no lectura en vivo/);
-        assert.match(policy, /sin inventar aliados/);
-        assert.match(policy, /cuándo agruparse y cuándo intercambiar sin pelear/);
-        assert.match(policy, /nombre técnico del inicio de partida/);
-        assert.equal(JSON.parse(body.messages[1].content).role, role);
-        const schema =
-          body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.brief;
-        assert.ok(schema.required.includes("teamfight"));
-        assert.deepEqual(schema.properties.teamfight.required, ["setup", "job", "fallback"]);
-        assert.equal(schema.properties.teamfight.additionalProperties, false);
-        return response({ brief });
+        const context = JSON.parse(body.messages[1].content);
+        assert.equal(context.role, role);
+        assert.equal(context.mechanics, undefined);
+        assert.match(
+          body.messages[0].content,
+          /Recomienda sólo objetos, hechizos de invocador y runas/,
+        );
+        const schema = body.response_format.json_schema.schema.properties.plan.anyOf[0];
+        assert.deepEqual(Object.keys(schema.properties), ["format", "build"]);
+        assert.equal(schema.properties.build.properties.skillOrder, undefined);
+        if (role === "JUNGLE" || role === "SUPPORT") assert.ok(context.startingOptions.length);
+        return response({
+          format: "build-v1",
+          build: {
+            starting: context.startingOptions?.[0] || fixturePlan.build.starting,
+            core: ["3020", "3089"],
+            situational: [
+              { item: "3157", reason: "Si necesitas evitar daño al entrar.", champions: [] },
+            ],
+            runes: fixturePlan.build.runes,
+            summoners: fixturePlan.build.summoners,
+          },
+        });
       },
     );
     assert.equal(calls, 1);
-    assert.deepEqual(coachBrief(result).teamfight, teamfight);
+    assert.equal(result.meta.formatVersion, 4);
+    assert.deepEqual(coachBrief(result), {
+      priority: undefined,
+      window: undefined,
+      avoid: undefined,
+    });
+    assert.deepEqual(result.plan.macro, []);
   }
 });
 
@@ -104,24 +112,36 @@ test("unsafe teamfight advice rejects the entire response before section recover
   );
 });
 
-test("jungle and support presentation stop describing the opening as a solo lane", () => {
+test("jungle and support retain role context while presenting only stored build choices", () => {
   const maps = catalogMaps(fixtureCatalog);
-  for (const [role, heading] of [
-    ["JUNGLE", "Primeras rutas"],
-    ["SUPPORT", "Dúo y salidas"],
+  for (const [role, label] of [
+    ["JUNGLE", "Jungla"],
+    ["SUPPORT", "Support"],
   ] as const) {
     const context = { ...demoInput, role };
     const html = renderToStaticMarkup(
-      createElement(PlanDetails, { result: demoResult, input: context, maps }),
+      createElement(CoachingResult, {
+        result: demoResult,
+        input: context,
+        catalog: fixtureCatalog,
+        sample: false,
+      }),
     );
-    assert.ok(html.includes(heading));
-    assert.ok(!html.includes("momentos para jugar la línea"));
     const copied = planText(demoResult, maps, false, context);
-    assert.ok(
-      copied.includes(
-        role === "JUNGLE" ? "PRIMERAS RUTAS Y PRESENCIA" : "DÚO, VISIÓN Y PRIMERAS SALIDAS",
-      ),
-    );
+    assert.ok(copied.includes(`· ${label} ·`));
+    for (const output of [html, copied]) {
+      assert.ok(output.includes("Destello"));
+      assert.ok(output.includes("Electrocutar"));
+      for (const opening of [
+        "Primeras rutas",
+        "Dúo y salidas",
+        "PRIMERAS RUTAS Y PRESENCIA",
+        "DÚO, VISIÓN Y PRIMERAS SALIDAS",
+        "momentos para jugar la línea",
+      ])
+        assert.ok(!output.includes(opening), opening);
+      assert.ok(!output.includes(demoResult.plan.levels[0].text));
+    }
   }
   assert.equal(matchupSlots("JUNGLE").find((s) => s.key === "enemy")?.label, "Jungla rival");
   assert.deepEqual(
@@ -130,25 +150,36 @@ test("jungle and support presentation stop describing the opening as a solo lane
   );
 });
 
-test("opening advice stays compact and teamfight moves to map details; old plans get no invented advice", () => {
+test("historical opening and teamfight advice stay out of build output and export", () => {
   const result = { ...demoResult, plan: { ...demoResult.plan, brief } };
-  const html = renderToStaticMarkup(createElement(CoachBriefView, { result, input: demoInput }));
-  assert.ok(html.indexOf("Plan de inicio") < html.indexOf("Matchup de mid"));
-  assert.ok(!html.includes("Tu papel en las peleas"));
-  const details = renderToStaticMarkup(
-    createElement(PlanDetails, { result, input: demoInput, maps: catalogMaps(fixtureCatalog) }),
+  const html = renderToStaticMarkup(
+    createElement(CoachingResult, {
+      result,
+      input: demoInput,
+      catalog: fixtureCatalog,
+      sample: false,
+    }),
   );
-  assert.ok(details.indexOf('id="plan-map"') < details.indexOf("Tu papel en las peleas"));
-  for (const value of Object.values(teamfight)) {
-    assert.ok(details.includes(value));
-    assert.ok(planText(result, catalogMaps(fixtureCatalog), false, demoInput).includes(value));
+  const copied = planText(result, catalogMaps(fixtureCatalog), false, demoInput);
+  for (const output of [html, copied]) {
+    assert.ok(output.includes("Destello"));
+    assert.ok(output.includes("Electrocutar"));
+    assert.ok(!output.includes("Plan de inicio"));
+    assert.ok(!output.includes("Tu papel en las peleas"));
+    for (const value of [brief.priority, ...Object.values(teamfight)])
+      assert.ok(!output.includes(value), value);
   }
   assert.equal(coachBrief(demoResult).teamfight, undefined);
   const old = renderToStaticMarkup(
-    createElement(CoachBriefView, { result: demoResult, input: demoInput }),
+    createElement(CoachingResult, {
+      result: demoResult,
+      input: demoInput,
+      catalog: fixtureCatalog,
+      sample: false,
+    }),
   );
-  assert.ok(!old.includes("Tu papel en las peleas"));
   assert.ok(!old.includes(teamfight.job));
+  assert.ok(!old.includes("Tu papel en las peleas"));
 });
 
 test("composition coverage counts bot partners once and discloses missing teams", () => {

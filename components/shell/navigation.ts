@@ -12,7 +12,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { view: "account", label: "Cuenta", short: "Cuenta", icon: UserRound },
 ];
 
-export const NEW_PREPARATION = { label: "Nuevo plan", short: "Nueva", icon: Plus };
+export const NEW_PREPARATION = { label: "Nueva build", short: "Nueva", icon: Plus };
 
 export const VIEW_TITLES: Record<View, string> = {
   coach: "League of Legends",

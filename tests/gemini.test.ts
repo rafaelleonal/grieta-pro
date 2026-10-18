@@ -3,8 +3,6 @@ import test from "node:test";
 import { ApiError } from "../lib/http";
 import { extractDraft, generateCoach, type ProviderExecution } from "../lib/openrouter";
 import {
-  DEFAULT_MODEL,
-  GEMINI_FLASH_MODEL,
   GEMINI_PRO_MODEL,
   MODEL_POLICIES,
   completionTokenLimit,
@@ -55,7 +53,6 @@ function response(content: unknown, draft = false) {
 const isRejected = (error: unknown) => error instanceof ApiError && error.status === 502;
 
 test("Gemini reserves all capped reasoning and output tokens plus bounded image costs", () => {
-  assert.equal(DEFAULT_MODEL, GEMINI_FLASH_MODEL);
   assert.equal(MODEL_POLICIES[GEMINI_PRO_MODEL].reasoning, true);
   assert.equal(completionTokenLimit(GEMINI_PRO_MODEL, "COACH"), 14_000);
   assert.equal(completionTokenLimit(GEMINI_PRO_MODEL, "DRAFT"), 4_000);

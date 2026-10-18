@@ -60,21 +60,8 @@ test("a core-only response yields usable advice, not a validation failure or inv
       calls++;
       const schema = JSON.parse(String(init?.body)).response_format.json_schema.schema.properties
         .plan.anyOf[0];
-      assert.deepEqual(Object.keys(schema.properties).sort(), [
-        "brief",
-        "build",
-        "levels",
-        "macro",
-        "reactions",
-      ]);
-      assert.deepEqual(schema.properties.brief.required, [
-        "matchup",
-        "priority",
-        "teamfight",
-        "window",
-        "avoid",
-      ]);
-      assert.equal(schema.properties.brief.additionalProperties, false);
+      assert.deepEqual(Object.keys(schema.properties).sort(), ["build", "format"]);
+      assert.equal(schema.properties.build.properties.skillOrder, undefined);
       // Strict providers emit null for omitted optional sections. These are absence,
       // not malformed fields or a reason to repeat a paid request.
       return response({ brief, levels: null, reactions: null, build: null, macro: null });
@@ -233,9 +220,9 @@ test("Claude sends a fixed named JSON contract without compiling a provider gram
       if (original) assert.equal(text, original);
       original = text;
       const plan = schema.properties.plan.anyOf[0];
-      assert.equal(plan.properties.format.const, "compact-v1");
-      assert.deepEqual(plan.required, ["format", "build", "brief", "levels", "reactions", "macro"]);
-      assert.equal(plan.properties.levels.items.properties.level.type, "string");
+      assert.equal(plan.properties.format.const, "build-v1");
+      assert.deepEqual(plan.required, ["format", "build"]);
+      assert.equal(plan.properties.levels, undefined);
       assert.equal(plan.properties.build.properties.core.items.type, "string");
       assert.equal(plan.additionalProperties, false);
     }
@@ -293,10 +280,10 @@ test("the coach prompt sends compact, deduplicated items and bounded abilities",
         if (row.length === 4) assert.ok(row[2] >= 2200 && row[3].length <= 120);
       }
       assert.ok(context.purchasableRiftItems.some((row: unknown[]) => row[0] === "3075"));
-      assert.equal(context.champion.abilities.passive.description.length, 1100);
+      assert.equal(context.champion.abilities.passive.description.length, 400);
       assert.ok(
         context.champion.abilities.spells.every(
-          (spell: { description: string }) => spell.description.length === 1100,
+          (spell: { description: string }) => spell.description.length === 400,
         ),
       );
       assert.deepEqual(Object.keys(context.runeStyles[0]), ["key", "name"]);

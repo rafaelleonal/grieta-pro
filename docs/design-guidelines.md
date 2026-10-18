@@ -2,6 +2,8 @@
 
 Decisiones del propietario recogidas el 12 de octubre de 2026. Aplican a todas las pantallas, al copy y a la presentación y generación de consejos.
 
+**Alcance vigente desde el 18 de octubre de 2026:** la [ADR 0005](adr/0005-build-hechizos-runas.md), solicitada por el propietario, reduce la respuesta a **build, hechizos y runas**. Las secciones 1–4 y las referencias a estrategia, matchup, niveles y mapa de este documento describen el producto anterior y no deben reintroducirse. La jerarquía vigente es hechizos → compra inicial → runas → núcleo y situacionales, aprovechando dos columnas cuando haya espacio. Se mantienen las reglas visuales, de accesibilidad, seguridad y validación.
+
 Esta guía complementa las ADR de [Tailwind](adr/0001-tailwind-v4.md), [componentes React](adr/0002-componentes-react.md), [marca](adr/0003-marca-elociencia.md) y [paleta Grafito](adr/0004-paleta-grafito.md); no las sustituye. La fuente visual sigue siendo el [handoff de marca](../brand/elociencia/HANDOFF.md). Grafito sustituye la paleta violeta de las referencias anteriores: fondos neutros, texto claro y lima sólo de marca. El [registro de revisión UI/UX](uiux-plan-review.md) documenta hallazgos y pruebas históricas; esta guía define las reglas para nuevas contribuciones.
 
 ## 1. Diseñar para decidir durante una partida

@@ -1,43 +1,32 @@
 "use client";
 import { useMemo } from "react";
 import { ExternalLink, Info } from "lucide-react";
-import { CoachBriefView } from "./coach-brief";
 import { ItemDetails } from "./plan/item-details";
 import { Preparation } from "./plan/preparation";
-import { PlanDetails } from "./plan/plan-details";
 import { PlanActions } from "./plan/plan-actions";
 import { planText } from "./plan/plan-text";
 import { catalogMaps, safeUrl } from "./plan/shared";
-import { isPartialCoachResult } from "@/lib/types";
 import type { Catalog, CoachInput, SavedCoachResult } from "@/lib/types";
 
 type Props = {
   result: SavedCoachResult;
   catalog: Catalog;
   input: CoachInput;
-  formOpen: boolean;
   ownerId?: string;
   sample: boolean;
-  busy: boolean;
-  followupError?: string;
-  onFollowup: (message: string) => boolean;
 };
-export function CoachingResult({
-  result,
-  catalog,
-  input,
-  ownerId,
-  sample,
-  busy,
-  followupError,
-  onFollowup,
-}: Props) {
+export function CoachingResult({ result, catalog, input, ownerId, sample }: Props) {
   const maps = useMemo(() => catalogMaps(catalog), [catalog]);
   const sources = result.meta.sources.filter((s) => safeUrl(s.url));
-  const invalid = isPartialCoachResult(result) ? result.meta.partial.invalid || [] : [];
+  const invalid =
+    "partial" in result.meta
+      ? (result.meta.partial?.invalid || []).filter((section) =>
+          ["items", "runes", "summoners"].includes(section),
+        )
+      : [];
   return (
     <section
-      aria-label="Tu plan de partida"
+      aria-label="Tu build recomendada"
       className="min-w-0 space-y-6 text-body [overflow-wrap:anywhere]"
     >
       {sample ? (
@@ -47,33 +36,24 @@ export function CoachingResult({
       ) : null}
       <div className="grid items-start gap-4 md:grid-cols-2">
         <Preparation build={result.plan.build} maps={maps} />
-        <CoachBriefView result={result} input={input} />
+        <section
+          aria-label="Build recomendada"
+          className="min-w-0 rounded-lg border border-divider bg-surface p-4 md:p-5"
+        >
+          <ItemDetails build={result.plan.build} maps={maps} />
+        </section>
       </div>
-      <section
-        aria-label="Próximas compras"
-        className="rounded-lg border border-divider bg-surface p-4 md:p-5"
-      >
-        <ItemDetails build={result.plan.build} maps={maps} />
-      </section>
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-divider pt-4">
-        <div>
-          <h2 className="text-h3 font-medium">Durante la partida</h2>
-          <p className="mt-1 text-small text-neutral-400">Abre sólo lo que necesitas consultar.</p>
-        </div>
         <PlanActions
           key={`${ownerId || "anonymous"}:${result.meta.generatedAt}`}
           text={() => planText(result, maps, sample, input)}
-          busy={busy}
-          error={followupError}
-          onFollowup={onFollowup}
         />
       </div>
       {invalid.length ? (
         <p className="text-small text-warning-text">
-          Algunos detalles no superaron la validación. Se muestran sólo los consejos disponibles.
+          Algunas elecciones no superaron la validación. Se muestran las disponibles.
         </p>
       ) : null}
-      <PlanDetails result={result} input={input} maps={maps} />
       <details className="rounded-md border border-divider px-4">
         <summary className="min-h-11 cursor-pointer py-3 text-small text-neutral-400">
           Fuentes y alcance · Catálogo {result.meta.version}
@@ -81,8 +61,7 @@ export function CoachingResult({
         <div className="space-y-3 pb-4 text-small text-neutral-400">
           <p className="flex items-start gap-2">
             <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
-            Lectura táctica orientativa. No es una estadística de victorias ni garantiza el
-            resultado de la partida.
+            Recomendación orientativa. No es una build óptima acreditada ni garantiza victorias.
           </p>
           {result.meta.warnings.map((w, i) => (
             <p key={i}>{w}</p>

@@ -179,7 +179,7 @@ test("invalid rune alternatives are omitted while valid tactical advice survives
       context.runeStyleKeystones,
       catalog.runeStyles.map(({ key, slots }) => ({ style: key, keystones: slots[0] })),
     );
-    assert.ok(body.messages[0].content.includes("slot0 de ESE style (runeStyleKeystones)"));
+    assert.ok(body.messages[0].content.includes("keystone de slot0"));
     assertCompatibleTransportSchema(body.response_format.json_schema.schema);
     return provider(valid);
   });
@@ -314,9 +314,13 @@ test("both summoner pairs are constrained to current IDs and repeated IDs still 
     assert.equal(summoners.properties.alternative, undefined);
     const expected = currentCatalog.summoners.map(({ id }) => id);
     for (const pair of [summoners.properties.pick]) {
-      assert.deepEqual(pair.items.enum, expected);
+      // IDs stay out of the compact provider grammar and are checked locally.
+      assert.equal(pair.items.enum, undefined);
       assert.equal(pair.items.type, "string");
-      assert.ok(!pair.items.enum.includes("Flash"));
+      assert.deepEqual(
+        JSON.parse(body.messages[1].content).summonerSpells.map((s: { id: string }) => s.id),
+        expected,
+      );
     }
     assertCompatibleTransportSchema(schema);
     return provider(valid);
@@ -748,7 +752,7 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.equal(status.riotConfigured, false);
       assert.equal(status.accessRequired, true);
       assert.equal(status.defaultModel, DEFAULT_MODEL);
-      assert.equal(DEFAULT_MODEL, "google/gemini-3.8-flash");
+      assert.equal(DEFAULT_MODEL, "anthropic/claude-opus-5.5");
       assert.equal(resolveCredentials({ apiKey: "personal-key" }).model, DEFAULT_MODEL);
       assert.deepEqual(Object.keys(status).sort(), [
         "accessRequired",
@@ -827,11 +831,10 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
         ) <= MAX_COACH_PROMPT_BYTES,
       );
       assertCompatibleTransportSchema(body.response_format.json_schema.schema);
-      assert.match(
-        present(body.response_format.json_schema.schema.properties.plan).properties.levels
-          .description,
-        /Cantidad exacta: 6 elementos/,
-      );
+      const shape = present(body.response_format.json_schema.schema.properties.plan);
+      assert.deepEqual(Object.keys(shape.properties), ["format", "build"]);
+      assert.equal(shape.properties.format.const, "build-v1");
+      assert.equal(shape.properties.build.properties.skillOrder, undefined);
       return provider(fixturePlan, []);
     },
     undefined,
@@ -882,7 +885,7 @@ test("GPT 5.6 Luna reserves base tariffs below the high-context tier in every in
   assert.ok("anthropic/claude-sonnet-5.5" in MODEL_POLICIES);
   // Coach prompts are bounded tighter than drafts, which keep the original allowance.
   assert.equal(maximumCost("anthropic/claude-sonnet-5.5", "COACH").toString(), "0.408");
-  assert.equal(maximumCost("anthropic/claude-opus-5.5", "COACH").toString(), "0.816");
+  assert.equal(maximumCost("anthropic/claude-opus-5.5", "COACH").toString(), "0.65792");
 });
 
 test("enemy key names and base cooldowns come from Riot, while absent or conditional timing stays uncertain", async () => {
@@ -939,17 +942,9 @@ test("provider schema preserves strict objects, nullable fields and bounded arra
     assert.equal(planBranch.properties.composition, undefined);
     assert.equal(planBranch.properties.headline, undefined);
     assert.equal(planBranch.properties.phases, undefined);
-    assert.deepEqual(planBranch.properties.brief.required, [
-      "matchup",
-      "priority",
-      "teamfight",
-      "window",
-      "avoid",
-    ]);
-    assert.match(
-      planBranch.properties.brief.properties.priority.description,
-      /Longitud máxima en caracteres: 240/,
-    );
+    assert.equal(planBranch.properties.brief, undefined);
+    assert.equal(planBranch.properties.levels, undefined);
+    assert.equal(planBranch.properties.macro, undefined);
     return provider(nullable);
   });
   assert.equal(result.plan.levels[0].skill, undefined);

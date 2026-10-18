@@ -1,4 +1,3 @@
-import { coachBrief } from "@/lib/coach-presentation";
 import type { HistoryRecord } from "@/lib/types";
 
 export type DateGroup = "Hoy" | "Ayer" | "Esta semana" | "Este mes" | "Anteriores";
@@ -31,10 +30,9 @@ export function relativeTime(value: string, now = new Date()): string {
   });
 }
 
-/** Primera frase útil del plan guardado, sin parafrasear ni inventar. */
+/** Etiqueta de la build guardada, sin proyectar consejos de formatos anteriores. */
 export function recordSummary(record: HistoryRecord): string {
-  const brief = coachBrief(record.result);
-  return brief.priority || brief.avoid || "";
+  return record.result.plan.build.label || "Build, hechizos y runas";
 }
 
 export function groupRecords(records: HistoryRecord[]) {

@@ -2,6 +2,12 @@
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 18 de octubre: menos es más
+
+Por instrucción del propietario, las respuestas nuevas se limitan a **build, hechizos y runas**. La [ADR 0005](adr/0005-build-hechizos-runas.md) sustituye la estrategia y lectura del matchup exigidas en las iteraciones anteriores. Opus 5.5 es el predeterminado sujeto a los permisos del plan. La entrada manual y foto/galería, cuentas, historial y controles de consumo se conservan.
+
+Las secciones fechadas del 12 de octubre siguientes son antecedentes, no el alcance vigente. La validación de esta entrega se registra en [build simplificada](build-simplificada.md).
+
 ## Continuación del 12 de octubre: lectura progresiva
 
 **Selección de campeón primero (iteración local):** hechizos, compra inicial y runas encabezan el plan; prioridad, matchup y ventana ocupan la segunda columna. Mapa/peleas queda dentro del detalle inferior. Flash recibe build primero y la respuesta emite elecciones completas y validadas por bloques mediante `preparation`, sin una segunda llamada. El historial conserva su contrato. [Alcance y verificación](preparation-layout.md).

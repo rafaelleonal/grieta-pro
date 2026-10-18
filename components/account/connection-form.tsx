@@ -29,6 +29,7 @@ export function ConnectionForm({
   const [visible, setVisible] = useState(false);
   const [saved, setSaved] = useState(false);
   const models = account?.usage?.allowedModels || [];
+  const defaultModel = account?.usage?.defaultModel || status?.defaultModel;
   function submit(event: FormEvent) {
     event.preventDefault();
     onSave({
@@ -98,8 +99,8 @@ export function ConnectionForm({
           aria-describedby="model-help"
         >
           <option value="">
-            {status?.defaultModel
-              ? `${modelLabel(status.defaultModel)} · predeterminado`
+            {defaultModel
+              ? `${modelLabel(defaultModel)} · predeterminado`
               : "Predeterminado de la app"}
           </option>
           {models.map((model) => (

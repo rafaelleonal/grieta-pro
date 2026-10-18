@@ -83,10 +83,13 @@ test("the prompt describes the 2v2 lane and allows both partners as references",
   const context = JSON.parse(body.messages[1].content);
   assert.equal(context.botLane.yourPartner.id, "Thresh");
   assert.equal(context.botLane.enemyPartner.id, "Nautilus");
-  assert.match(body.messages[0].content, /botLane/);
-  const enumIds =
-    body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.levels.items
-      .properties.champions.items.enum;
+  assert.match(body.messages[0].content, /botLane incluye las parejas conocidas/);
+  const plan = body.response_format.json_schema.schema.properties.plan.anyOf[0];
+  assert.deepEqual(Object.keys(plan.properties), ["format", "build"]);
+  assert.equal(
+    plan.properties.build.properties.situational.items.properties.champions.items.type,
+    "string",
+  );
   for (const id of ["Jinx", "Kaisa", "Thresh", "Nautilus", "LeeSin", "Lux"])
-    assert.ok(enumIds.includes(id), id);
+    assert.ok(JSON.stringify(context).includes(id), id);
 });

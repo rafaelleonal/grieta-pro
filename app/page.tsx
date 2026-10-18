@@ -123,7 +123,11 @@ export default function Home() {
       keyReady={ws.ready}
       topbar={
         <CoachTopbar
-          modelId={ws.credentials.model || ws.status?.defaultModel}
+          modelId={
+            ws.credentials.model ||
+            ws.session.account?.usage?.defaultModel ||
+            ws.status?.defaultModel
+          }
           account={ws.session.account}
           catalog={ws.catalog}
           onModel={() => ws.setSettingsOpen(true)}

@@ -2,62 +2,105 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { PlanDetails } from "../components/plan/plan-details";
-import { CoachBriefView } from "../components/coach-brief";
+import { CoachingResult } from "../components/coaching-result";
+import { GeneratingScreen } from "../components/coach/generating-screen";
 import { catalogMaps } from "../components/plan/shared";
 import { planText } from "../components/plan/plan-text";
 import { demoInput, demoResult } from "../lib/demo";
 import { fixtureCatalog } from "./coach-fixtures";
-import type { LegacyCoachResult, PartialCoachResult } from "../lib/types";
+import type {
+  BuildCoachResult,
+  LegacyCoachResult,
+  PartialCoachResult,
+  SavedCoachResult,
+} from "../lib/types";
 
 const maps = catalogMaps(fixtureCatalog);
-test("the detail view preserves older format advice without requiring modern build fields", () => {
-  const legacy: LegacyCoachResult = {
-    meta: { ...demoResult.meta, formatVersion: 1 },
-    plan: {
-      headline: "Plan anterior",
-      difficulty: "Orientativo",
-      winCondition: "Conserva E.",
-      levels: [{ level: "1", action: "Usa Q desde lejos." }],
-      mechanics: [{ trigger: "Gasta W", response: "Cambia de ángulo." }],
-      build: {
-        label: "Anterior",
-        starting: [],
-        core: [],
-        situational: [],
-        runes: ["Electrocutar"],
-        summoners: ["Destello"],
-        skillOrder: "Q > W > E",
-      },
-      macro: ["Rota con visión."],
-      avoid: ["No entres sin E."],
+const legacy: LegacyCoachResult = {
+  meta: { ...demoResult.meta, formatVersion: 1 },
+  plan: {
+    headline: "Plan anterior",
+    difficulty: "Orientativo",
+    winCondition: "Conserva E.",
+    levels: [{ level: "1", action: "Usa Q desde lejos." }],
+    mechanics: [{ trigger: "Gasta W", response: "Cambia de ángulo." }],
+    build: {
+      label: "Anterior",
+      starting: ["1056"],
+      core: ["3020"],
+      situational: [{ item: "3157", reason: "Si te buscan" }],
+      runes: ["Electrocutar"],
+      summoners: ["Destello"],
+      skillOrder: "Q > W > E",
     },
-  };
-  const html = renderToStaticMarkup(
-    createElement(PlanDetails, { result: legacy, input: demoInput, maps }),
+    macro: ["Rota con visión."],
+    avoid: ["No entres sin E."],
+  },
+};
+function render(result: SavedCoachResult) {
+  return renderToStaticMarkup(
+    createElement(CoachingResult, {
+      result,
+      input: demoInput,
+      catalog: fixtureCatalog,
+      sample: false,
+    }),
   );
-  for (const advice of [
-    "Usa Q desde lejos.",
-    "Cambia de ángulo.",
-    "Electrocutar",
-    "Destello",
-    "Rota con visión.",
-    "No entres sin E.",
-  ])
-    assert.ok(html.includes(advice));
-  assert.ok(
-    renderToStaticMarkup(
-      createElement(CoachBriefView, { result: legacy, input: demoInput }),
-    ).includes("Sin valoración"),
-  );
+}
+
+test("historical output and copied text show stored build choices without strategy", () => {
+  const html = render(legacy);
+  const text = planText(legacy, maps, false, demoInput);
+  for (const output of [html, text]) {
+    for (const choice of ["Electrocutar", "Destello", "Si te buscan"])
+      assert.ok(output.includes(choice), choice);
+    for (const advice of [
+      "Conserva E.",
+      "Usa Q desde lejos.",
+      "Cambia de ángulo.",
+      "Rota con visión.",
+      "No entres sin E.",
+      "Q > W > E",
+    ])
+      assert.ok(!output.includes(advice), advice);
+  }
+  assert.ok(html.includes("Build recomendada"));
+  assert.ok(html.includes("Copiar build"));
+  assert.ok(!html.includes("Preguntar"));
 });
 
-test("a partial plan with no build or levels renders its gaps and keeps matchup in copy export", () => {
+test("modern historical plans retain all loadout choices and omit tactical sections", () => {
+  const html = render(demoResult);
+  const text = planText(demoResult, maps, false, demoInput);
+  for (const output of [html, text]) {
+    assert.ok(output.includes("Electrocutar"));
+    assert.ok(output.includes("Destello"));
+    assert.ok(output.includes("Fragmentos"));
+    for (const section of [
+      "Niveles 1–6",
+      "Orden de habilidades",
+      "Mapa y peleas",
+      "LECTURA DEL MATCHUP",
+      "TU PRIORIDAD",
+      "Compras por fase",
+    ])
+      assert.ok(!output.includes(section), section);
+    assert.ok(!output.includes(demoResult.plan.levels[0].text));
+    assert.ok(!output.includes(demoResult.plan.macro[0]));
+  }
+});
+
+test("a partial historical result exposes only missing build choices", () => {
   const partial: PartialCoachResult = {
     meta: {
       ...demoResult.meta,
       formatVersion: 3,
-      partial: { missing: ["levels", "runes"], reason: "optional", categories: [] },
+      partial: {
+        missing: ["levels", "runes"],
+        invalid: ["levels"],
+        reason: "optional",
+        categories: [],
+      },
     },
     plan: {
       ...demoResult.plan,
@@ -79,14 +122,39 @@ test("a partial plan with no build or levels renders its gaps and keeps matchup 
       },
     },
   };
-  const html = renderToStaticMarkup(
-    createElement(PlanDetails, { result: partial, input: demoInput, maps }),
-  );
-  assert.ok(html.includes("No se incluyeron consejos válidos"));
-  assert.ok(html.includes("No se incluyeron runas válidas"));
-  assert.ok(html.includes("No se incluyó un orden válido"));
+  const html = render(partial);
+  assert.ok(html.includes("No se incluyeron runas."));
+  assert.ok(html.includes("No se incluyeron hechizos."));
+  assert.ok(!html.includes("no superaron la validación"));
   const text = planText(partial, maps, false, demoInput);
-  assert.ok(text.includes("El rival es tu counter directo"));
-  assert.ok(text.includes("Su muro bloquea E."));
-  assert.ok(text.includes("Cambia si gasta W."));
+  assert.ok(!text.includes("Su muro bloquea E."));
+  assert.ok(!text.includes("Conserva E."));
+});
+
+test("build format renders the same choices while generation has no strategy placeholders", () => {
+  const build: BuildCoachResult = {
+    meta: {
+      ...demoResult.meta,
+      formatVersion: 4,
+      partial: { missing: ["items"], invalid: ["items"], reason: "validation", categories: [] },
+    },
+    plan: { ...demoResult.plan, brief: undefined, levels: [], macro: [] },
+  };
+  const html = render(build);
+  assert.ok(html.includes("Build recomendada"));
+  assert.ok(html.includes("Electrocutar"));
+  assert.ok(html.includes("Algunas elecciones no superaron la validación"));
+  const loading = renderToStaticMarkup(
+    createElement(GeneratingScreen, {
+      input: demoInput,
+      catalog: fixtureCatalog,
+      onCancel: () => undefined,
+      preparation: { summoners: demoResult.plan.build.summoners },
+    }),
+  );
+  assert.ok(loading.includes("Destello"));
+  assert.ok(loading.includes("Preparando runas"));
+  assert.ok(loading.includes("Cancelar puede consumir cuota"));
+  for (const section of ["matchup", "nivel", "mapa", "prioridad"])
+    assert.ok(!loading.includes(section), section);
 });

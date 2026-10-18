@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 import { startQaMailpit, startQaPostgres } from "./qa-support";
 import type { getDb as DatabaseFactory } from "../lib/db";
 import type { Prisma } from "../generated/prisma/client";
+import { ApiError } from "../lib/http";
 
 const origin = "http://localhost:3000";
 const password = "Cholo-qa-password-7391";
@@ -97,7 +98,7 @@ async function main() {
     const seededFree = await db.plan.findUniqueOrThrow({ where: { code: "FREE" } });
     const seededPro = await db.plan.findUniqueOrThrow({ where: { code: "PRO" } });
     const seededModels = [
-      usage.DEFAULT_MODEL,
+      usage.GEMINI_FLASH_MODEL,
       usage.GEMINI_PRO_MODEL,
       "openai/gpt-5.6-luna",
       "anthropic/claude-haiku-5.5",
@@ -209,6 +210,24 @@ async function main() {
       await db.accessGrant.create({
         data: { userId: geminiPro.id, planId: seededPro.id, source: "COMPLIMENTARY" },
       });
+      const previousModel = process.env.OPENROUTER_MODEL;
+      process.env.OPENROUTER_MODEL = usage.OPUS_MODEL;
+      try {
+        assert.equal((await usage.generationPolicy(geminiPro.id)).model, usage.OPUS_MODEL);
+        assert.equal((await usage.getAccountUsage(geminiPro.id)).defaultModel, usage.OPUS_MODEL);
+        assert.equal((await usage.generationPolicy(geminiFree.id)).model, usage.GEMINI_FLASH_MODEL);
+        assert.equal(
+          (await usage.getAccountUsage(geminiFree.id)).defaultModel,
+          usage.GEMINI_FLASH_MODEL,
+        );
+        await assert.rejects(
+          usage.generationPolicy(geminiFree.id, usage.OPUS_MODEL),
+          (error: unknown) => error instanceof ApiError && error.status === 403,
+        );
+      } finally {
+        if (previousModel === undefined) delete process.env.OPENROUTER_MODEL;
+        else process.env.OPENROUTER_MODEL = previousModel;
+      }
       for (const [user, operation, hasImage, webSearch, expectedCost] of [
         [geminiFree, "COACH", false, false, "0.456"],
         [geminiFree, "DRAFT", true, false, "0.694146"],
@@ -1244,6 +1263,10 @@ async function main() {
     };
     const { fixturePlan } = await import("../tests/coach-fixtures");
     const routePlan = structuredClone(fixturePlan);
+    routePlan.build.core = ["3020", "3089"];
+    routePlan.build.situational = [
+      { item: "3157", reason: "Si necesitas sobrevivir al daño físico.", champions: ["Yasuo"] },
+    ];
     process.env.OPENROUTER_API_KEY = "sk-or-qa-fake-NEVER-FOR-NETWORK";
     globalThis.fetch = async (resource, init) => {
       externalCalls++;
@@ -1319,24 +1342,17 @@ async function main() {
             message: {
               content: JSON.stringify({
                 decision: "coach",
-                plan: partialPlan
-                  ? {
-                      brief: {
-                        priority: output.winCondition,
-                        window: {
-                          trigger: output.reactions.linea[0].trigger,
-                          response: output.reactions.linea[0].response,
-                        },
-                        avoid: output.avoid.linea,
-                      },
-                      levels: output.levels,
-                      build: {
-                        starting: output.build.starting,
-                        core: output.build.core,
-                        runes: output.build.runes,
-                      },
-                    }
-                  : output,
+                plan: {
+                  format: "build-v1",
+                  build: {
+                    starting: output.build.starting,
+                    core: output.build.core,
+                    situational: output.build.situational,
+                    runes: output.build.runes,
+                    summoners: output.build.summoners,
+                  },
+                  ...(malicious ? { headline: output.headline } : {}),
+                },
               }),
             },
           },
@@ -1397,13 +1413,14 @@ async function main() {
       const first = await coachRoute.POST(
         privateRequest("/api/coach", alice.cookie, "POST", routeInput, activeKey),
       );
-      assert.equal(first.status, 200);
+      assert.equal(first.status, 200, JSON.stringify(await first.clone().json()));
       const firstResult = await first.json();
-      assert.equal(firstResult.meta.formatVersion, 3);
+      assert.equal(firstResult.meta.formatVersion, 4);
       assert.deepEqual(firstResult.meta.partial.invalid, ["runes"]);
-      assert.equal(firstResult.plan.brief.priority, routePlan.winCondition);
+      assert.equal(firstResult.plan.brief, undefined);
+      assert.deepEqual(firstResult.plan.build.core, routePlan.build.core);
       assert.equal(firstResult.plan.build.skillOrder, undefined);
-      assert.equal(firstResult.plan.levels.length, 6);
+      assert.equal(firstResult.plan.levels.length, 0);
       const repeatedResponse = await coachRoute.POST(
         privateRequest("/api/coach", alice.cookie, "POST", routeInput, activeKey),
       );
@@ -1791,10 +1808,8 @@ async function main() {
     await seedPlans({ enableDefaultModel: true });
     const enabledFree = await db.plan.findUniqueOrThrow({ where: { id: free.id } });
     const enabledPro = await db.plan.findUniqueOrThrow({ where: { id: pro.id } });
-    for (const [original, enabled] of [
-      [customFree, enabledFree],
-      [unchangedPro, enabledPro],
-    ]) {
+    assert.deepEqual(enabledFree, customFree, "The app default never expands Free permissions");
+    for (const [original, enabled] of [[unchangedPro, enabledPro]]) {
       const {
         allowedModels: originalModels,
         version: originalVersion,
@@ -1812,7 +1827,7 @@ async function main() {
       assert.deepEqual(
         enabledPolicy,
         originalPolicy,
-        "Enabling Gemini preserves all custom quotas, budgets, permissions and name",
+        "Enabling the Pro default preserves all custom quotas, budgets, permissions and name",
       );
       assert.ok(enabledAt >= originalAt);
     }

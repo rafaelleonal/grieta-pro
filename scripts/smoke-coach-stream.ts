@@ -37,43 +37,23 @@ export async function smokeCoachStream(
     },
   });
   const input = { ...originalInput, model: GEMINI_FLASH_MODEL };
-  const brief = {
-    matchup: {
-      verdict: "even",
-      reason: "Depende de acertar E.",
-      condition: "Espera a que termine el muro.",
-    },
-    priority: "Conserva espacio para retirarte.",
-    teamfight: {
-      setup: "Llega con visión.",
-      job: "Busca una captura.",
-      fallback: "Protege a tu equipo.",
-    },
-    window: { trigger: "El muro termina", response: "Busca otro ángulo." },
-    avoid: "No avances sin visión.",
-  };
-  const p = fixturePlan;
+  const p = structuredClone(fixturePlan);
+  p.build.core = ["3020", "3089"];
+  p.build.situational = [
+    { item: "3157", reason: "Si necesitas sobrevivir al daño físico.", champions: ["Yasuo"] },
+  ];
   const compact = {
-    format: "compact-v1",
-    brief,
-    levels: p.levels.map((row, i) => ({
-      ...row,
-      skill: p.build.skillOrder.first6[i],
-      champions: [],
-    })),
-    reactions: { linea: p.reactions.linea },
+    format: "build-v1",
     build: {
+      summoners: p.build.summoners,
       starting: p.build.starting,
+      runes: p.build.runes,
       core: p.build.core,
       situational: p.build.situational,
-      runes: p.build.runes,
-      summoners: p.build.summoners,
-      skillOrder: { first6: p.build.skillOrder.first6, max: ["Q", "W", "E"] },
     },
-    macro: p.macro,
   };
   const wire = JSON.stringify({ decision: "coach", plan: compact });
-  const boundary = wire.indexOf(',"levels"');
+  const boundary = wire.indexOf(',"starting"');
   const encoder = new TextEncoder();
   let calls = 0;
   let activeKey = "";
@@ -131,10 +111,15 @@ export async function smokeCoachStream(
     const response = await POST(request());
     assert.equal(response.status, 200);
     assert.match(response.headers.get("cache-control")!, /private, no-store/);
-    const reading = readCoachStream(response.body!, new AbortController().signal, (received) => {
-      assert.deepEqual(received, brief);
-      resolveBrief();
-    });
+    const reading = readCoachStream(
+      response.body!,
+      new AbortController().signal,
+      () => assert.fail("Build-only responses do not emit strategy"),
+      (received) => {
+        assert.deepEqual(received.summoners, p.build.summoners);
+        resolveBrief();
+      },
+    );
     await arrived;
     const pending = await row();
     assert.equal(pending.status, "DISPATCHED");
@@ -142,6 +127,8 @@ export async function smokeCoachStream(
     assert.equal(await db.coachRecord.count({ where: { requestId: pending.id } }), 0);
     finish();
     const result = await reading;
+    assert.equal(result.meta.formatVersion, 4);
+    assert.equal(result.plan.brief, undefined);
     assert.equal((await row()).status, "SETTLED");
     assert.equal((await row()).actualCostUsd?.toString(), "0.004");
     assert.equal(await db.coachRecord.count({ where: { requestId: pending.id } }), 1);
@@ -156,7 +143,7 @@ export async function smokeCoachStream(
     activeKey = randomUUID();
     const aborted = await POST(request());
     const reader = aborted.body!.getReader();
-    assert.match(new TextDecoder().decode((await reader.read()).value), /"type":"brief"/);
+    assert.match(new TextDecoder().decode((await reader.read()).value), /"type":"preparation"/);
     await reader.cancel();
     for (let attempt = 0; attempt < 100 && (await row()).status === "DISPATCHED"; attempt++)
       await new Promise((resolve) => setTimeout(resolve, 10));
@@ -168,7 +155,7 @@ export async function smokeCoachStream(
     assert.equal(upstreamCancelled, true);
     assert.equal(calls, 2);
     console.info(
-      "PASS · streaming: resumen antes de guardar, cargo único, replay sin envío y cancelación incierta con ID recuperable",
+      "PASS · streaming: hechizos antes de guardar, cargo único, replay sin envío y cancelación incierta con ID recuperable",
     );
   } finally {
     globalThis.fetch = previousFetch;

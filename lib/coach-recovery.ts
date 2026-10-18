@@ -333,3 +333,33 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
   assertSafeOutput(plan);
   return { plan, missing: [...missing], invalid: [...invalid], categories: [...categories] };
 }
+
+/** Build-only responses deliberately omit strategy; those omissions are not failures. */
+export function recoverBuildCoachPlan(input: unknown, catalog: Catalog, context: CoachInput) {
+  const raw = object(input);
+  const build = object(raw?.build);
+  assertSafeOutput(input);
+  if (
+    !raw ||
+    !build ||
+    !onlyKeys(raw, ["build"]) ||
+    !onlyKeys(build, ["starting", "core", "situational", "runes", "summoners"])
+  )
+    throw new CoachPlanValidationError("schema");
+  const recovered = recoverCoachPlan(
+    {
+      build: { ...build, label: "Build recomendada", nowByPhase: { linea: [], mid: [], late: [] } },
+    },
+    catalog,
+    context,
+  );
+  const requested: CoachSection[] = ["items", "runes", "summoners"];
+  return {
+    ...recovered,
+    missing: recovered.missing.filter((section) => requested.includes(section)),
+    invalid: recovered.invalid.filter((section) => requested.includes(section)),
+    categories: recovered.invalid.some((section) => requested.includes(section))
+      ? recovered.categories
+      : [],
+  };
+}

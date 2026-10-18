@@ -9,7 +9,6 @@ import { cn } from "@/components/ui/cn";
 import { toggleChampionFavorite } from "@/lib/champion-roles";
 import { isBotLane, RANKS, ROLES, roleName } from "@/lib/coach-draft";
 import type { CoachInput, Role } from "@/lib/types";
-import { ROLE_FOCUS } from "@/lib/role-focus";
 import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
 import { ChampionGrid } from "./champion-grid";
 import { MatchupCards } from "./matchup-cards";
@@ -106,16 +105,13 @@ export function PrepareScreen({
     ? "Elige tu campeón"
     : !enemy
       ? slots.find((slot) => slot.key === "enemy")!.emptyTitle
-      : "Generar plan";
+      : "Generar build";
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7">
       <header className="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end">
         <div className="flex min-w-0 flex-1 flex-col gap-1">
           <h1 className="text-h1 font-medium md:text-display">Prepara tu partida</h1>
-          <p className="text-small text-neutral-400 md:text-body">
-            {ROLE_FOCUS[input.role].preparation}
-          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
@@ -237,7 +233,7 @@ export function PrepareScreen({
       </section>
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-small">
-        <p className="text-neutral-400">Los equipos afinan las peleas y los objetivos.</p>
+        <p className="text-neutral-400">Los equipos afinan las compras y los hechizos.</p>
         <Button
           variant="ghost"
           aria-expanded={panel === "teams"}

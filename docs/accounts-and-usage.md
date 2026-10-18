@@ -4,6 +4,12 @@ Elociencia tiene cuentas con Better Auth, datos persistentes en PostgreSQL media
 
 La implementación incluye las cuentas, historial privado, planes, invitaciones y cuotas descritos aquí. La migración inicial está versionada en `prisma/migrations` y se aplica con `pnpm db:setup`. Requiere configurar PostgreSQL, Better Auth y Resend; sin configuración las llamadas privadas se rechazan. Los pagos y el acompañante de escritorio siguen siendo ampliaciones futuras.
 
+## Actualización del 18 de octubre de 2026
+
+El coach solicita únicamente build, hechizos y runas mediante `build-v1` y guarda formato 4. Conserva formatos 1–3 para el historial. Opus 5.5 es el predeterminado donde esté permitido, con razonamiento bajo y 4 096 tokens máximos para el coach; la reserva manual sin búsqueda es USD 0.65792. La extracción conserva sus límites anteriores. Son reservas, no costes medidos.
+
+Free no gana acceso a Opus: la selección automática usa un modelo permitido y una petición explícita a un modelo prohibido sigue rechazándose. `--enable-default-model` añade el predeterminado actual sólo a Pro; `--enable-opus` sigue siendo explícito. No se cambian planes o fondos persistidos durante esta entrega. Las cifras y referencias al predeterminado Gemini de las evaluaciones fechadas siguientes son históricas.
+
 ## Permisos y planes
 
 Los permisos y el acceso comercial son conceptos separados:

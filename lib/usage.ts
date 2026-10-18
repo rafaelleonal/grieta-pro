@@ -13,8 +13,8 @@ import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
 export const GEMINI_FLASH_MODEL = "google/gemini-3.8-flash";
-export const DEFAULT_MODEL = GEMINI_FLASH_MODEL;
 export const OPUS_MODEL = "anthropic/claude-opus-5.5";
+export const DEFAULT_MODEL = OPUS_MODEL;
 export type ModelPolicy = {
   prompt: number;
   completion: number;
@@ -56,13 +56,15 @@ export const MODEL_POLICIES = {
     coachCompletionTokens: 12_000,
     draftCompletionTokens: 4_000,
   },
-  // Opus 5.5 cannot disable thinking; effort is the only depth control.
+  // Opus always thinks. A build-only answer uses low coach effort and a shared
+  // reasoning/output cap; capture extraction keeps medium effort and its cap.
   [OPUS_MODEL]: {
     prompt: 4,
     completion: 20,
     reasoning: true,
     reasoningEffort: "medium",
-    coachCompletionTokens: 12_000,
+    coachReasoningEffort: "low",
+    coachCompletionTokens: 4_096,
     draftCompletionTokens: 4_000,
   },
   [GEMINI_FLASH_MODEL]: {
@@ -201,10 +203,17 @@ async function effectivePlan(
     );
   return plan;
 }
+/** Default selection never grants a model outside the account's persisted plan. */
+export function defaultModelForPlan(allowedModels: readonly string[]): string | undefined {
+  const configured = process.env.OPENROUTER_MODEL?.trim() || DEFAULT_MODEL;
+  return [configured, GEMINI_FLASH_MODEL, GEMINI_PRO_MODEL, ...allowedModels].find(
+    (model) => model in MODEL_POLICIES && allowedModels.includes(model),
+  );
+}
 export async function generationPolicy(userId: string, requestedModel?: string, webSearch = false) {
   const plan = await effectivePlan(getDb(), userId);
-  const model = requestedModel || process.env.OPENROUTER_MODEL?.trim() || DEFAULT_MODEL;
-  if (!(model in MODEL_POLICIES) || !plan.allowedModels.includes(model))
+  const model = requestedModel || defaultModelForPlan(plan.allowedModels);
+  if (!model || !(model in MODEL_POLICIES) || !plan.allowedModels.includes(model))
     throw new ApiError(
       403,
       "Ese modelo no está incluido en tu plan. Elige uno de los modelos disponibles.",
@@ -624,6 +633,7 @@ export async function getAccountUsage(userId: string) {
     resetsAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString(),
     pending,
     uncertain,
+    defaultModel: defaultModelForPlan(plan.allowedModels),
     allowedModels: plan.allowedModels.filter((model) => model in MODEL_POLICIES),
     webAllowed: plan.webSearchAllowed,
   };

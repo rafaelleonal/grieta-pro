@@ -2,7 +2,7 @@
 
 ## Propósito y contexto
 
-Elociencia prepara partidas de League of Legends con consejos breves en español: matchup, niveles 1–6, mecánicas, compras y mapa. Conserva una experiencia responsive, la entrada manual y la opción móvil de foto o galería. El ejemplo local debe identificarse como demostración; no presentes recomendaciones del modelo como estadísticas óptimas o como un rango Challenger acreditado.
+Elociencia prepara partidas de League of Legends con una respuesta breve en español: build recomendada, hechizos y runas. La [ADR 0005](docs/adr/0005-build-hechizos-runas.md) prioriza rapidez y sustituye el alcance anterior de estrategia, niveles, mecánicas y mapa. Conserva una experiencia responsive, la entrada manual y la opción móvil de foto o galería. El ejemplo local debe identificarse como demostración; no presentes recomendaciones del modelo como estadísticas óptimas o como un rango Challenger acreditado.
 
 Usa TypeScript estricto y pnpm según `package.json`; se recomienda Node.js 24. Mantén los cambios centrados en la petición y respeta las decisiones y autorizaciones del usuario. Esta guía no añade aprobaciones para trabajo local o reversible.
 
@@ -23,7 +23,7 @@ Consulta [README](README.md), [Contribuir](CONTRIBUTING.md), [Seguridad](SECURIT
 
 ## Interfaz: decisiones obligatorias
 
-Lee las [directrices de diseño y experiencia](docs/design-guidelines.md) antes de modificar pantallas, copy o consejos del coach. Son reglas de contribución: sidebar contraíble, jerarquía y espaciado claros, recursos visuales del juego, copy mínimo, lectura del matchup y enfoque por rol y equipo. Incluyen criterios de aceptación y complementan las ADR siguientes.
+Lee las [directrices de diseño y experiencia](docs/design-guidelines.md) antes de modificar pantallas, copy o consejos del coach. Son reglas de contribución: sidebar contraíble, jerarquía y espaciado claros, recursos visuales del juego, copy mínimo, elecciones de objetos, hechizos y runas según rol y equipo. Las exigencias históricas de estrategia quedan sustituidas por la ADR 0005. Incluyen criterios de aceptación y complementan las ADR siguientes.
 
 Estas reglas son decisiones del propietario registradas como ADR en `docs/adr/`. Léelas antes de tocar cualquier pantalla o estilo y no las cambies sin una ADR nueva aprobada por el usuario.
 

@@ -67,7 +67,6 @@ export function CoachScreen({
           input={ws.input}
           catalog={ws.catalog}
           onCancel={ws.cancel}
-          preview={ws.preview}
           preparation={ws.preparation}
         />
       ) : showPlan ? (

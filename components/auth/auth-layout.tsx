@@ -7,7 +7,7 @@ import { RiotNotice } from "@/components/riot-notice";
 import { Alert } from "@/components/ui/feedback";
 
 const BENEFITS = [
-  [Layers, "Consejos breves para tus niveles 1–6"],
+  [Layers, "Build, hechizos y runas para tu partida"],
   [History, "Tus sesiones guardadas en tu cuenta"],
   [Lock, "Sin guardar tus capturas originales"],
 ] as const;
@@ -32,7 +32,7 @@ export function AuthLayout({
           <span className="text-overline font-medium uppercase text-accent-300">
             — Prepara. Entiende. Mejora.
           </span>
-          <p className="max-w-lg text-display font-medium">Entra a tu partida con un plan.</p>
+          <p className="max-w-lg text-display font-medium">Entra a tu partida con tu build.</p>
           <ul className="flex flex-col gap-3">
             {BENEFITS.map(([Icon, text]) => (
               <li key={text} className="flex items-center gap-3 text-body text-neutral-200">

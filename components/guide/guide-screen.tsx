@@ -6,8 +6,8 @@ import { RiotNotice } from "@/components/riot-notice";
 
 const STEPS = [
   ["Elige", "Elige campeón y rival, o importa una captura."],
-  ["Revisa", "Lee tu prioridad por rol, tu papel en las peleas y el matchup."],
-  ["Juega", "Consulta el plan en partida. Cada pregunta consume un plan nuevo."],
+  ["Revisa", "Consulta build, hechizos y runas para tu selección."],
+  ["Juega", "Sigue el orden de compras y ajusta los situacionales."],
 ] as const;
 
 /** Cómo funciona: pasos, datos que usamos, límites del coach y atajos. */
@@ -22,9 +22,10 @@ export function GuideScreen({
     <div className="flex flex-1 flex-col gap-6 px-4 py-6 md:px-7 md:py-9 xl:px-14">
       <header className="flex max-w-3xl flex-col gap-2">
         <span className="text-overline font-medium uppercase text-accent-300">— Cómo funciona</span>
-        <h1 className="text-h1 font-medium md:text-display">Tu plan en tres pasos</h1>
+        <h1 className="text-h1 font-medium md:text-display">Tu build en tres pasos</h1>
         <p className="text-small text-neutral-300 md:text-body">
-          Consejos de IA con el catálogo de Riot. No son estadísticas ni garantizan victorias.
+          Recomendaciones de IA con el catálogo de Riot. No son estadísticas ni garantizan
+          victorias.
         </p>
       </header>
 
@@ -54,7 +55,7 @@ export function GuideScreen({
         <section className="flex flex-col gap-3 rounded-lg p-5 ring-1 ring-inset ring-neutral-800">
           <h2 className="text-h3 font-medium">Atajo</h2>
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-2.5 text-small">
-            {[[["Ctrl / ⌘", "↵"], "Generar plan"]].map(([keys, label]) => (
+            {[[["Ctrl / ⌘", "↵"], "Generar build"]].map(([keys, label]) => (
               <div key={label as string} className="contents">
                 <dt className="flex gap-1">
                   {(keys as string[]).map((key) => (

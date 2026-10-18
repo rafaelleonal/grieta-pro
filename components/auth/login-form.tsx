@@ -301,7 +301,7 @@ export function LoginForm() {
             <span className="h-px flex-1 bg-divider" />o<span className="h-px flex-1 bg-divider" />
           </div>
           <Link href="/?ejemplo=1" className={buttonClasses("secondary", true)}>
-            Ver un plan de ejemplo sin cuenta
+            Ver una build de ejemplo sin cuenta
             <ArrowRight size={16} aria-hidden="true" />
           </Link>
         </>

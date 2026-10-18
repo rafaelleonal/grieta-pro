@@ -13,7 +13,6 @@ export async function seedPlans(
   const db = getDb();
   const includedModels = [
     ...new Set([
-      DEFAULT_MODEL,
       GEMINI_FLASH_MODEL,
       GEMINI_PRO_MODEL,
       "openai/gpt-5.6-luna",
@@ -56,11 +55,12 @@ export async function seedPlans(
   // An operator's existing policy is preserved; later changes are explicit.
   for (const plan of plans)
     await db.plan.upsert({ where: { code: plan.code }, create: plan, update: {} });
-  // Opt in to adding the new default without replacing an operator's other settings.
+  // Opus remains Pro-only even when it is the app default. This flag cannot
+  // expand Free permissions as a side effect of changing the default model.
   if (options.enableDefaultModel)
     await db.plan.updateMany({
       where: {
-        code: { in: ["FREE", "PRO"] },
+        code: DEFAULT_MODEL === OPUS_MODEL ? "PRO" : { in: ["FREE", "PRO"] },
         NOT: { allowedModels: { has: DEFAULT_MODEL } },
       },
       data: { allowedModels: { push: DEFAULT_MODEL }, version: { increment: 1 } },
@@ -97,9 +97,9 @@ if (process.argv[1]?.endsWith("seed-plans.ts")) {
     .then(() =>
       console.info(
         enableGeminiDailyBudgets
-          ? `Planes Free y Pro listos; presupuestos diarios de al menos USD 1 y USD 2${enableDefaultModel ? " y modelo predeterminado permitido" : ""}. Se conservaron los demás límites.`
+          ? `Planes Free y Pro listos; presupuestos diarios de al menos USD 1 y USD 2${enableDefaultModel ? " y modelo predeterminado permitido en Pro" : ""}. Se conservaron los demás límites.`
           : enableDefaultModel
-            ? "Planes Free y Pro listos; modelo predeterminado permitido sin cambiar los demás límites."
+            ? "Planes Free y Pro listos; modelo predeterminado permitido en Pro sin cambiar los demás límites."
             : "Planes Free y Pro listos; se conservaron las políticas existentes.",
         enableOpus ? "Opus 5.5 permitido en Pro sin cambiar sus límites." : "",
         enableFlash ? "Gemini Flash permitido sin cambiar límites ni modelo predeterminado." : "",

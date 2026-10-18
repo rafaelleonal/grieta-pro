@@ -300,7 +300,7 @@ test("Flash keeps low effort, grounded context, capped output and a single reque
       });
       assert.equal(
         body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.format.const,
-        "compact-v1",
+        "build-v1",
       );
       assert.ok(Array.isArray(JSON.parse(body.messages[1].content).runes[0]));
       return new Response(
@@ -519,4 +519,56 @@ test("unsafe early loadout is never emitted and never triggers a paid retry", as
     assert.equal(shown, 0);
     assert.equal(calls, 1);
   }
+});
+
+test("build-only streaming emits legal choices and a v4 result without strategy events", async () => {
+  const old = compact().build;
+  const build = {
+    summoners: old.summoners,
+    starting: old.starting,
+    runes: old.runes,
+    core: ["3020", "3089"],
+    situational: [{ item: "3157", reason: "Si necesitas evitar daño al entrar.", champions: [] }],
+  };
+  const text = JSON.stringify({ decision: "coach", plan: { format: "build-v1", build } });
+  let briefs = 0,
+    choices = 0,
+    calls = 0,
+    usage = 0;
+  const result = await generateCoach(
+    input,
+    fixtureCatalog,
+    undefined,
+    async () => {
+      calls++;
+      return new Response(stream(delta(text) + end), {
+        headers: { "content-type": "text/event-stream" },
+      });
+    },
+    undefined,
+    {
+      apiKey: "synthetic-build-stream-key",
+      model: input.model!,
+      policy: { prompt: 0.2, completion: 0.75, reasoning: false },
+      onDispatch: async () => {},
+      onUsage: async () => {
+        usage++;
+      },
+      onBrief: () => {
+        briefs++;
+      },
+      onPreparation: (preparation) => {
+        choices++;
+        assert.deepEqual(preparation.summoners, fixturePlan.build.summoners);
+        assert.deepEqual(preparation.runes, fixturePlan.build.runes);
+      },
+    },
+  );
+  assert.equal(briefs, 0);
+  assert.equal(choices, 1);
+  assert.equal(calls, 1);
+  assert.equal(usage, 2); // Durable generation ID first, final billed usage second.
+  assert.equal(result.meta.formatVersion, 4);
+  assert.equal(result.plan.brief, undefined);
+  assert.deepEqual(result.plan.build.core, ["3020", "3089"]);
 });

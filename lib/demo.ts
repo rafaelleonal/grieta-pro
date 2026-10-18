@@ -324,7 +324,7 @@ export const demoResult: CoachResult = {
     sources: [],
     generatedAt: "",
     warnings: [
-      "Demostración escrita de Ahri vs. Yasuo con composición ficticia. No fue generada por IA ni verificada para el parche actual. Los enfriamientos deben confirmarse en el juego.",
+      "Demostración escrita de Ahri vs. Yasuo con composición ficticia. No fue generada por IA ni verificada para el parche actual.",
     ],
   },
 };

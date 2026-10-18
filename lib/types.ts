@@ -208,12 +208,21 @@ export interface PartialCoachResult extends Omit<CoachResult, "plan" | "meta"> {
     };
   };
 }
-export type GeneratedCoachResult = CoachResult | PartialCoachResult;
+/** Build-only generations retain empty legacy containers for history compatibility. */
+export interface BuildCoachResult extends Omit<PartialCoachResult, "meta"> {
+  meta: Omit<CoachResult["meta"], "formatVersion"> & {
+    formatVersion: 4;
+    partial?: PartialCoachResult["meta"]["partial"];
+  };
+}
+export type GeneratedCoachResult = CoachResult | PartialCoachResult | BuildCoachResult;
 export type SavedCoachResult = GeneratedCoachResult | LegacyCoachResult;
 export function isPartialCoachResult(result: SavedCoachResult): result is PartialCoachResult {
   return result.meta.formatVersion === 3;
 }
-export function isCurrentCoachResult(result: SavedCoachResult): result is CoachResult {
+export function isCurrentCoachResult(
+  result: SavedCoachResult,
+): result is CoachResult | BuildCoachResult {
   return result.meta.formatVersion !== 3 && "phases" in result.plan;
 }
 export interface DraftInput extends Credentials {

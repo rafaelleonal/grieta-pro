@@ -26,7 +26,7 @@ Lee [AGENTS.md](AGENTS.md) y [el contexto de continuidad](docs/agent-handoff.md)
 
 ### Interfaz
 
-Antes de cambiar pantallas, copy o consejos del coach, lee las [directrices de diseño y experiencia](docs/design-guidelines.md). Sus reglas y criterios de aceptación aplican a toda la app: navegación contraíble, jerarquía y espaciado, imágenes de objetos y hechizos, textos mínimos, lectura del matchup y consejos por rol orientados también al juego en equipo.
+Antes de cambiar pantallas, copy o consejos del coach, lee las [directrices de diseño y experiencia](docs/design-guidelines.md). Sus reglas y criterios de aceptación aplican a toda la app: navegación contraíble, jerarquía y espaciado, imágenes de objetos y hechizos, textos mínimos, build, hechizos y runas según rol y equipos, con el alcance reducido de la [ADR 0005](docs/adr/0005-build-hechizos-runas.md).
 
 Las decisiones de interfaz están registradas como ADR en [`docs/adr/`](docs/adr) y resumidas en [AGENTS.md](AGENTS.md#interfaz-decisiones-obligatorias). Una propuesta que no las siga se devolverá para ajustarla.
 

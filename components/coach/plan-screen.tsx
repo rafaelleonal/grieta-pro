@@ -9,28 +9,13 @@ import { Tag } from "@/components/ui/tag";
 import { roleName } from "@/lib/coach-draft";
 import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
 
-/** Plan generado o recuperado, con el resumen del matchup y la opción de editarlo. */
+/** Build generada o recuperada, con la opción de editar la selección. */
 export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
   const { result, resultInput, catalog, input } = ws;
   if (!result || !resultInput || !catalog) return null;
   const champion = catalog.champions.find((entry) => entry.id === resultInput.champion);
   const enemy = catalog.champions.find((entry) => entry.id === resultInput.enemy);
   const changed = JSON.stringify(resultInput) !== JSON.stringify(input);
-
-  function followup(message: string) {
-    if (ws.busy || ws.capture.preparingImage) return false;
-    const notes = `${input.notes}${input.notes ? "\n" : ""}${message}`;
-    if (notes.length > 1500) {
-      ws.setError(
-        "Tu contexto supera 1500 caracteres. Acorta las notas de la composición antes de agregar esta pregunta.",
-      );
-      ws.setEditing(true);
-      return false;
-    }
-    if (!ws.safeContext(notes) || !ws.ensureCredentials()) return false;
-    void ws.generate(message);
-    return true;
-  }
 
   return (
     <div className="mx-auto flex w-full flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-6">
@@ -66,9 +51,9 @@ export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
       </div>
       {changed && !ws.busy ? (
         <Alert tone="warning" icon={<AlertCircle size={18} />}>
-          La selección cambió. El plan visible corresponde a{" "}
+          La selección cambió. La build visible corresponde a{" "}
           {champion?.name || resultInput.champion} vs. {enemy?.name || resultInput.enemy}; genera
-          uno nuevo para actualizarlo.
+          una nueva para actualizarla.
         </Alert>
       ) : null}
       <CoachingResult
@@ -76,12 +61,8 @@ export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
         result={result}
         catalog={catalog}
         input={resultInput}
-        formOpen={false}
         ownerId={ws.session.owner || undefined}
-        followupError={ws.error}
         sample={ws.sample}
-        busy={Boolean(ws.busy) || ws.capture.preparingImage}
-        onFollowup={followup}
       />
     </div>
   );

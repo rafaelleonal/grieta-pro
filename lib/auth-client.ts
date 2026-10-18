@@ -27,6 +27,7 @@ export interface AccountStatus {
     resetsAt: string;
     pending: number;
     uncertain: number;
+    defaultModel?: string;
     allowedModels: string[];
     webAllowed: boolean;
   };

@@ -9,7 +9,6 @@ import { postCoachStream } from "@/lib/client-coach-stream";
 import { postJson } from "@/lib/client-api";
 import { demoInput, demoResult } from "@/lib/demo";
 import type {
-  CoachBrief,
   CoachInput,
   Credentials,
   DraftResult,
@@ -44,7 +43,6 @@ export function useCoachWorkspace() {
   const [recoveryChecked, setRecoveryChecked] = useState(false);
   const [notice, setNotice] = useState("");
   const [preparation, setPreparation] = useState<CoachPreparation | null>(null);
-  const [preview, setPreview] = useState<CoachBrief | null>(null);
   const [result, setResult] = useState<SavedCoachResult | null>(null);
   const [resultInput, setResultInput] = useState<CoachInput | null>(null);
   const [sample, setSample] = useState(false);
@@ -59,7 +57,6 @@ export function useCoachWorkspace() {
     controller.current?.abort();
     controller.current = null;
     setBusy(null);
-    setPreview(null);
     setPreparation(null);
     resetCapture();
     resetRiot();
@@ -143,6 +140,7 @@ export function useCoachWorkspace() {
     credentials.model && account?.usage && !account.usage.allowedModels.includes(credentials.model)
       ? { ...credentials, model: undefined }
       : credentials;
+  const defaultModel = account?.usage?.defaultModel || data.status?.defaultModel;
 
   const ready = Boolean(data.status?.configured || effectiveCredentials.apiKey);
 
@@ -156,7 +154,6 @@ export function useCoachWorkspace() {
     const abort = new AbortController();
     controller.current = abort;
     setBusy(task);
-    setPreview(null);
     setPreparation(null);
     clearMessages();
     return abort;
@@ -169,7 +166,6 @@ export function useCoachWorkspace() {
     if (controller.current === abort) {
       controller.current = null;
       setBusy(null);
-      setPreview(null);
       setPreparation(null);
     }
   }
@@ -178,7 +174,6 @@ export function useCoachWorkspace() {
     controller.current?.abort();
     controller.current = null;
     setBusy(null);
-    setPreview(null);
     setPreparation(null);
     setNotice(
       "Espera cancelada. Si la consulta ya se envió, puede consumir cuota. Tu selección sigue aquí.",
@@ -226,7 +221,7 @@ export function useCoachWorkspace() {
       setNotice("Añade tu clave de OpenRouter para generar planes.");
       return false;
     }
-    if (!effectiveCredentials.model && !data.status?.defaultModel) {
+    if (!effectiveCredentials.model && !defaultModel) {
       setSettingsOpen(true);
       setNotice("Elige un modelo en Conexión de IA.");
       return false;
@@ -287,7 +282,7 @@ export function useCoachWorkspace() {
         owner!,
         "COACH",
         body,
-        data.status?.defaultModel || "",
+        defaultModel || "",
       );
       if (!intent || abort.signal.aborted) return true;
       key = intent.key;
@@ -300,14 +295,7 @@ export function useCoachWorkspace() {
         body,
         abort.signal,
         key,
-        (brief) => {
-          if (
-            !abort.signal.aborted &&
-            controller.current === abort &&
-            identityRef.current === owner
-          )
-            setPreview(brief);
-        },
+        () => undefined,
         (choices) => {
           if (
             !abort.signal.aborted &&
@@ -347,7 +335,7 @@ export function useCoachWorkspace() {
         owner!,
         "DRAFT",
         body,
-        data.status?.defaultModel || "",
+        defaultModel || "",
       );
       if (!intent || abort.signal.aborted) return;
       key = intent.key;
@@ -508,7 +496,6 @@ export function useCoachWorkspace() {
     notice,
     setNotice,
     result,
-    preview,
     preparation,
     resultInput,
     sample,
