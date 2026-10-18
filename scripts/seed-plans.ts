@@ -97,9 +97,9 @@ if (process.argv[1]?.endsWith("seed-plans.ts")) {
     .then(() =>
       console.info(
         enableGeminiDailyBudgets
-          ? `Planes Free y Pro listos; presupuestos diarios de al menos USD 1 y USD 2${enableDefaultModel ? " y modelo predeterminado permitido en Pro" : ""}. Se conservaron los demás límites.`
+          ? `Planes Free y Pro listos; presupuestos diarios de al menos USD 1 y USD 2${enableDefaultModel ? " y modelo predeterminado permitido según la política de acceso" : ""}. Se conservaron los demás límites.`
           : enableDefaultModel
-            ? "Planes Free y Pro listos; modelo predeterminado permitido en Pro sin cambiar los demás límites."
+            ? "Planes Free y Pro listos; modelo predeterminado permitido según la política de acceso sin cambiar los demás límites."
             : "Planes Free y Pro listos; se conservaron las políticas existentes.",
         enableOpus ? "Opus 5.5 permitido en Pro sin cambiar sus límites." : "",
         enableFlash ? "Gemini Flash permitido sin cambiar límites ni modelo predeterminado." : "",

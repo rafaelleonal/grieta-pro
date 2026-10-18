@@ -9,7 +9,7 @@ El modo predeterminado es `APP_ACCESS_MODE=beta`. Toda cuenta verificada tiene a
 
 El acceso común toma los límites numéricos exactos de la política base `FREE` ya administrada. No modifica sus filas, no convierte usuarios en Pro ni aumenta automáticamente presupuestos. El nombre interno se conserva por compatibilidad contable. La búsqueda web queda desactivada para todos durante esta etapa, favoreciendo rapidez y evitando gasto adicional. Un borrador anterior con búsqueda activada se envía sin búsqueda; solicitudes directas que la exijan se rechazan.
 
-Opus sigue como predeterminado; Flash está disponible para todas las cuentas. No se sustituye el modelo por una supuesta ventaja de velocidad sin distinguir pruebas simuladas de mediciones reales.
+La decisión inicial mantuvo Opus como predeterminado. Tras la [comparación real del 18 de octubre](../flash-build-comparison.md), el propietario eligió Gemini 3.8 Flash como predeterminado. Opus sigue disponible para todas las cuentas. La muestra mide velocidad y coste; no acredita calidad óptima.
 
 ## Continuidad y límites
 

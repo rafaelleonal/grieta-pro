@@ -752,7 +752,7 @@ test("server-funded resolution fails closed in production; personal keys remain 
       assert.equal(status.riotConfigured, false);
       assert.equal(status.accessRequired, true);
       assert.equal(status.defaultModel, DEFAULT_MODEL);
-      assert.equal(DEFAULT_MODEL, "anthropic/claude-opus-5.5");
+      assert.equal(DEFAULT_MODEL, "google/gemini-3.8-flash");
       assert.equal(resolveCredentials({ apiKey: "personal-key" }).model, DEFAULT_MODEL);
       assert.deepEqual(Object.keys(status).sort(), [
         "accessRequired",

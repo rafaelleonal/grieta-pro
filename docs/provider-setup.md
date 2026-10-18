@@ -4,7 +4,7 @@ OpenRouter genera los consejos y reconoce capturas. Resend entrega los enlaces d
 
 La configuración de Gemini de esta guía se revisó el 11 de octubre de 2026 con documentación oficial y metadatos públicos de OpenRouter. Los paneles, modelos y límites pueden cambiar. Aquí no se crean cuentas, compran créditos, envían correos ni prueban claves por ti.
 
-**Modo vigente:** `APP_ACCESS_MODE=beta` da acceso común a los modelos compatibles, conserva cupos y presupuestos de la política base y desactiva la búsqueda web. Opus 5.5 sigue predeterminado; Gemini 3.8 Flash es seleccionable sin un nivel comercial. Las habilitaciones de planes descritas debajo sólo son necesarias para el modo histórico `plans`; no deben ejecutarse para activar la beta. [Decisión y límites](adr/0006-acceso-beta-comun.md).
+**Modo vigente:** `APP_ACCESS_MODE=beta` da acceso común a los modelos compatibles, conserva cupos y presupuestos de la política base y desactiva la búsqueda web. Gemini 3.8 Flash es el predeterminado; Opus 5.5 sigue seleccionable sin un nivel comercial. Las habilitaciones de planes descritas debajo sólo son necesarias para el modo histórico `plans`; no deben ejecutarse para activar la beta. [Decisión y límites](adr/0006-acceso-beta-comun.md).
 
 ## 1. Preparar tu configuración local
 
@@ -32,7 +32,7 @@ Las claves de esta guía son variables del servidor. No añadas `NEXT_PUBLIC_` n
 
 ```dotenv
 OPENROUTER_API_KEY=
-OPENROUTER_MODEL=anthropic/claude-opus-5.5
+OPENROUTER_MODEL=google/gemini-3.8-flash
 ```
 
 El campo de clave vacío debe contener tu clave real. El modelo es un ID exacto de la política del servidor, no un nombre libre. Las políticas iniciales permiten:
@@ -42,7 +42,7 @@ El campo de clave vacío debe contener tu clave real. El modelo es un ID exacto 
 | Free | `google/gemini-3.8-flash`, `google/gemini-3.1-pro-preview`, `openai/gpt-5.6-luna`, `anthropic/claude-haiku-5.5`, `openai/gpt-6-luna` |
 | Pro  | Los anteriores, `anthropic/claude-sonnet-5.5` y `anthropic/claude-opus-5.5`                                                          |
 
-Opus 5.5 es el predeterminado para build, hechizos y runas, sujeto a los permisos del plan. Si no está permitido, la selección automática utiliza Flash, Gemini Pro u otro modelo permitido; solicitar explícitamente uno prohibido sigue siendo un error. Sobre Gemini Pro: Su ID, imágenes, salidas estructuradas y razonamiento se verificaron el 11 de octubre de 2026 mediante metadatos públicos; no se hizo una consulta pagada para validar esta configuración. GPT 5.6 Luna y los demás modelos permanecen disponibles según el plan. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
+Gemini 3.8 Flash es el predeterminado para build, hechizos y runas. En el modo histórico `plans`, si no está permitido, la selección automática utiliza Gemini Pro u otro modelo permitido; solicitar explícitamente uno prohibido sigue siendo un error. Sobre Gemini Pro: Su ID, imágenes, salidas estructuradas y razonamiento se verificaron el 11 de octubre de 2026 mediante metadatos públicos; no se hizo una consulta pagada para validar esta configuración. GPT 5.6 Luna y los demás modelos permanecen disponibles según el plan. Eso no garantiza disponibilidad para toda cuenta, proveedor o momento. Confirma el ID y sus capacidades en el [catálogo de modelos](https://openrouter.ai/models) o en la [API pública de modelos](https://openrouter.ai/api/v1/models) antes de probarlo. La aplicación restringe también parámetros y tarifas del proveedor; no todos los modelos del catálogo son compatibles con su política.
 
 La política de Gemini limita la entrada a USD 2 y la salida a USD 12 por millón de tokens, con razonamiento `medium` activado y excluido de la respuesta. El razonamiento también se factura y comparte el límite de salida: 14 000 tokens para el coach y 4 000 para extraer capturas o texto. Un análisis manual reserva USD 0.456; una extracción con imagen, USD 0.694146; un coach con búsqueda, USD 1.242. Son reservas conservadoras, no costes medidos ni garantías de calidad o de completar una respuesta. El coste final procede de OpenRouter. Se conserva la política explícita de Luna, con razonamiento desactivado y reserva manual de USD 0.0372. Las reservas anteriores conservan su modelo e importe. Consulta [cuentas y consumo](accounts-and-usage.md#coste-orientativo-de-50-análisis).
 
@@ -52,7 +52,7 @@ Las semillas nuevas incluyen Gemini y crean los presupuestos individuales Free d
 pnpm db:seed --enable-default-model --enable-gemini-daily-budgets
 ```
 
-Los dos indicadores son independientes: `--enable-default-model` sólo añade Opus a Pro si falta, sin cambiar Free; `--enable-gemini-daily-budgets` sólo eleva los límites diarios inferiores. Ninguno reduce un límite personalizado ni reinicia consumo o reservas. Conservan los límites mensuales, cupos, fondos por plan y presupuestos globales. No hace falta una migración de esquema. Reinicia Next.js después de cambiar `OPENROUTER_MODEL` para que use la nueva configuración.
+Los dos indicadores son independientes: `--enable-default-model` añade el predeterminado actual (Flash) a Free y Pro si falta; `--enable-gemini-daily-budgets` sólo eleva los límites diarios inferiores. Ninguno reduce un límite personalizado ni reinicia consumo o reservas. Conservan los límites mensuales, cupos, fondos por plan y presupuestos globales. No hace falta una migración de esquema. Reinicia Next.js después de cambiar `OPENROUTER_MODEL` para que use la nueva configuración.
 
 Las semillas nuevas también permiten Sonnet 5.5 y Opus 5.5 en Pro. Para añadir Opus a un plan Pro existente, después de comprobar el destino de la conexión:
 
@@ -60,9 +60,9 @@ Las semillas nuevas también permiten Sonnet 5.5 y Opus 5.5 en Pro. Para añadir
 pnpm db:seed --enable-opus
 ```
 
-Sólo añade `anthropic/claude-opus-5.5` a Pro si falta e incrementa la versión del plan; no toca Free, cupos ni presupuestos. Opus usa razonamiento `low` y hasta 4 096 tokens de salida para el coach reducido: un análisis manual reserva USD 0.65792 mientras está en curso y después se contabiliza el coste confirmado. La extracción conserva razonamiento `medium` y 4 000 tokens. El consumo y la latencia del contrato nuevo no se han medido con llamadas pagadas; las comparaciones del 12 de octubre usaban un prompt anterior. Despliega primero el código con su política; un modelo permitido sin política se ignora.
+Sólo añade `anthropic/claude-opus-5.5` a Pro si falta e incrementa la versión del plan; no toca Free, cupos ni presupuestos. Opus usa razonamiento `low` y hasta 4 096 tokens de salida para el coach reducido: un análisis manual reserva USD 0.65792 mientras está en curso y después se contabiliza el coste confirmado. La extracción conserva razonamiento `medium` y 4 000 tokens. La [comparación del contrato reducido](flash-build-comparison.md) incluye dos consultas por modelo; las comparaciones del 12 de octubre usaban un prompt anterior. Despliega primero el código con su política; un modelo permitido sin política se ignora.
 
-Gemini Flash (`google/gemini-3.8-flash`) ofrece lectura progresiva con razonamiento bajo. Para habilitarlo en una base existente, comprueba primero el destino de conexión y ejecuta `pnpm db:seed --enable-flash`. Configura `OPENROUTER_MODEL=google/gemini-3.8-flash` si quieres elegirlo en lugar de Opus; reinicia el servidor. El seed sólo habilita el modelo, no cambia presupuestos. Una selección explícita del usuario se conserva. La [comparación real](fast-coach-evaluation.md) mide rapidez y formato; esa evaluación histórica conserva [límites tácticos aún abiertos](flash-prepartida.md). El streaming requiere que cualquier proxy intermedio respete `X-Accel-Buffering: no` y no acumule el cuerpo; compruébalo en el despliegue.
+Gemini Flash (`google/gemini-3.8-flash`) ofrece lectura progresiva con razonamiento bajo. Para habilitarlo en una base existente, comprueba primero el destino de conexión y ejecuta `pnpm db:seed --enable-flash`. Configura `OPENROUTER_MODEL=google/gemini-3.8-flash` para alinear el alojamiento con el predeterminado actual; reinicia el servidor. El seed sólo habilita el modelo, no cambia presupuestos. Una selección explícita del usuario se conserva. La [comparación real](fast-coach-evaluation.md) mide rapidez y formato; esa evaluación histórica conserva [límites tácticos aún abiertos](flash-prepartida.md). El streaming requiere que cualquier proxy intermedio respete `X-Accel-Buffering: no` y no acumule el cuerpo; compruébalo en el despliegue.
 
 Para incorporar otro modelo hace falta revisar `lib/usage.ts`, las políticas de los planes y las pruebas de imágenes, salida y gasto. No sustituyas el ID por un alias o una variante `:free` esperando que evite esos controles.
 

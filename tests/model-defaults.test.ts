@@ -9,12 +9,12 @@ import {
   maximumCost,
 } from "../lib/usage";
 
-test("Opus is the default only for plans that already authorize it", () => {
+test("Flash is the default while configured models and access limits remain respected", () => {
   const previous = process.env.OPENROUTER_MODEL;
   delete process.env.OPENROUTER_MODEL;
   try {
-    assert.equal(DEFAULT_MODEL, OPUS_MODEL);
-    assert.equal(defaultModelForPlan([GEMINI_FLASH_MODEL, OPUS_MODEL]), OPUS_MODEL);
+    assert.equal(DEFAULT_MODEL, GEMINI_FLASH_MODEL);
+    assert.equal(defaultModelForPlan([GEMINI_FLASH_MODEL, OPUS_MODEL]), GEMINI_FLASH_MODEL);
     assert.equal(defaultModelForPlan([GEMINI_PRO_MODEL, GEMINI_FLASH_MODEL]), GEMINI_FLASH_MODEL);
     assert.equal(defaultModelForPlan([GEMINI_PRO_MODEL]), GEMINI_PRO_MODEL);
     assert.equal(defaultModelForPlan(["openai/gpt-6-luna"]), "openai/gpt-6-luna");

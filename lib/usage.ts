@@ -15,7 +15,7 @@ import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
 export const GEMINI_FLASH_MODEL = "google/gemini-3.8-flash";
 export const OPUS_MODEL = "anthropic/claude-opus-5.5";
-export const DEFAULT_MODEL = OPUS_MODEL;
+export const DEFAULT_MODEL: string = GEMINI_FLASH_MODEL;
 export type ModelPolicy = {
   prompt: number;
   completion: number;

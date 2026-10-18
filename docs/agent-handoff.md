@@ -2,6 +2,12 @@
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 18 de octubre: Flash predeterminado confirmado
+
+Por instrucción posterior del propietario, Gemini 3.8 Flash sustituye a Opus como predeterminado en código y configuración local, Production y Preview. Opus permanece seleccionable. Véase la [comparación real](flash-build-comparison.md): cuatro consultas autorizadas y consumidas, coste total USD 0.18156375. Esa autorización está agotada y no permite llamadas adicionales. Se conservan el contrato reducido, el acceso beta y todas las políticas de gasto. Las selecciones explícitas de modelo siguen prevaleciendo.
+
+Los apartados siguientes registran decisiones anteriores; este apartado determina el modelo vigente.
+
 ## Continuación del 18 de octubre: beta sin distinción comercial
 
 Por nueva instrucción del propietario, `APP_ACCESS_MODE=beta` es el modo predeterminado: todos usan el acceso común descrito en la [ADR 0006](adr/0006-acceso-beta-comun.md). Los modelos compatibles, incluyendo Opus y Flash, no dependen de Free/Pro; la búsqueda web queda desactivada. Los límites comunes se leen de la política base existente sin elevar gasto ni reiniciar consumo. Las concesiones y reservas anteriores se conservan. `plans` permite restaurar el modo histórico.

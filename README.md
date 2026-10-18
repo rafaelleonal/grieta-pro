@@ -8,7 +8,7 @@ Los [términos de uso y la política de privacidad](docs/legal-and-riot.md) est�
 
 Elige primero tu rol para ver campeones habituales. **Todos** y la búsqueda permiten elegir cualquier campeón, incluso fuera de posición. Con una cuenta verificada puedes marcar hasta doce favoritos por rol y ordenar su prioridad; se guardan en tu cuenta. Consulta [favoritos y futura conexión con Riot](docs/accounts-and-usage.md#campeones-por-rol-y-favoritos).
 
-**Acceso actual: beta común.** No hay distinción Free/Pro en la experiencia: todos tienen los mismos modelos y límites administrados. La búsqueda web está desactivada para priorizar rapidez. Opus 5.5 sigue predeterminado y Gemini 3.8 Flash se puede elegir en Conexión. Consulta la [ADR de acceso beta](docs/adr/0006-acceso-beta-comun.md); las referencias a planes de las secciones históricas siguientes sólo aplican a `APP_ACCESS_MODE=plans`.
+**Acceso actual: beta común.** No hay distinción Free/Pro en la experiencia: todos tienen los mismos modelos y límites administrados. La búsqueda web está desactivada para priorizar rapidez. Gemini 3.8 Flash es el predeterminado y Opus 5.5 se puede elegir en Conexión. Consulta la [ADR de acceso beta](docs/adr/0006-acceso-beta-comun.md); las referencias a planes de las secciones históricas siguientes sólo aplican a `APP_ACCESS_MODE=plans`.
 
 ## Iniciar
 
@@ -61,7 +61,7 @@ En **Foto, captura o texto**, usa **Elegir foto o captura** para abrir tus fotos
 
 Puedes explorar el ejemplo sin credenciales. El ejemplo es contenido de demostración: no representa una consulta de IA ni una recomendación actualizada. Para generar un plan propio, entra con tu cuenta verificada y configura OpenRouter en el servidor o introduce tu clave personal en **Conexión**.
 
-El modelo predeterminado es `anthropic/claude-opus-5.5`; en beta todos pueden elegir los modelos compatibles, incluyendo `google/gemini-3.8-flash`. Los límites comunes de cuota y gasto siguen aplicándose. Una variable `OPENROUTER_MODEL` configurada en el alojamiento prevalece sobre el valor del código. Las recomendaciones del modelo no son estadísticas óptimas ni una garantía de calidad.
+El modelo predeterminado es `google/gemini-3.8-flash`; en beta todos pueden elegir los modelos compatibles, incluyendo `anthropic/claude-opus-5.5`. Los límites comunes de cuota y gasto siguen aplicándose. Una variable `OPENROUTER_MODEL` configurada en el alojamiento prevalece sobre el valor del código. Las recomendaciones del modelo no son estadísticas óptimas ni una garantía de calidad.
 
 El resultado contiene **build recomendada, hechizos y runas**. La compra inicial, el núcleo en orden y las opciones situacionales conservan iconos y condiciones breves. No se generan estrategia, niveles, mecánicas ni mapa: el contrato reducido busca responder antes. El historial anterior sigue siendo legible sin regeneración automática; la interfaz y la copia muestran sus elecciones de objetos, hechizos y runas.
 
@@ -81,20 +81,20 @@ Al cambiar los iconos o `offline.html`, incrementa la versión de `CACHE_NAME` e
 
 ## Conexión y secretos
 
-| Variable                                       | Uso                                                                                                                                                                                                        |
-| ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENROUTER_API_KEY`                           | Opcional. Clave de OpenRouter del servidor. Alternativamente, el usuario puede usar su propia clave durante la sesión.                                                                                     |
-| `OPENROUTER_MODEL`                             | Opcional. Predeterminado: `anthropic/claude-opus-5.5`. ID exacto entre los modelos permitidos por la política del servidor y el plan; consulta la guía de proveedores. No admite IDs arbitrarios ni alias. |
-| `DATABASE_URL`                                 | Conexión privada PostgreSQL del runtime. Local en desarrollo; en Prisma Postgres usa la conexión pooled con TLS.                                                                                           |
-| `DIRECT_URL`                                   | Opcional para la CLI: conexión directa de migraciones y administración. Si está ausente se usa `DATABASE_URL`; no es necesaria en Vercel para servir la app.                                               |
-| `BETTER_AUTH_SECRET`                           | Secreto aleatorio privado de al menos 32 caracteres.                                                                                                                                                       |
-| `BETTER_AUTH_URL`                              | Origen exacto de la app. HTTPS obligatorio en producción.                                                                                                                                                  |
-| `BETTER_AUTH_TRUSTED_ORIGINS`                  | Opcional. Otros orígenes exactos separados por coma; no admite comodines.                                                                                                                                  |
-| `APP_REGISTRATION_MODE`                        | `open` es el valor predeterminado: registro público e invitación opcional. `invite` exige código para una beta cerrada elegida explícitamente.                                                             |
-| `RESEND_API_KEY`, `AUTH_EMAIL_FROM`            | Clave privada de Resend y remitente de un dominio verificado.                                                                                                                                              |
-| `AI_MONTHLY_BUDGET_USD`, `AI_DAILY_BUDGET_USD` | Techo global de saldo compartido; incluye consumo y reservas.                                                                                                                                              |
-| `AI_FREE_POOL_USD`, `AI_PRO_POOL_USD`          | Presupuestos mensuales separados para Free y Pro.                                                                                                                                                          |
-| `RIOT_API_KEY`                                 | Opcional. Habilita la importación de una partida activa. Se configura exclusivamente en el servidor.                                                                                                       |
+| Variable                                       | Uso                                                                                                                                                                                                      |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENROUTER_API_KEY`                           | Opcional. Clave de OpenRouter del servidor. Alternativamente, el usuario puede usar su propia clave durante la sesión.                                                                                   |
+| `OPENROUTER_MODEL`                             | Opcional. Predeterminado: `google/gemini-3.8-flash`. ID exacto entre los modelos permitidos por la política del servidor y el plan; consulta la guía de proveedores. No admite IDs arbitrarios ni alias. |
+| `DATABASE_URL`                                 | Conexión privada PostgreSQL del runtime. Local en desarrollo; en Prisma Postgres usa la conexión pooled con TLS.                                                                                         |
+| `DIRECT_URL`                                   | Opcional para la CLI: conexión directa de migraciones y administración. Si está ausente se usa `DATABASE_URL`; no es necesaria en Vercel para servir la app.                                             |
+| `BETTER_AUTH_SECRET`                           | Secreto aleatorio privado de al menos 32 caracteres.                                                                                                                                                     |
+| `BETTER_AUTH_URL`                              | Origen exacto de la app. HTTPS obligatorio en producción.                                                                                                                                                |
+| `BETTER_AUTH_TRUSTED_ORIGINS`                  | Opcional. Otros orígenes exactos separados por coma; no admite comodines.                                                                                                                                |
+| `APP_REGISTRATION_MODE`                        | `open` es el valor predeterminado: registro público e invitación opcional. `invite` exige código para una beta cerrada elegida explícitamente.                                                           |
+| `RESEND_API_KEY`, `AUTH_EMAIL_FROM`            | Clave privada de Resend y remitente de un dominio verificado.                                                                                                                                            |
+| `AI_MONTHLY_BUDGET_USD`, `AI_DAILY_BUDGET_USD` | Techo global de saldo compartido; incluye consumo y reservas.                                                                                                                                            |
+| `AI_FREE_POOL_USD`, `AI_PRO_POOL_USD`          | Presupuestos mensuales separados para Free y Pro.                                                                                                                                                        |
+| `RIOT_API_KEY`                                 | Opcional. Habilita la importación de una partida activa. Se configura exclusivamente en el servidor.                                                                                                     |
 
 Guarda las variables en `.env` o `.env.local` durante el desarrollo y en el gestor de secretos del alojamiento al desplegar. Si ya usas `.env`, conserva ese archivo: `.env.local` tiene prioridad. No uses el prefijo `NEXT_PUBLIC_` para claves o códigos de acceso. No las subas al repositorio.
 

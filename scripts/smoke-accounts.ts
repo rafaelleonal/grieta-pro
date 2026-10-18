@@ -1811,8 +1811,10 @@ async function main() {
     await seedPlans({ enableDefaultModel: true });
     const enabledFree = await db.plan.findUniqueOrThrow({ where: { id: free.id } });
     const enabledPro = await db.plan.findUniqueOrThrow({ where: { id: pro.id } });
-    assert.deepEqual(enabledFree, customFree, "The app default never expands Free permissions");
-    for (const [original, enabled] of [[unchangedPro, enabledPro]]) {
+    for (const [original, enabled] of [
+      [customFree, enabledFree],
+      [unchangedPro, enabledPro],
+    ]) {
       const {
         allowedModels: originalModels,
         version: originalVersion,
@@ -1825,12 +1827,16 @@ async function main() {
         updatedAt: enabledAt,
         ...enabledPolicy
       } = enabled;
-      assert.deepEqual(enabledModels, [...originalModels, usage.DEFAULT_MODEL]);
-      assert.equal(enabledVersion, originalVersion + 1);
+      const alreadyEnabled = originalModels.includes(usage.DEFAULT_MODEL);
+      assert.deepEqual(
+        enabledModels,
+        alreadyEnabled ? originalModels : [...originalModels, usage.DEFAULT_MODEL],
+      );
+      assert.equal(enabledVersion, originalVersion + (alreadyEnabled ? 0 : 1));
       assert.deepEqual(
         enabledPolicy,
         originalPolicy,
-        "Enabling the Pro default preserves all custom quotas, budgets, permissions and name",
+        "Explicitly enabling Flash preserves all custom quotas, budgets, permissions and name",
       );
       assert.ok(enabledAt >= originalAt);
     }

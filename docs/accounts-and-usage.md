@@ -8,6 +8,10 @@ La implementación incluye las cuentas, historial privado, planes, invitaciones 
 
 Desde la continuación del 18 de octubre, el modo predeterminado `APP_ACCESS_MODE=beta` sustituye la distinción comercial de las secciones siguientes: se aplican los límites numéricos exactos de la política base `FREE` a todas las cuentas, todos los modelos compatibles están disponibles y la búsqueda web está desactivada. No se mutan planes, concesiones ni contabilidad; las solicitudes previas se concilian por sus referencias originales. Véase [ADR 0006](adr/0006-acceso-beta-comun.md). `APP_ACCESS_MODE=plans` conserva el comportamiento histórico descrito debajo.
 
+## Predeterminado vigente
+
+Gemini 3.8 Flash es el predeterminado por decisión del propietario tras la [comparación real](flash-build-comparison.md). Conserva razonamiento bajo, límite de 7 000 tokens para coach y reserva manual de USD 0.13425. Opus sigue disponible. Los apartados fechados siguientes documentan configuraciones anteriores; no cambian cuotas ni fondos al elegir el nuevo predeterminado.
+
 ## Actualización del 18 de octubre de 2026
 
 El coach solicita únicamente build, hechizos y runas mediante `build-v1` y guarda formato 4. Conserva formatos 1–3 para el historial. Opus 5.5 es el predeterminado donde esté permitido, con razonamiento bajo y 4 096 tokens máximos para el coach; la reserva manual sin búsqueda es USD 0.65792. La extracción conserva sus límites anteriores. Son reservas, no costes medidos.
