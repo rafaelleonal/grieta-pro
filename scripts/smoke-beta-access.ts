@@ -62,7 +62,7 @@ export async function smokeBetaAccess() {
     for (const id of ids) {
       const account = await usage.getAccountUsage(id);
       assert.equal(account.accessMode, "beta");
-      assert.equal(account.coachLimit, free.monthlyCoachLimit);
+      assert.equal(account.coachLimit, null);
       assert.equal(account.draftLimit, free.monthlyDraftLimit);
       assert.equal(account.webAllowed, false);
       assert.equal(account.webRemaining, 0);
@@ -77,7 +77,7 @@ export async function smokeBetaAccess() {
       await assert.rejects(usage.generationPolicy(id, usage.GEMINI_FLASH_MODEL, true), denied(403));
       await assert.rejects(usage.generationPolicy(id, "unapproved/model"), denied(403));
     }
-    assert.equal((await usage.getAccountUsage(ids[1])).coachRemaining, free.monthlyCoachLimit - 1);
+    assert.equal((await usage.getAccountUsage(ids[1])).coachRemaining, null);
     assert.equal((await usage.getAccountUsage(ids[1])).uncertain, 1);
     assert.deepEqual(await db.usageBucket.findMany({ orderBy: { id: "asc" } }), beforeBuckets);
     assert.deepEqual(await db.aiRequest.findUniqueOrThrow({ where: { id: held.id } }), held);
@@ -199,18 +199,21 @@ export async function smokeBetaAccess() {
     await usage.dispatchGeneration(beta.request.id);
     await usage.observeUsage(beta.request.id, { id: "gen-qa-beta-flash", cost: "0.004" });
     await usage.finishGeneration(beta.request.id, {});
-    assert.equal((await usage.getAccountUsage(ids[0])).coachRemaining, free.monthlyCoachLimit - 1);
+    assert.equal((await usage.getAccountUsage(ids[0])).coachRemaining, null);
     const commonPool = await db.usageBucket.findFirstOrThrow({
       where: { scope: "PLAN", scopeId: "FREE" },
     });
     assert.equal(commonPool.costUsedUsd.toString(), "0.004");
     assert.deepEqual(await db.plan.findMany({ orderBy: { code: "asc" } }), plans);
 
+    const { smokeBetaCoachUsage } = await import("./smoke-beta-usage");
+    await smokeBetaCoachUsage(ids[0]);
+
     process.env.APP_ACCESS_MODE = "plans";
     await assert.rejects(usage.generationPolicy(ids[0], usage.OPUS_MODEL), denied(403));
     assert.equal((await usage.getAccountUsage(ids[1])).coachLimit, pro.monthlyCoachLimit);
     console.info(
-      "PASS · beta común, Opus/Flash sin niveles comerciales, cuotas intactas y reservas anteriores conciliadas en su fondo original",
+      "PASS · beta común, Opus/Flash sin niveles comerciales, presupuestos y capturas intactos y reservas anteriores conciliadas en su fondo original",
     );
   } finally {
     if (beforeMode === undefined) delete process.env.APP_ACCESS_MODE;

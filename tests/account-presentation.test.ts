@@ -26,8 +26,8 @@ const account: AccountStatus = {
   },
   usage: {
     accessMode: "beta",
-    coachRemaining: 7,
-    coachLimit: 10,
+    coachRemaining: null,
+    coachLimit: null,
     draftRemaining: 2,
     draftLimit: 4,
     webRemaining: 0,
@@ -81,7 +81,8 @@ test("beta account presents the same access for stored tiers and retains quotas 
     assertNoCommercialLabels(html);
     for (const label of [
       "Beta",
-      "7 disponibles de 10",
+      "Sin límite de builds",
+      "El gasto sigue controlado por presupuesto",
       "2 de 4",
       "Por confirmar",
       "Actualizar saldo",
@@ -136,7 +137,9 @@ test("shell and topbar show beta availability while model selection remains expl
   );
   for (const html of [shell, topbar, connection]) assertNoCommercialLabels(html);
   assert.ok(shell.includes("Beta"));
-  assert.ok(topbar.includes("Beta: 7 builds disponibles"));
+  assert.ok(topbar.includes("Beta · Sin límite de builds"));
+  assert.ok(!topbar.includes("restantes"));
+  assert.ok(!topbar.includes("0 builds disponibles"));
   assert.ok(topbar.includes("Gemini 3.8 Flash"));
   assert.ok(connection.includes("Opus 5.5"));
   assert.ok(connection.includes("Gemini 3.8 Flash"));
@@ -147,11 +150,12 @@ test("legacy plans mode remains explicit and a missing mode uses beta presentati
   const legacy = {
     ...account,
     user: { ...account.user!, role: "ADMIN" as const, plan: "PRO" as const },
-    usage: { ...account.usage!, accessMode: "plans" as const },
+    usage: { ...account.usage!, accessMode: "plans" as const, coachRemaining: 7, coachLimit: 10 },
   };
   assert.ok(usesPlanAccess(legacy));
   const html = renderAccount(legacy);
   assert.ok(html.includes("Elociencia Pro"));
+  assert.ok(html.includes("7 disponibles de 10"));
   assert.ok(html.includes('id="administrar"'));
   assert.equal(
     accountAccessLabel({ ...account, usage: { ...account.usage!, accessMode: undefined } }),

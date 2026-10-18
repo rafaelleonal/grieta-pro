@@ -1,13 +1,14 @@
 "use client";
 import type { CoachPreparation } from "@/lib/types";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { assertSafeInputText } from "@/lib/coach-safety";
 import { DRAFT_STORAGE_KEY, EMPTY_INPUT, loadDraft, serializeDraft } from "@/lib/coach-draft";
 import { postCoachStream } from "@/lib/client-coach-stream";
 import { postJson } from "@/lib/client-api";
 import { webSearchEnabled } from "@/lib/account-presentation";
+import { generationAccess, type GenerationAccess } from "@/lib/generation-access";
 import { demoInput, demoResult } from "@/lib/demo";
 import type {
   CoachInput,
@@ -22,6 +23,17 @@ import { useAppData } from "./use-app-data";
 import { useCapture } from "./use-capture";
 import { useRiotImport } from "./use-riot-import";
 
+function subscribeOnline(notify: () => void) {
+  window.addEventListener("online", notify);
+  window.addEventListener("offline", notify);
+  return () => {
+    window.removeEventListener("online", notify);
+    window.removeEventListener("offline", notify);
+  };
+}
+const onlineSnapshot = () => navigator.onLine;
+const serverOnlineSnapshot = () => true;
+
 export type Busy = "coach" | "draft" | "riot" | null;
 
 /**
@@ -31,6 +43,7 @@ export type Busy = "coach" | "draft" | "riot" | null;
  */
 export function useCoachWorkspace() {
   const router = useRouter();
+  const online = useSyncExternalStore(subscribeOnline, onlineSnapshot, serverOnlineSnapshot);
   const data = useAppData();
   const capture = useCapture();
   const riotImport = useRiotImport();
@@ -103,7 +116,7 @@ export function useCoachWorkspace() {
       setStorageReady(true);
     },
   });
-  const { account, owner, identityRef, resetConsumption } = session;
+  const { account, owner, identityRef, resetConsumption, refreshAccount } = session;
 
   const clearPrivateState = useCallback(() => {
     resetWorkspace();
@@ -136,14 +149,31 @@ export function useCoachWorkspace() {
     }
   }, [input, storageReady, owner, draftOwner]);
 
-  // A model the plan no longer allows falls back to the recommended one (derived, not stored).
-  const effectiveCredentials: Credentials =
-    credentials.model && account?.usage && !account.usage.allowedModels.includes(credentials.model)
-      ? { ...credentials, model: undefined }
-      : credentials;
+  const effectiveCredentials = credentials;
   const defaultModel = account?.usage?.defaultModel || data.status?.defaultModel;
-
   const ready = Boolean(data.status?.configured || effectiveCredentials.apiKey);
+  const access = generationAccess({
+    account,
+    accountError: session.accountError,
+    status: data.status,
+    statusError: data.statusError,
+    credentials: effectiveCredentials,
+    requestedWeb: input.webSearch,
+    online,
+    busy: Boolean(busy || capture.preparingImage || (account && draftOwner !== owner)),
+    selectionReady: Boolean(
+      data.catalog?.champions.some((entry) => entry.id === input.champion) &&
+      data.catalog?.champions.some((entry) => entry.id === input.enemy),
+    ),
+  });
+  const rateLimitedUntil = account?.usage?.rateLimitedUntil;
+  useEffect(() => {
+    if (!rateLimitedUntil) return;
+    const remaining = Date.parse(rateLimitedUntil) - Date.now();
+    if (!Number.isFinite(remaining) || remaining <= 0) return;
+    const timer = setTimeout(() => void refreshAccount(), Math.min(remaining + 100, 2_147_483_647));
+    return () => clearTimeout(timer);
+  }, [rateLimitedUntil, refreshAccount]);
 
   function update<K extends keyof CoachInput>(key: K, value: CoachInput[K]) {
     setInput((previous) => ({ ...previous, [key]: value }));
@@ -182,52 +212,34 @@ export function useCoachWorkspace() {
     void session.refreshAccount();
     void session.checkConsumption();
   }
+  function applyAccess(check: GenerationAccess) {
+    if (check.allowed) return true;
+    if (check.action === "login") router.push("/login");
+    else if (check.action === "verify") router.push("/verify-email");
+    else if (check.action === "settings") {
+      setSettingsOpen(true);
+      setNotice(check.message);
+    } else setError(check.message);
+    return false;
+  }
+  function checkAccess(operation: "account" | "coach" | "draft", replay = false) {
+    return generationAccess({
+      account,
+      accountError: session.accountError,
+      status: data.status,
+      statusError: data.statusError,
+      credentials: effectiveCredentials,
+      operation,
+      requestedWeb: input.webSearch,
+      replay,
+      online: navigator.onLine,
+    });
+  }
   function ensureAccount() {
-    if (!navigator.onLine) {
-      setError("Sin conexión. Conéctate y reintenta.");
-      return false;
-    }
-    if (!account?.configured) {
-      setError("Las cuentas aún no están disponibles. Puedes probar el ejemplo.");
-      return false;
-    }
-    if (!account.authenticated) {
-      router.push("/login");
-      return false;
-    }
-    if (!account.user?.emailVerified) {
-      setError("Verifica tu correo para generar planes.");
-      return false;
-    }
-    return true;
+    return applyAccess(checkAccess("account"));
   }
   function ensureCredentials(kind: "coach" | "draft" = "coach", replay = false) {
-    if (!ensureAccount()) return false;
-    const remaining =
-      kind === "coach" ? account?.usage?.coachRemaining : account?.usage?.draftRemaining;
-    if (!replay && remaining !== undefined && remaining <= 0) {
-      setError(
-        kind === "coach"
-          ? "Sin planes disponibles. Consulta los anteriores en Sesiones."
-          : "Sin lecturas disponibles. Elige los campeones a mano.",
-      );
-      return false;
-    }
-    if (!replay && account?.usage?.pending) {
-      setError("Consulta en curso. Comprobamos su estado; tu selección sigue guardada.");
-      return false;
-    }
-    if (!ready) {
-      setSettingsOpen(true);
-      setNotice("Añade tu clave de OpenRouter para generar planes.");
-      return false;
-    }
-    if (!effectiveCredentials.model && !defaultModel) {
-      setSettingsOpen(true);
-      setNotice("Elige un modelo en Conexión de IA.");
-      return false;
-    }
-    return true;
+    return applyAccess(checkAccess(kind, replay));
   }
   function safeContext(text: string) {
     try {
@@ -487,6 +499,7 @@ export function useCoachWorkspace() {
     credentials: effectiveCredentials,
     setCredentials,
     ready,
+    generationAccess: access,
     busy,
     error,
     setError,

@@ -1,5 +1,7 @@
 # Cuentas, planes y control del gasto de Elociencia
 
+**Beta sin cupo de builds:** la [ADR 0008](adr/0008-beta-sin-cupo-builds.md) sustituye el cupo mensual de cantidad de `COACH` por ausencia de límite de cantidad (`coachRemaining` y `coachLimit` nulos). Los presupuestos, reservas, concurrencia y límites por minuto siguen vigentes. Capturas y modo `plans` conservan sus cupos; no se reinicia el consumo anterior.
+
 Elociencia tiene cuentas con Better Auth, datos persistentes en PostgreSQL mediante Prisma y autorización en el backend de Next.js. El historial es privado. Cada generación reserva cuota y presupuesto antes de llamar a OpenRouter, para limitar el consumo individual y el gasto total.
 
 La implementación incluye las cuentas, historial privado, planes, invitaciones y cuotas descritos aquí. La migración inicial está versionada en `prisma/migrations` y se aplica con `pnpm db:setup`. Requiere configurar PostgreSQL, Better Auth y Resend; sin configuración las llamadas privadas se rechazan. Los pagos y el acompañante de escritorio siguen siendo ampliaciones futuras.

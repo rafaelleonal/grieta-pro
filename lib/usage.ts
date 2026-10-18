@@ -275,6 +275,21 @@ function refsFor(userId: string, plan: Plan, now: Date): BucketRef[] {
     { scope: "USER", scopeId: userId, period: p.minute },
   ];
 }
+/** Shared by atomic admission and the read-only availability snapshot. */
+function bucketBudget(ref: BucketRef, plan: Plan): Prisma.Decimal | null {
+  const monthly = ref.period.startsWith("month:");
+  const daily = ref.period.startsWith("day:");
+  if (ref.scope === "GLOBAL")
+    return budget(monthly ? "AI_MONTHLY_BUDGET_USD" : "AI_DAILY_BUDGET_USD", monthly ? "25" : "5");
+  if (ref.scope === "PLAN")
+    return budget(
+      plan.code === "FREE" ? "AI_FREE_POOL_USD" : "AI_PRO_POOL_USD",
+      plan.code === "FREE" ? "5" : "20",
+    );
+  if (ref.scope === "USER" && monthly) return plan.monthlyBudgetUsd;
+  if (ref.scope === "USER" && daily) return plan.dailyBudgetUsd;
+  return null;
+}
 async function getBucket(tx: Tx, ref: BucketRef) {
   return tx.usageBucket.upsert({ where: { scope_scopeId_period: ref }, create: ref, update: {} });
 }
@@ -373,20 +388,7 @@ export async function reserveGeneration(args: {
         const bucket = await getBucket(tx, ref);
         const used = bucket.costUsedUsd.add(bucket.costReservedUsd).add(reserve);
         const monthly = ref.period.startsWith("month:");
-        const daily = ref.period.startsWith("day:");
-        let limit: Prisma.Decimal | null = null;
-        if (ref.scope === "GLOBAL")
-          limit = budget(
-            monthly ? "AI_MONTHLY_BUDGET_USD" : "AI_DAILY_BUDGET_USD",
-            monthly ? "25" : "5",
-          );
-        if (ref.scope === "PLAN")
-          limit = budget(
-            plan.code === "FREE" ? "AI_FREE_POOL_USD" : "AI_PRO_POOL_USD",
-            plan.code === "FREE" ? "5" : "20",
-          );
-        if (ref.scope === "USER" && monthly) limit = plan.monthlyBudgetUsd;
-        if (ref.scope === "USER" && daily) limit = plan.dailyBudgetUsd;
+        const limit = bucketBudget(ref, plan);
         if (!args.byok && (bucket.blocked || (limit && used.gt(limit))))
           throw new ApiError(
             429,
@@ -400,7 +402,7 @@ export async function reserveGeneration(args: {
               ? bucket.coachUsed + bucket.coachReserved
               : bucket.draftUsed + bucket.draftReserved;
           const cap = args.operation === "COACH" ? plan.monthlyCoachLimit : plan.monthlyDraftLimit;
-          if (calls >= cap)
+          if (calls >= cap && !(args.operation === "COACH" && getAccessMode() === "beta"))
             throw new ApiError(
               429,
               args.operation === "COACH"
@@ -647,39 +649,94 @@ export async function getAccountUsage(userId: string) {
   const db = getDb();
   const now = new Date();
   const plan = await effectivePlan(db, userId, now);
-  const bucket = await db.usageBucket.findUnique({
-    where: { scope_scopeId_period: { scope: "USER", scopeId: userId, period: periods(now).month } },
-  });
+  const accessMode = getAccessMode();
+  const refs = refsFor(userId, plan, now);
+  const buckets = await db.usageBucket.findMany({ where: { OR: refs } });
+  const keyFor = (ref: BucketRef) => `${ref.scope}:${ref.scopeId}:${ref.period}`;
+  const byRef = new Map(buckets.map((entry) => [keyFor(entry), entry]));
+  const bucket = byRef.get(keyFor({ scope: "USER", scopeId: userId, period: periods(now).month }));
+  const minuteBucket = byRef.get(
+    keyFor({ scope: "USER", scopeId: userId, period: periods(now).minute }),
+  );
+  const allowedModels = [...new Set(plan.allowedModels.filter((model) => model in MODEL_POLICIES))];
+  const coachRemaining =
+    accessMode === "beta"
+      ? null
+      : Math.max(
+          0,
+          plan.monthlyCoachLimit - (bucket?.coachUsed || 0) - (bucket?.coachReserved || 0),
+        );
+  const webRemaining = plan.webSearchAllowed
+    ? Math.max(
+        0,
+        plan.monthlySearchLimit - (bucket?.searchUsed || 0) - (bucket?.searchReserved || 0),
+      )
+    : 0;
+  const available = (model: string, web: boolean) => {
+    if (coachRemaining === 0 || (web && (!plan.webSearchAllowed || webRemaining === 0)))
+      return false;
+    let reserve: Prisma.Decimal;
+    try {
+      reserve = maximumCost(model, "COACH", false, web);
+    } catch {
+      return false;
+    }
+    return refs.every((ref) => {
+      const current = byRef.get(keyFor(ref));
+      const limit = bucketBudget(ref, plan);
+      return (
+        !current?.blocked &&
+        (!limit ||
+          (current?.costUsedUsd || new Prisma.Decimal(0))
+            .add(current?.costReservedUsd || 0)
+            .add(reserve)
+            .lte(limit))
+      );
+    });
+  };
+  const coachAvailability = Object.fromEntries(
+    allowedModels.map((model) => [
+      model,
+      {
+        standard: available(model, false),
+        web: available(model, true),
+      },
+    ]),
+  );
+  const minuteCalls = minuteBucket
+    ? minuteBucket.coachUsed +
+      minuteBucket.draftUsed +
+      minuteBucket.coachReserved +
+      minuteBucket.draftReserved
+    : 0;
   const [pending, uncertain] = await Promise.all([
     db.aiRequest.count({ where: { userId, status: { in: ["RESERVED", "DISPATCHED"] } } }),
     db.aiRequest.count({ where: { userId, status: "UNKNOWN" } }),
   ]);
   return {
     plan: plan.code,
-    accessMode: getAccessMode(),
-    coachRemaining: Math.max(
-      0,
-      plan.monthlyCoachLimit - (bucket?.coachUsed || 0) - (bucket?.coachReserved || 0),
-    ),
+    accessMode,
+    coachRemaining,
     draftRemaining: Math.max(
       0,
       plan.monthlyDraftLimit - (bucket?.draftUsed || 0) - (bucket?.draftReserved || 0),
     ),
-    webRemaining: plan.webSearchAllowed
-      ? Math.max(
-          0,
-          plan.monthlySearchLimit - (bucket?.searchUsed || 0) - (bucket?.searchReserved || 0),
-        )
-      : 0,
+    webRemaining,
     // Read-only plan limits for the consumption bars; quotas are enforced elsewhere.
-    coachLimit: plan.monthlyCoachLimit,
+    coachLimit: accessMode === "beta" ? null : plan.monthlyCoachLimit,
     draftLimit: plan.monthlyDraftLimit,
     webLimit: plan.webSearchAllowed ? plan.monthlySearchLimit : 0,
     resetsAt: new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString(),
     pending,
     uncertain,
+    coachAvailability,
+    concurrentLimit: plan.concurrentLimit,
+    rateLimitedUntil:
+      minuteCalls >= plan.minuteRequestLimit
+        ? new Date((Math.floor(now.getTime() / 60_000) + 1) * 60_000).toISOString()
+        : null,
     defaultModel: defaultModelForPlan(plan.allowedModels),
-    allowedModels: plan.allowedModels.filter((model) => model in MODEL_POLICIES),
+    allowedModels,
     webAllowed: plan.webSearchAllowed,
   };
 }

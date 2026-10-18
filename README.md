@@ -10,7 +10,7 @@ Elige primero tu rol para ver campeones habituales. **Todos** y la búsqueda per
 
 **Respuesta actual:** build, hechizos, runas y orden de habilidades de los niveles 1–6, en una sola consulta. Véase la [ADR de habilidades iniciales](docs/adr/0007-habilidades-primeros-niveles.md).
 
-**Acceso actual: beta común.** No hay distinción Free/Pro en la experiencia: todos tienen los mismos modelos y límites administrados. La búsqueda web está desactivada para priorizar rapidez. Gemini 3.8 Flash es el predeterminado y Opus 5.5 se puede elegir en Conexión. Consulta la [ADR de acceso beta](docs/adr/0006-acceso-beta-comun.md); las referencias a planes de las secciones históricas siguientes sólo aplican a `APP_ACCESS_MODE=plans`.
+**Acceso actual: beta común sin cupo de builds.** No hay distinción Free/Pro en la experiencia ni límite mensual de cantidad de builds. Se conservan presupuestos, reservas, concurrencia, límites por minuto y cupo de capturas, según la [ADR 0008](docs/adr/0008-beta-sin-cupo-builds.md). La búsqueda web está desactivada para priorizar rapidez. Gemini 3.8 Flash es el predeterminado y Opus 5.5 se puede elegir en Conexión. Consulta la [ADR de acceso beta](docs/adr/0006-acceso-beta-comun.md); las referencias a planes de las secciones históricas siguientes sólo aplican a `APP_ACCESS_MODE=plans`.
 
 ## Iniciar
 

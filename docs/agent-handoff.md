@@ -2,6 +2,12 @@
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 18 de octubre: beta sin cupo de builds
+
+Por petición explícita del propietario, la [ADR 0008](adr/0008-beta-sin-cupo-builds.md) retira el cupo mensual de cantidad de builds en beta. Se conservan todos los presupuestos, reservas, contabilidad, límites por minuto y concurrencia. Las capturas mantienen su cupo y `plans` mantiene la política histórica. La interfaz no muestra builds restantes en beta y comparte el bloqueo del botón y el atajo con las condiciones de generación. No se reinicia consumo ni se liberan reservas inciertas.
+
+Verificación: `pnpm check` (298 pruebas), `pnpm eval:security` (34 pruebas), `pnpm test:accounts` con PostgreSQL temporal y proveedores simulados, y compilación. Las pruebas cubren cuenta beta por encima del cupo anterior, presupuesto suficiente/insuficiente por modelo, reservas inciertas, cinco fondos monetarios y bloqueos, concurrencia, límites por minuto, BYOK y continuidad de `plans`. La interfaz se comprobó a 390/834/1440 px sin desbordamiento; botón y atajo se bloquean con presupuesto agotado y el botón refleja consultas activas. Una cuenta sintética con 12 builds usadas y una reserva incierta completó una nueva generación simulada en navegador. Capturas sintéticas en `artifacts/qa/beta-no-cap/`; sin consultas pagadas.
+
 ## Continuación del 18 de octubre: habilidades 1–6
 
 El propietario amplía la respuesta breve con las habilidades a subir en los niveles 1–6, según la [ADR 0007](adr/0007-habilidades-primeros-niveles.md). Se generan en la misma consulta mediante `build-v2`, se validan con las reglas existentes y se muestran/copian antes de las compras. El historial `build-v1` y los formatos anteriores permanecen legibles, sin inventar secuencias ausentes. Aphelios conserva mejoras de atributos explícitas. Flash, acceso beta y límites de gasto no cambian. No hay nueva medición pagada de latencia.

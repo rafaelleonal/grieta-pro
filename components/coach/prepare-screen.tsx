@@ -56,7 +56,7 @@ export function PrepareScreen({
   const gridRole = activeSlot?.role || input.role;
   const champion = champions.find((entry) => entry.id === input.champion);
   const enemy = champions.find((entry) => entry.id === input.enemy);
-  const canGenerate = Boolean(champion && enemy && catalog && !ws.busy);
+  const canGenerate = ws.generationAccess.allowed;
   const picked = new Map(
     slots
       .map((slot) => [slotValue(input, slot.key), slot.label] as const)
@@ -104,7 +104,13 @@ export function PrepareScreen({
     ? "Elige tu campeón"
     : !enemy
       ? slots.find((slot) => slot.key === "enemy")!.emptyTitle
-      : "Generar build";
+      : ws.generationAccess.allowed
+        ? "Generar build"
+        : ws.generationAccess.reason === "account_loading" ||
+            ws.generationAccess.reason === "configuration_loading" ||
+            ws.generationAccess.reason === "usage_loading"
+          ? "Comprobando acceso…"
+          : "Generación no disponible";
 
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7">
@@ -308,6 +314,7 @@ export function PrepareScreen({
           variant="primary"
           className={cn("lg:ml-auto lg:min-w-96", !canGenerate && "justify-center")}
           disabled={!canGenerate}
+          title={!ws.generationAccess.allowed ? ws.generationAccess.message : undefined}
           onClick={() => void ws.generate()}
         >
           <Sparkles size={17} aria-hidden="true" />

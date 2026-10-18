@@ -20,15 +20,19 @@ export interface AccountStatus {
   };
   usage?: {
     accessMode?: AccessMode;
-    coachRemaining: number;
+    coachRemaining: number | null;
     draftRemaining: number;
     webRemaining: number;
-    coachLimit: number;
+    coachLimit: number | null;
     draftLimit: number;
     webLimit: number;
     resetsAt: string;
     pending: number;
     uncertain: number;
+    /** Budget snapshot for server-funded coach calls; admission remains authoritative. */
+    coachAvailability?: Record<string, { standard: boolean; web: boolean }>;
+    concurrentLimit?: number;
+    rateLimitedUntil?: string | null;
     defaultModel?: string;
     allowedModels: string[];
     webAllowed: boolean;

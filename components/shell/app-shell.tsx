@@ -5,7 +5,7 @@ import { ChevronRight, Download, PanelLeftClose, PanelLeftOpen, Settings2 } from
 import { BrandLogo, BrandTile } from "@/components/brand";
 import { PwaInstall } from "@/components/pwa-manager";
 import { useSidebar } from "@/components/hooks/use-sidebar";
-import { accountAccessLabel } from "@/lib/account-presentation";
+import { accountAccessLabel, usesPlanAccess } from "@/lib/account-presentation";
 import { cn } from "@/components/ui/cn";
 import type { AccountStatus } from "@/lib/auth-client";
 import { NAV_ITEMS, NEW_PREPARATION, VIEW_TITLES, type View } from "./navigation";
@@ -192,7 +192,10 @@ export function AppShell({
                 className="inline-flex min-h-11 items-center rounded-full px-3 text-label ring-1 ring-inset ring-neutral-700"
                 aria-label="Mi acceso y consumo"
               >
-                {accountAccessLabel(account)} · {account.usage.coachRemaining}
+                {accountAccessLabel(account)}
+                {usesPlanAccess(account) && typeof account.usage.coachRemaining === "number"
+                  ? ` · ${account.usage.coachRemaining}`
+                  : ""}
               </button>
             ) : null}
             <button

@@ -3,7 +3,7 @@
 import { ChevronDown, Sparkles } from "lucide-react";
 import { StatusPill } from "@/components/ui/tag";
 import { modelLabel } from "@/lib/model-labels";
-import { accountAccessLabel } from "@/lib/account-presentation";
+import { accountAccessLabel, usesPlanAccess } from "@/lib/account-presentation";
 import type { AccountStatus } from "@/lib/auth-client";
 import type { Catalog } from "@/lib/types";
 
@@ -22,7 +22,11 @@ export function CoachTopbar({
   onAccount: () => void;
 }) {
   const usage = account?.usage;
-  const ratio = usage && usage.coachLimit ? usage.coachRemaining / usage.coachLimit : 0;
+  const capped =
+    usesPlanAccess(account) &&
+    typeof usage?.coachRemaining === "number" &&
+    typeof usage.coachLimit === "number";
+  const ratio = capped && usage.coachLimit ? usage.coachRemaining! / usage.coachLimit : 0;
   return (
     <>
       <button
@@ -39,17 +43,26 @@ export function CoachTopbar({
         <button
           type="button"
           onClick={onAccount}
-          aria-label={`${accountAccessLabel(account)}: ${usage.coachRemaining} builds disponibles`}
+          aria-label={
+            capped
+              ? `${accountAccessLabel(account)}: ${usage.coachRemaining} builds disponibles`
+              : "Beta · Sin límite de builds. Gasto controlado por presupuesto."
+          }
           className="inline-flex min-h-11 items-center gap-2.5 rounded-md px-3 text-label ring-1 ring-inset ring-neutral-700 hover:ring-neutral-500"
         >
           {accountAccessLabel(account)}
-          <span aria-hidden="true" className="h-1 w-11 overflow-hidden rounded-full bg-neutral-800">
+          {capped ? (
             <span
-              className="block h-full rounded-full bg-accent"
-              style={{ width: `${Math.min(1, ratio) * 100}%` }}
-            />
-          </span>
-          {usage.coachRemaining} restantes
+              aria-hidden="true"
+              className="h-1 w-11 overflow-hidden rounded-full bg-neutral-800"
+            >
+              <span
+                className="block h-full rounded-full bg-accent"
+                style={{ width: `${Math.min(1, ratio) * 100}%` }}
+              />
+            </span>
+          ) : null}
+          {capped ? `${usage.coachRemaining} restantes` : null}
         </button>
       ) : null}
       {catalog ? (

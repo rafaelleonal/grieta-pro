@@ -128,15 +128,29 @@ export function AccountScreen({
           {usage ? (
             <div className={plans ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]" : "grid gap-5"}>
               <div className="flex flex-col gap-4">
-                <Meter
-                  label="Builds este mes"
-                  value={usage.coachRemaining}
-                  max={usage.coachLimit}
-                  detail={`${usage.coachRemaining} disponibles de ${usage.coachLimit}`}
-                />
-                <p className="text-xs text-neutral-400">
-                  Se renuevan el {formatDate(usage.resetsAt)}. Cada generación consume una build.
-                </p>
+                {plans &&
+                typeof usage.coachRemaining === "number" &&
+                typeof usage.coachLimit === "number" ? (
+                  <>
+                    <Meter
+                      label="Builds este mes"
+                      value={usage.coachRemaining}
+                      max={usage.coachLimit}
+                      detail={`${usage.coachRemaining} disponibles de ${usage.coachLimit}`}
+                    />
+                    <p className="text-xs text-neutral-400">
+                      Se renuevan el {formatDate(usage.resetsAt)}. Cada generación consume una
+                      build.
+                    </p>
+                  </>
+                ) : (
+                  <div className="space-y-1">
+                    <p className="text-h3 font-medium">Sin límite de builds</p>
+                    <p className="text-xs text-neutral-400">
+                      El gasto sigue controlado por presupuesto. Las capturas mantienen su cupo.
+                    </p>
+                  </div>
+                )}
                 <dl className="grid gap-2 sm:grid-cols-3">
                   <Stat label="Capturas" value={`${usage.draftRemaining} de ${usage.draftLimit}`} />
                   <Stat
@@ -163,8 +177,8 @@ export function AccountScreen({
                       </Button>
                     }
                   >
-                    Estas solicitudes cuentan en tu saldo hasta confirmar su consumo. Lo revisamos
-                    automáticamente.
+                    Estas solicitudes mantienen su reserva de gasto hasta confirmar el consumo. Lo
+                    revisamos automáticamente.
                   </Alert>
                 ) : null}
                 {session.consumptionError ? (

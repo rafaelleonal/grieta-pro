@@ -1,5 +1,7 @@
 # ADR 0006 · Acceso común durante la beta
 
+**Actualización:** la [ADR 0008](0008-beta-sin-cupo-builds.md) retira posteriormente sólo el cupo de cantidad de builds en beta; conserva los presupuestos y el resto de los controles descritos aquí.
+
 - **Estado:** aceptada por instrucción del propietario el 18 de octubre de 2026.
 - **Petición:** dejar de distinguir Free y Premium para priorizar el funcionamiento del proyecto; explorar también Gemini 3.8 Flash.
 
