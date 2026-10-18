@@ -5,6 +5,7 @@ import { ChevronRight, Download, PanelLeftClose, PanelLeftOpen, Settings2 } from
 import { BrandLogo, BrandTile } from "@/components/brand";
 import { PwaInstall } from "@/components/pwa-manager";
 import { useSidebar } from "@/components/hooks/use-sidebar";
+import { accountAccessLabel } from "@/lib/account-presentation";
 import { cn } from "@/components/ui/cn";
 import type { AccountStatus } from "@/lib/auth-client";
 import { NAV_ITEMS, NEW_PREPARATION, VIEW_TITLES, type View } from "./navigation";
@@ -24,9 +25,9 @@ function initials(name?: string) {
   return (name || "GG").slice(0, 2).toUpperCase();
 }
 
-function planLabel(account: AccountStatus | null) {
+function accessLabel(account: AccountStatus | null) {
   if (!account?.authenticated) return "Entrar o crear cuenta";
-  return account.user?.plan === "PRO" ? "Plan Pro" : "Plan Free";
+  return accountAccessLabel(account);
 }
 
 /**
@@ -124,7 +125,7 @@ export function AppShell({
               <strong className="truncate text-sm font-medium">
                 {account?.user?.name || "Tu cuenta"}
               </strong>
-              <span className="text-xs text-neutral-400">{planLabel(account)}</span>
+              <span className="text-xs text-neutral-400">{accessLabel(account)}</span>
             </span>
             <ChevronRight size={16} aria-hidden="true" className="text-neutral-500" />
           </button>
@@ -189,9 +190,9 @@ export function AppShell({
                 type="button"
                 onClick={() => onNavigate("account")}
                 className="inline-flex min-h-11 items-center rounded-full px-3 text-label ring-1 ring-inset ring-neutral-700"
-                aria-label="Mi plan y consumo"
+                aria-label="Mi acceso y consumo"
               >
-                {account.user?.plan === "PRO" ? "Pro" : "Free"} · {account.usage.coachRemaining}
+                {accountAccessLabel(account)} · {account.usage.coachRemaining}
               </button>
             ) : null}
             <button

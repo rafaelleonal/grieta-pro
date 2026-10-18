@@ -7,6 +7,7 @@ import { assertSafeInputText } from "@/lib/coach-safety";
 import { DRAFT_STORAGE_KEY, EMPTY_INPUT, loadDraft, serializeDraft } from "@/lib/coach-draft";
 import { postCoachStream } from "@/lib/client-coach-stream";
 import { postJson } from "@/lib/client-api";
+import { webSearchEnabled } from "@/lib/account-presentation";
 import { demoInput, demoResult } from "@/lib/demo";
 import type {
   CoachInput,
@@ -264,9 +265,7 @@ export function useCoachWorkspace() {
     const coachInput: CoachInput = {
       ...input,
       notes,
-      webSearch: Boolean(
-        input.webSearch && account?.usage?.webAllowed && account.usage.webRemaining > 0,
-      ),
+      webSearch: webSearchEnabled(account, input.webSearch),
     };
     setInput(coachInput);
     const abort = begin("coach");

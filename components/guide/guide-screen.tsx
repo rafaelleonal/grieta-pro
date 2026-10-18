@@ -45,7 +45,7 @@ export function GuideScreen({
         <InfoCard title="Datos">
           <li>Tu selección y contexto.</li>
           <li>Catálogo actual de Riot.</li>
-          <li>Fuentes web opcionales en Pro.</li>
+          <li>Fuentes web cuando estén disponibles.</li>
         </InfoCard>
         <InfoCard title="Límites">
           <li>Sin tasas de victoria.</li>

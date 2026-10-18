@@ -1,11 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight, Search } from "lucide-react";
+import { ArrowRight, Globe, Search } from "lucide-react";
 import { ChampionSelect } from "@/components/champion-select";
 import { Button } from "@/components/ui/button";
+import { Chip } from "@/components/ui/tag";
 import { Input, Select, Textarea } from "@/components/ui/field";
 import { cn } from "@/components/ui/cn";
+import { usesPlanAccess, webSearchEnabled } from "@/lib/account-presentation";
 import type { AccountStatus } from "@/lib/auth-client";
 import type { AppStatus, Champion, CoachInput } from "@/lib/types";
 import type { RiotImport } from "@/components/hooks/use-riot-import";
@@ -190,8 +192,37 @@ export function RiotPanel({
   );
 }
 
-/** Interruptor de fuentes actuales: sólo disponible con plan y búsquedas restantes. */
+/** Fuentes actuales según la disponibilidad y las búsquedas restantes. */
 export function webSearchState(account: AccountStatus | null, requested: boolean) {
-  const allowed = Boolean(account?.usage?.webAllowed && account.usage.webRemaining > 0);
+  const allowed = webSearchEnabled(account, true);
   return { allowed, on: requested && allowed, remaining: account?.usage?.webRemaining ?? 0 };
+}
+
+export function WebSearchControl({
+  account,
+  requested,
+  onChange,
+}: {
+  account: AccountStatus | null;
+  requested: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  if (!usesPlanAccess(account)) return null;
+  const web = webSearchState(account, requested);
+  return (
+    <Chip
+      pressed={web.on}
+      disabled={!web.allowed}
+      onClick={() => onChange(!requested)}
+      className="flex-none disabled:cursor-not-allowed disabled:opacity-70"
+      title={
+        web.allowed
+          ? `Buscar referencias · ${web.remaining} disponibles`
+          : "Fuentes web no disponibles por ahora"
+      }
+    >
+      <Globe size={15} aria-hidden="true" />
+      Fuentes web
+    </Chip>
+  );
 }

@@ -5,6 +5,7 @@ import { ArrowUpRight, Check, Eye, EyeOff, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Field, Input, Select } from "@/components/ui/field";
 import { modelLabel } from "@/lib/model-labels";
+import { usesPlanAccess } from "@/lib/account-presentation";
 import type { AccountStatus } from "@/lib/auth-client";
 import type { AppStatus, Credentials } from "@/lib/types";
 
@@ -88,7 +89,15 @@ export function ConnectionForm({
           </Button>
         </div>
       </Field>
-      <Field id="model" label="Modelo" help="Modelos incluidos en tu plan.">
+      <Field
+        id="model"
+        label="Modelo"
+        help={
+          usesPlanAccess(account)
+            ? "Modelos incluidos en tu plan."
+            : "Modelos disponibles para probar."
+        }
+      >
         <Select
           id="model"
           value={models.includes(draft.model || "") ? draft.model : ""}

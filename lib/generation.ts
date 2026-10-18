@@ -6,6 +6,7 @@ import { reconcileUserUsage } from "./reconciliation";
 import {
   dispatchGeneration,
   finishGeneration,
+  findGenerationReplay,
   generationPolicy,
   inputHash,
   maximumCost,
@@ -28,6 +29,25 @@ export async function runGeneration<T extends GeneratedCoachResult | DraftResult
 ): Promise<T> {
   const session = await requireVerifiedUser(request);
   const byok = Boolean(args.input.apiKey?.trim());
+  const key = requestKey(request);
+  const replayInput = {
+    userId: session.user.id,
+    key,
+    operation: args.operation,
+    requestedModel: args.input.model,
+    byok,
+    fingerprint: args.fingerprint,
+  };
+  const existing = await findGenerationReplay(replayInput);
+  // Current access settings govern new calls, not the owner's already admitted
+  // result. The original fingerprint still rejects changed inputs or models.
+  if (existing) {
+    await reconcileUserUsage(session.user.id);
+    const refreshed = await findGenerationReplay(replayInput);
+    if (!refreshed)
+      throw new ApiError(409, "Esta consulta ya no está disponible. Consulta tu historial.");
+    return replayResponse(refreshed) as T;
+  }
   const apiKey = args.input.apiKey?.trim() || process.env.OPENROUTER_API_KEY?.trim();
   if (!apiKey)
     throw new ApiError(
@@ -40,7 +60,6 @@ export async function runGeneration<T extends GeneratedCoachResult | DraftResult
     Boolean(args.input.webSearch),
   );
   const hash = inputHash({ operation: args.operation, model, byok, input: args.fingerprint });
-  const key = requestKey(request);
   // Recovery only looks up previous charges; it never repeats a generation.
   // Failures keep reservations intact and cannot send an additional model call.
   await reconcileUserUsage(session.user.id);

@@ -2,6 +2,7 @@
 
 import { createAuthClient } from "better-auth/react";
 import type { GenerationAttempt } from "./generation-intent";
+import type { AccessMode } from "./access-policy";
 
 export const authClient = createAuthClient();
 
@@ -18,6 +19,7 @@ export interface AccountStatus {
     plan: "FREE" | "PRO";
   };
   usage?: {
+    accessMode?: AccessMode;
     coachRemaining: number;
     draftRemaining: number;
     webRemaining: number;

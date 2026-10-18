@@ -11,6 +11,7 @@ import { Alert, Meter } from "@/components/ui/feedback";
 import { Tag } from "@/components/ui/tag";
 import { authClient, authErrorMessage } from "@/lib/auth-client";
 import { roleName } from "@/lib/coach-draft";
+import { accountAccessLabel, usesPlanAccess } from "@/lib/account-presentation";
 import type { Role } from "@/lib/types";
 import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
 import { ConnectionForm } from "./connection-form";
@@ -21,6 +22,21 @@ const SECTIONS = [
   ["perfil", "Perfil"],
   ["privacidad", "Privacidad"],
 ] as const;
+
+type AccountWorkspace = Pick<
+  CoachWorkspace,
+  "credentials" | "status" | "setCredentials" | "clearPrivateState" | "input"
+> & {
+  session: Pick<
+    CoachWorkspace["session"],
+    | "account"
+    | "markLoggedOut"
+    | "refreshAccount"
+    | "checkingConsumption"
+    | "checkConsumption"
+    | "consumptionError"
+  >;
+};
 
 function formatDate(value: string) {
   const date = new Date(value);
@@ -35,7 +51,7 @@ export function AccountScreen({
   positions,
   onEditProfile,
 }: {
-  ws: CoachWorkspace;
+  ws: AccountWorkspace;
   positions: Role[];
   onEditProfile: () => void;
 }) {
@@ -81,6 +97,7 @@ export function AccountScreen({
   const user = account.user;
   const usage = account.usage;
   const pending = (usage?.pending || 0) + (usage?.uncertain || 0);
+  const plans = usesPlanAccess(account);
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7 xl:grid xl:grid-cols-[220px_minmax(0,1fr)] xl:items-start xl:gap-7">
       <div className="flex flex-col gap-4 xl:sticky xl:top-6">
@@ -103,22 +120,22 @@ export function AccountScreen({
           id="consumo"
           title="Consumo"
           aside={
-            <Tag tone={user?.plan === "PRO" ? "pro" : "neutral"}>
-              {user?.plan === "PRO" ? "Pro" : "Free"}
+            <Tag tone={plans && user?.plan === "PRO" ? "pro" : "neutral"}>
+              {accountAccessLabel(account)}
             </Tag>
           }
         >
           {usage ? (
-            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]">
+            <div className={plans ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]" : "grid gap-5"}>
               <div className="flex flex-col gap-4">
                 <Meter
-                  label="Planes este mes"
+                  label="Builds este mes"
                   value={usage.coachRemaining}
                   max={usage.coachLimit}
                   detail={`${usage.coachRemaining} disponibles de ${usage.coachLimit}`}
                 />
                 <p className="text-xs text-neutral-400">
-                  Se renuevan el {formatDate(usage.resetsAt)}. Cada pregunta consume un plan.
+                  Se renuevan el {formatDate(usage.resetsAt)}. Cada generación consume una build.
                 </p>
                 <dl className="grid gap-2 sm:grid-cols-3">
                   <Stat label="Capturas" value={`${usage.draftRemaining} de ${usage.draftLimit}`} />
@@ -127,7 +144,7 @@ export function AccountScreen({
                     value={
                       usage.webAllowed
                         ? `${usage.webRemaining} de ${usage.webLimit}`
-                        : "No incluidas"
+                        : "No disponibles"
                     }
                   />
                   <Stat label="Por confirmar" value={String(pending)} />
@@ -156,22 +173,24 @@ export function AccountScreen({
                   </p>
                 ) : null}
               </div>
-              <div className="flex flex-col gap-3 rounded-lg p-4 ring-1 ring-inset ring-accent-800">
-                <strong className="flex items-center gap-2 text-sm font-medium">
-                  <Crown size={16} aria-hidden="true" className="text-accent-300" />
-                  Elociencia Pro
-                </strong>
-                <ul className="flex flex-col gap-1.5 text-small text-neutral-300">
-                  <li>Más planes al mes</li>
-                  <li>Fuentes web</li>
-                  <li>Más modelos</li>
-                </ul>
-                <p className="text-xs text-neutral-400">
-                  {user?.plan === "PRO"
-                    ? "Pro activo."
-                    : "Pro por invitación o cortesía. Sin pagos en la app."}
-                </p>
-              </div>
+              {plans ? (
+                <div className="flex flex-col gap-3 rounded-lg p-4 ring-1 ring-inset ring-accent-800">
+                  <strong className="flex items-center gap-2 text-sm font-medium">
+                    <Crown size={16} aria-hidden="true" className="text-accent-300" />
+                    Elociencia Pro
+                  </strong>
+                  <ul className="flex flex-col gap-1.5 text-small text-neutral-300">
+                    <li>Más planes al mes</li>
+                    <li>Fuentes web</li>
+                    <li>Más modelos</li>
+                  </ul>
+                  <p className="text-xs text-neutral-400">
+                    {user?.plan === "PRO"
+                      ? "Pro activo."
+                      : "Pro por invitación o cortesía. Sin pagos en la app."}
+                  </p>
+                </div>
+              ) : null}
             </div>
           ) : (
             <p className="text-small text-neutral-400">Verifica tu correo para ver tu consumo.</p>
@@ -210,6 +229,8 @@ export function AccountScreen({
                   <span className="text-xs text-success-text">· verificado</span>
                 ) : null}
               </dd>
+              <dt className="text-neutral-400">Rol</dt>
+              <dd>{user?.role === "ADMIN" ? "Administrador" : "Jugador"}</dd>
               <dt className="text-neutral-400">Rango</dt>
               <dd className="flex items-center gap-2">
                 <RankTile rank={ws.input.rank} size={26} compact />
@@ -281,7 +302,7 @@ export function AccountScreen({
           </Section>
         </div>
 
-        {user?.role === "ADMIN" ? (
+        {plans && user?.role === "ADMIN" ? (
           <Section
             id="administrar"
             title="Accesos"

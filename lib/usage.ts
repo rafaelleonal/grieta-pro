@@ -9,6 +9,7 @@ import {
 import { getDb } from "./db";
 import { ApiError } from "./http";
 import { safeNotesForStorage } from "./coach-safety";
+import { betaAccessPolicy, getAccessMode } from "./access-policy";
 import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
@@ -184,6 +185,15 @@ async function effectivePlan(
   userId: string,
   now = new Date(),
 ): Promise<Plan> {
+  if (getAccessMode() === "beta") {
+    const baseline = await db.plan.findUnique({ where: { code: "FREE" } });
+    if (!baseline)
+      throw new ApiError(
+        503,
+        "La base de datos necesita sus planes iniciales. Ejecuta la preparación de la base de datos.",
+      );
+    return betaAccessPolicy(baseline, Object.keys(MODEL_POLICIES));
+  }
   const grants = await db.accessGrant.findMany({
     where: {
       userId,
@@ -216,12 +226,16 @@ export async function generationPolicy(userId: string, requestedModel?: string, 
   if (!model || !(model in MODEL_POLICIES) || !plan.allowedModels.includes(model))
     throw new ApiError(
       403,
-      "Ese modelo no está incluido en tu plan. Elige uno de los modelos disponibles.",
+      getAccessMode() === "beta"
+        ? "Ese modelo no está disponible. Elige uno de los modelos disponibles."
+        : "Ese modelo no está incluido en tu plan. Elige uno de los modelos disponibles.",
     );
   if (webSearch && !plan.webSearchAllowed)
     throw new ApiError(
       403,
-      "La búsqueda web está incluida en Pro. Puedes generar una build orientativa sin búsqueda.",
+      getAccessMode() === "beta"
+        ? "La búsqueda web está desactivada en esta etapa. Genera la build sin búsqueda."
+        : "La búsqueda web está incluida en Pro. Puedes generar una build orientativa sin búsqueda.",
     );
   return { plan, model, policy: MODEL_POLICIES[model as keyof typeof MODEL_POLICIES] };
 }
@@ -277,6 +291,30 @@ function assertReplay(row: AiRequest, hash: string) {
       "Esta consulta ya se inició con otros datos. Inicia una nueva consulta.",
     );
 }
+/** A replay reads the owner's original result without granting a fresh model call. */
+export async function findGenerationReplay(args: {
+  userId: string;
+  key: string;
+  operation: AiOperation;
+  requestedModel?: string;
+  byok: boolean;
+  fingerprint: unknown;
+}): Promise<AiRequest | null> {
+  const row = await getDb().aiRequest.findUnique({
+    where: { userId_idempotencyKey: { userId: args.userId, idempotencyKey: args.key } },
+  });
+  if (!row) return null;
+  assertReplay(
+    row,
+    inputHash({
+      operation: args.operation,
+      model: args.requestedModel || row.model,
+      byok: args.byok,
+      input: args.fingerprint,
+    }),
+  );
+  return row;
+}
 export async function reserveGeneration(args: {
   userId: string;
   key: string;
@@ -314,7 +352,12 @@ export async function reserveGeneration(args: {
         !(args.model in MODEL_POLICIES) ||
         (args.webSearch && !plan.webSearchAllowed)
       )
-        throw new ApiError(403, "La configuración solicitada no está incluida en tu plan.");
+        throw new ApiError(
+          403,
+          getAccessMode() === "beta"
+            ? "La configuración solicitada no está disponible."
+            : "La configuración solicitada no está incluida en tu plan.",
+        );
       const active = await tx.aiRequest.count({
         where: { userId: args.userId, status: { in: ["RESERVED", "DISPATCHED"] } },
       });
@@ -399,6 +442,7 @@ export async function reserveGeneration(args: {
             ...MODEL_POLICIES[args.model as keyof typeof MODEL_POLICIES],
             buckets: refs,
             planVersion: plan.version,
+            accessMode: getAccessMode(),
           },
         },
       });
@@ -612,6 +656,7 @@ export async function getAccountUsage(userId: string) {
   ]);
   return {
     plan: plan.code,
+    accessMode: getAccessMode(),
     coachRemaining: Math.max(
       0,
       plan.monthlyCoachLimit - (bucket?.coachUsed || 0) - (bucket?.coachReserved || 0),

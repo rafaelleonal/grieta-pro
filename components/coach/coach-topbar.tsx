@@ -3,10 +3,11 @@
 import { ChevronDown, Sparkles } from "lucide-react";
 import { StatusPill } from "@/components/ui/tag";
 import { modelLabel } from "@/lib/model-labels";
+import { accountAccessLabel } from "@/lib/account-presentation";
 import type { AccountStatus } from "@/lib/auth-client";
 import type { Catalog } from "@/lib/types";
 
-/** Modelo, plan con su cuota y estado del catálogo de Riot (barra superior). */
+/** Modelo, cuota disponible y estado del catálogo de Riot (barra superior). */
 export function CoachTopbar({
   modelId,
   account,
@@ -38,10 +39,10 @@ export function CoachTopbar({
         <button
           type="button"
           onClick={onAccount}
-          aria-label={`Plan ${account.user?.plan === "PRO" ? "Pro" : "Free"}: ${usage.coachRemaining} planes disponibles`}
+          aria-label={`${accountAccessLabel(account)}: ${usage.coachRemaining} builds disponibles`}
           className="inline-flex min-h-11 items-center gap-2.5 rounded-md px-3 text-label ring-1 ring-inset ring-neutral-700 hover:ring-neutral-500"
         >
-          {account.user?.plan === "PRO" ? "Pro" : "Free"}
+          {accountAccessLabel(account)}
           <span aria-hidden="true" className="h-1 w-11 overflow-hidden rounded-full bg-neutral-800">
             <span
               className="block h-full rounded-full bg-accent"

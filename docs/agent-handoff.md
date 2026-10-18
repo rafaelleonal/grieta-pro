@@ -2,6 +2,14 @@
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 18 de octubre: beta sin distinción comercial
+
+Por nueva instrucción del propietario, `APP_ACCESS_MODE=beta` es el modo predeterminado: todos usan el acceso común descrito en la [ADR 0006](adr/0006-acceso-beta-comun.md). Los modelos compatibles, incluyendo Opus y Flash, no dependen de Free/Pro; la búsqueda web queda desactivada. Los límites comunes se leen de la política base existente sin elevar gasto ni reiniciar consumo. Las concesiones y reservas anteriores se conservan. `plans` permite restaurar el modo histórico.
+
+Opus sigue predeterminado. Las pruebas simuladas de Flash cubren el contrato reducido, streaming, límite de salida, rechazo sin reintento y recuperación de runas inválidas. No se confunden con una comparación real de velocidad. Las autorizaciones históricas de IA siguen consumidas y no se reutilizan.
+
+La implementación y evidencia de esta continuación se detallan en [beta común](beta-access.md).
+
 ## Continuación del 18 de octubre: menos es más
 
 Por instrucción del propietario, las respuestas nuevas se limitan a **build, hechizos y runas**. La [ADR 0005](adr/0005-build-hechizos-runas.md) sustituye la estrategia y lectura del matchup exigidas en las iteraciones anteriores. Opus 5.5 es el predeterminado sujeto a los permisos del plan. La entrada manual y foto/galería, cuentas, historial y controles de consumo se conservan.

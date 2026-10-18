@@ -36,7 +36,7 @@ Estas reglas son decisiones del propietario registradas como ADR en `docs/adr/`.
 
 ## Invariantes que debes conservar
 
-- Autoriza en el servidor con la sesión verificada. Filtra el historial por su propietario, incluyendo cursores, lectura y borrado. El rol de administrador y el plan Free/Pro son distintos; una clave personal de OpenRouter no evita autenticación, cuotas ni concurrencia.
+- Autoriza en el servidor con la sesión verificada. Filtra el historial por su propietario, incluyendo cursores, lectura y borrado. En beta el acceso es común según la [ADR 0006](docs/adr/0006-acceso-beta-comun.md); el rol de administrador sigue siendo independiente y Free/Pro sólo se conservan para contabilidad histórica y el modo `plans`; una clave personal de OpenRouter no evita autenticación, cuotas ni concurrencia.
 - En coach y capturas, valida origen y sesión y aplica admisión persistente antes de leer el cuerpo. Valida estructura, campeones y contexto antes de enviar a IA. Mantén secretos del servidor, acceso a datos y lógica del proveedor fuera del cliente; las claves personales sólo permanecen en memoria, fuera de logs, almacenamiento y prompts.
 - Reserva cuota y presupuesto de usuario, plan y aplicación atómicamente. Usa importes decimales, transacciones cortas y llamadas de red fuera de ellas. Conserva idempotencia por usuario, clave y huella de entrada; no repitas una llamada pagada desde un reintento de base de datos ni una redirección HTTP.
 - Un timeout o cancelación después del envío no prueba que la consulta sea gratuita: conserva la reserva incierta. Una respuesta rechazada puede ser facturable. Borrar el historial debe retirar también su respuesta de replay, manteniendo la contabilidad.

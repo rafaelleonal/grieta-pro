@@ -4,6 +4,8 @@ OpenRouter genera los consejos y reconoce capturas. Resend entrega los enlaces d
 
 La configuración de Gemini de esta guía se revisó el 11 de octubre de 2026 con documentación oficial y metadatos públicos de OpenRouter. Los paneles, modelos y límites pueden cambiar. Aquí no se crean cuentas, compran créditos, envían correos ni prueban claves por ti.
 
+**Modo vigente:** `APP_ACCESS_MODE=beta` da acceso común a los modelos compatibles, conserva cupos y presupuestos de la política base y desactiva la búsqueda web. Opus 5.5 sigue predeterminado; Gemini 3.8 Flash es seleccionable sin un nivel comercial. Las habilitaciones de planes descritas debajo sólo son necesarias para el modo histórico `plans`; no deben ejecutarse para activar la beta. [Decisión y límites](adr/0006-acceso-beta-comun.md).
+
 ## 1. Preparar tu configuración local
 
 Instala las dependencias con `pnpm install --frozen-lockfile`. Si todavía no tienes configuración privada, copia `.env.example` a `.env` o `.env.local`. Si ya usas `.env`, edita ese archivo y conserva los valores que funcionan: `.env.local` tiene prioridad y puede ocultarlos. No publiques esos archivos ni pegues claves en conversaciones, capturas o issues.

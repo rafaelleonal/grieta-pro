@@ -4,6 +4,10 @@ Elociencia tiene cuentas con Better Auth, datos persistentes en PostgreSQL media
 
 La implementación incluye las cuentas, historial privado, planes, invitaciones y cuotas descritos aquí. La migración inicial está versionada en `prisma/migrations` y se aplica con `pnpm db:setup`. Requiere configurar PostgreSQL, Better Auth y Resend; sin configuración las llamadas privadas se rechazan. Los pagos y el acompañante de escritorio siguen siendo ampliaciones futuras.
 
+## Acceso beta común
+
+Desde la continuación del 18 de octubre, el modo predeterminado `APP_ACCESS_MODE=beta` sustituye la distinción comercial de las secciones siguientes: se aplican los límites numéricos exactos de la política base `FREE` a todas las cuentas, todos los modelos compatibles están disponibles y la búsqueda web está desactivada. No se mutan planes, concesiones ni contabilidad; las solicitudes previas se concilian por sus referencias originales. Véase [ADR 0006](adr/0006-acceso-beta-comun.md). `APP_ACCESS_MODE=plans` conserva el comportamiento histórico descrito debajo.
+
 ## Actualización del 18 de octubre de 2026
 
 El coach solicita únicamente build, hechizos y runas mediante `build-v1` y guarda formato 4. Conserva formatos 1–3 para el historial. Opus 5.5 es el predeterminado donde esté permitido, con razonamiento bajo y 4 096 tokens máximos para el coach; la reserva manual sin búsqueda es USD 0.65792. La extracción conserva sus límites anteriores. Son reservas, no costes medidos.

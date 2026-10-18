@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useState } from "react";
-import { Camera, Globe, ScrollText, Sparkles, Swords, Users } from "lucide-react";
+import { Camera, ScrollText, Sparkles, Swords, Users } from "lucide-react";
 import { RankTile } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/tag";
@@ -16,7 +16,7 @@ import {
   NotePanel,
   RiotPanel,
   TeamsPanel,
-  webSearchState,
+  WebSearchControl,
   type ExtraPanel,
 } from "./prepare-extras";
 import { matchupSlots, nextSlot, slotValue, type SlotKey } from "./slots";
@@ -54,7 +54,6 @@ export function PrepareScreen({
   const [rankOpen, setRankOpen] = useState(false);
   const activeSlot = slots.find((slot) => slot.key === active) || null;
   const gridRole = activeSlot?.role || input.role;
-  const web = webSearchState(session.account, input.webSearch);
   const champion = champions.find((entry) => entry.id === input.champion);
   const enemy = champions.find((entry) => entry.id === input.enemy);
   const canGenerate = Boolean(champion && enemy && catalog && !ws.busy);
@@ -299,23 +298,11 @@ export function PrepareScreen({
             <Swords size={15} aria-hidden="true" />
             Riot ID
           </Chip>
-          <Chip
-            pressed={web.on}
-            disabled={!web.allowed}
-            onClick={() => ws.update("webSearch", !input.webSearch)}
-            className="flex-none disabled:cursor-not-allowed disabled:opacity-70"
-            title={
-              web.allowed
-                ? `Buscar referencias · ${web.remaining} disponibles`
-                : "Fuentes web · Pro"
-            }
-          >
-            <Globe size={15} aria-hidden="true" />
-            Fuentes web
-            <span className="rounded-sm bg-accent-800 px-1.5 text-overline font-semibold tracking-normal text-accent-200">
-              PRO
-            </span>
-          </Chip>
+          <WebSearchControl
+            account={session.account}
+            requested={input.webSearch}
+            onChange={(next) => ws.update("webSearch", next)}
+          />
         </div>
         <Button
           variant="primary"

@@ -49,6 +49,7 @@ async function main() {
   process.env.AUTH_MAILPIT_URL = mailbox.url;
   process.env.AUTH_EMAIL_FROM = "Elociencia QA <coach@example.test>";
   process.env.APP_REGISTRATION_MODE = "open";
+  process.env.APP_ACCESS_MODE = "plans"; // Legacy contract coverage; beta tested separately.
   // This suite can never use an existing paid key or contact real recipients.
   delete process.env.OPENROUTER_API_KEY;
   delete process.env.RESEND_API_KEY;
@@ -95,6 +96,8 @@ async function main() {
     const usage = await import("../lib/usage");
     const { seedPlans } = await import("./seed-plans");
     await seedPlans();
+    const { smokeBetaAccess } = await import("./smoke-beta-access");
+    await smokeBetaAccess();
     const seededFree = await db.plan.findUniqueOrThrow({ where: { code: "FREE" } });
     const seededPro = await db.plan.findUniqueOrThrow({ where: { code: "PRO" } });
     const seededModels = [
