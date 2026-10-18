@@ -2,7 +2,7 @@
 
 ## Propósito y contexto
 
-Elociencia prepara partidas de League of Legends con una respuesta breve en español: build recomendada, hechizos y runas. La [ADR 0005](docs/adr/0005-build-hechizos-runas.md) prioriza rapidez y sustituye el alcance anterior de estrategia, niveles, mecánicas y mapa. Conserva una experiencia responsive, la entrada manual y la opción móvil de foto o galería. El ejemplo local debe identificarse como demostración; no presentes recomendaciones del modelo como estadísticas óptimas o como un rango Challenger acreditado.
+Elociencia prepara partidas de League of Legends con una respuesta breve en español: build recomendada, hechizos, runas y habilidades de los niveles 1–6. La [ADR 0005](docs/adr/0005-build-hechizos-runas.md) prioriza rapidez y sustituye el alcance anterior de estrategia, niveles, mecánicas y mapa. La [ADR 0007](docs/adr/0007-habilidades-primeros-niveles.md) añade sólo el orden de habilidades inicial, sin consejos tácticos por nivel. Conserva una experiencia responsive, la entrada manual y la opción móvil de foto o galería. El ejemplo local debe identificarse como demostración; no presentes recomendaciones del modelo como estadísticas óptimas o como un rango Challenger acreditado.
 
 Usa TypeScript estricto y pnpm según `package.json`; se recomienda Node.js 24. Mantén los cambios centrados en la petición y respeta las decisiones y autorizaciones del usuario. Esta guía no añade aprobaciones para trabajo local o reversible.
 

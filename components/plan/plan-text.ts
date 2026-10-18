@@ -29,6 +29,16 @@ export function planText(result: SavedCoachResult, maps: Maps, sample: boolean, 
       `Fragmentos: ${runes.shards.join(", ")}`,
     );
   }
+  const skillOrder = build.skillOrder;
+  if (skillOrder && typeof skillOrder !== "string") {
+    const attributes =
+      input.champion === "Aphelios" && skillOrder.first6.every((skill) => skill === null);
+    text.push(
+      attributes
+        ? `Habilidades 1–6: Mejora atributos · ${skillOrder.max}`
+        : `Habilidades 1–6: ${skillOrder.first6.map((skill, index) => `Nivel ${index + 1}: ${skill || "sin dato"}`).join(" → ")}`,
+    );
+  }
   if (build.core.length)
     text.push(
       `Compras en orden: ${build.core.map((id, index) => `${index + 1}. ${names([id])}`).join(" → ")}`,

@@ -1346,13 +1346,17 @@ async function main() {
               content: JSON.stringify({
                 decision: "coach",
                 plan: {
-                  format: "build-v1",
+                  format: "build-v2",
                   build: {
                     starting: output.build.starting,
                     core: output.build.core,
                     situational: output.build.situational,
                     runes: output.build.runes,
                     summoners: output.build.summoners,
+                    skillOrder: {
+                      first6: output.build.skillOrder.first6.map((skill) => skill || ""),
+                      max: output.build.skillOrder.max.split(/\s*(?:→|>)\s*/),
+                    },
                   },
                   ...(malicious ? { headline: output.headline } : {}),
                 },
@@ -1422,7 +1426,7 @@ async function main() {
       assert.deepEqual(firstResult.meta.partial.invalid, ["runes"]);
       assert.equal(firstResult.plan.brief, undefined);
       assert.deepEqual(firstResult.plan.build.core, routePlan.build.core);
-      assert.equal(firstResult.plan.build.skillOrder, undefined);
+      assert.deepEqual(firstResult.plan.build.skillOrder.first6, routePlan.build.skillOrder.first6);
       assert.equal(firstResult.plan.levels.length, 0);
       const repeatedResponse = await coachRoute.POST(
         privateRequest("/api/coach", alice.cookie, "POST", routeInput, activeKey),

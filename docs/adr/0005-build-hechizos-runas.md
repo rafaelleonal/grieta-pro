@@ -3,6 +3,8 @@
 - **Estado:** aceptada por instrucción expresa del propietario el 18 de octubre de 2026.
 - **Decisión:** simplificar el producto y priorizar la rapidez de respuesta frente a la estrategia. Usar Opus 5.5 como modelo predeterminado donde el plan lo permita.
 
+**Ampliación posterior:** la [ADR 0007](0007-habilidades-primeros-niveles.md) añade únicamente la secuencia de habilidades de los niveles 1–6. La decisión posterior de modelo está en la [comparación de Flash](../flash-build-comparison.md).
+
 ## Alcance
 
 La respuesta nueva contiene únicamente la build recomendada (compra inicial, núcleo en orden y opciones situacionales), los dos hechizos de invocador y la página de runas con fragmentos. Los motivos y condiciones de compra son breves. No se generan valoraciones del matchup, estrategia, niveles, mecánicas, orden de habilidades ni mapa.

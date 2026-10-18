@@ -300,7 +300,7 @@ test("Flash keeps low effort, grounded context, capped output and a single reque
       });
       assert.equal(
         body.response_format.json_schema.schema.properties.plan.anyOf[0].properties.format.const,
-        "build-v1",
+        "build-v2",
       );
       assert.ok(Array.isArray(JSON.parse(body.messages[1].content).runes[0]));
       return new Response(
@@ -529,8 +529,9 @@ test("build-only streaming emits legal choices and a v4 result without strategy 
     runes: old.runes,
     core: ["3020", "3089"],
     situational: [{ item: "3157", reason: "Si necesitas evitar daño al entrar.", champions: [] }],
+    skillOrder: { first6: ["Q", "W", "E", "Q", "Q", "R"], max: ["Q", "W", "E"] },
   };
-  const text = JSON.stringify({ decision: "coach", plan: { format: "build-v1", build } });
+  const text = JSON.stringify({ decision: "coach", plan: { format: "build-v2", build } });
   let briefs = 0,
     choices = 0,
     calls = 0,
@@ -569,6 +570,7 @@ test("build-only streaming emits legal choices and a v4 result without strategy 
   assert.equal(calls, 1);
   assert.equal(usage, 2); // Durable generation ID first, final billed usage second.
   assert.equal(result.meta.formatVersion, 4);
+  assert.deepEqual(result.plan.build.skillOrder?.first6, ["Q", "W", "E", "Q", "Q", "R"]);
   assert.equal(result.plan.brief, undefined);
   assert.deepEqual(result.plan.build.core, ["3020", "3089"]);
 });

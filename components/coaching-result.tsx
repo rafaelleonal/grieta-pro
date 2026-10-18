@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import { ExternalLink, Info } from "lucide-react";
 import { ItemDetails } from "./plan/item-details";
 import { Preparation } from "./plan/preparation";
+import { SkillOrder } from "./plan/skill-order";
 import { PlanActions } from "./plan/plan-actions";
 import { planText } from "./plan/plan-text";
 import { catalogMaps, safeUrl } from "./plan/shared";
@@ -21,7 +22,7 @@ export function CoachingResult({ result, catalog, input, ownerId, sample }: Prop
   const invalid =
     "partial" in result.meta
       ? (result.meta.partial?.invalid || []).filter((section) =>
-          ["items", "runes", "summoners"].includes(section),
+          ["items", "runes", "summoners", "skillOrder"].includes(section),
         )
       : [];
   return (
@@ -38,8 +39,9 @@ export function CoachingResult({ result, catalog, input, ownerId, sample }: Prop
         <Preparation build={result.plan.build} maps={maps} />
         <section
           aria-label="Build recomendada"
-          className="min-w-0 rounded-lg border border-divider bg-surface p-4 md:p-5"
+          className="min-w-0 space-y-4 rounded-lg border border-divider bg-surface p-4 md:p-5"
         >
+          <SkillOrder order={result.plan.build.skillOrder} champion={input.champion} />
           <ItemDetails build={result.plan.build} maps={maps} />
         </section>
       </div>

@@ -8,6 +8,8 @@ La implementación incluye las cuentas, historial privado, planes, invitaciones 
 
 Desde la continuación del 18 de octubre, el modo predeterminado `APP_ACCESS_MODE=beta` sustituye la distinción comercial de las secciones siguientes: se aplican los límites numéricos exactos de la política base `FREE` a todas las cuentas, todos los modelos compatibles están disponibles y la búsqueda web está desactivada. No se mutan planes, concesiones ni contabilidad; las solicitudes previas se concilian por sus referencias originales. Véase [ADR 0006](adr/0006-acceso-beta-comun.md). `APP_ACCESS_MODE=plans` conserva el comportamiento histórico descrito debajo.
 
+**Contrato vigente:** `build-v2` añade habilidades de los niveles 1–6 en la misma consulta, manteniendo formato persistido 4 y lectura de `build-v1`. Las elecciones inválidas se omiten; no hay llamadas adicionales. [ADR 0007](adr/0007-habilidades-primeros-niveles.md).
+
 ## Predeterminado vigente
 
 Gemini 3.8 Flash es el predeterminado por decisión del propietario tras la [comparación real](flash-build-comparison.md). Conserva razonamiento bajo, límite de 7 000 tokens para coach y reserva manual de USD 0.13425. Opus sigue disponible. Los apartados fechados siguientes documentan configuraciones anteriores; no cambian cuotas ni fondos al elegir el nuevo predeterminado.

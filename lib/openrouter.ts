@@ -1098,7 +1098,9 @@ export async function generateCoach(
     completion.diagnoseResult("refusal");
     throw new ApiError(400, SCOPE_ERROR);
   }
-  const buildOnly = (evaluated.data.plan as { format?: unknown })?.format === "build-v1";
+  const format = (evaluated.data.plan as { format?: unknown })?.format;
+  const buildOnly = format === "build-v1" || format === "build-v2";
+  const expectsSkills = format === "build-v2";
   evaluated.data.plan = normalizeCoachTransport(decodeCoachTransport(evaluated.data.plan));
   let sanitized: { plan: GeneratedCoachResult["plan"]; warnings: string[] };
   let partial: ReturnType<typeof recoverCoachPlan> | undefined;
@@ -1109,7 +1111,7 @@ export async function generateCoach(
     Object.hasOwn(evaluated.data.plan, "brief");
   try {
     if (buildOnly) {
-      partial = recoverBuildCoachPlan(evaluated.data.plan, catalog, input);
+      partial = recoverBuildCoachPlan(evaluated.data.plan, catalog, input, expectsSkills);
       sanitized = { plan: partial.plan, warnings: [] };
       if (partial.invalid.length)
         completion.diagnoseResult("output_validation", partial.categories[0]);
@@ -1126,7 +1128,7 @@ export async function generateCoach(
     );
     if (!(error instanceof CoachPlanValidationError)) throw error;
     partial = buildOnly
-      ? recoverBuildCoachPlan(evaluated.data.plan, catalog, input)
+      ? recoverBuildCoachPlan(evaluated.data.plan, catalog, input, expectsSkills)
       : recoverCoachPlan(evaluated.data.plan, catalog, input);
     sanitized = { plan: partial.plan, warnings: [] };
   }
@@ -1205,7 +1207,7 @@ export async function generateCoach(
       meta: {
         ...meta,
         formatVersion: 4,
-        ...(partial?.invalid.length || completion.truncated
+        ...(partial?.missing.length || partial?.invalid.length || completion.truncated
           ? {
               partial: {
                 missing: partial?.missing || [],

@@ -2,6 +2,12 @@
 
 Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 18 de octubre: habilidades 1–6
+
+El propietario amplía la respuesta breve con las habilidades a subir en los niveles 1–6, según la [ADR 0007](adr/0007-habilidades-primeros-niveles.md). Se generan en la misma consulta mediante `build-v2`, se validan con las reglas existentes y se muestran/copian antes de las compras. El historial `build-v1` y los formatos anteriores permanecen legibles, sin inventar secuencias ausentes. Aphelios conserva mejoras de atributos explícitas. Flash, acceso beta y límites de gasto no cambian. No hay nueva medición pagada de latencia.
+
+Verificación local: `pnpm check` (291 pruebas), `pnpm eval:security` (34 pruebas), `pnpm test:accounts` con PostgreSQL temporal y proveedor simulado, y `pnpm build` correctos. La demostración se revisó en navegador a 390, 834 y 1440 px sin desbordamiento horizontal; capturas en `artifacts/qa/skill-order/`. El botón de copia confirmó la acción y las pruebas de exportación verificaron el texto. No se realizaron consultas pagadas ni se acreditó precisión o latencia del contrato ampliado con el proveedor real.
+
 ## Continuación del 18 de octubre: Flash predeterminado confirmado
 
 Por instrucción posterior del propietario, Gemini 3.8 Flash sustituye a Opus como predeterminado en código y configuración local, Production y Preview. Opus permanece seleccionable. Véase la [comparación real](flash-build-comparison.md): cuatro consultas autorizadas y consumidas, coste total USD 0.18156375. Esa autorización está agotada y no permite llamadas adicionales. Se conservan el contrato reducido, el acceso beta y todas las políticas de gasto. Las selecciones explícitas de modelo siguen prevaleciendo.

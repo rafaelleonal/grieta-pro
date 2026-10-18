@@ -8,6 +8,8 @@ Los [términos de uso y la política de privacidad](docs/legal-and-riot.md) est�
 
 Elige primero tu rol para ver campeones habituales. **Todos** y la búsqueda permiten elegir cualquier campeón, incluso fuera de posición. Con una cuenta verificada puedes marcar hasta doce favoritos por rol y ordenar su prioridad; se guardan en tu cuenta. Consulta [favoritos y futura conexión con Riot](docs/accounts-and-usage.md#campeones-por-rol-y-favoritos).
 
+**Respuesta actual:** build, hechizos, runas y orden de habilidades de los niveles 1–6, en una sola consulta. Véase la [ADR de habilidades iniciales](docs/adr/0007-habilidades-primeros-niveles.md).
+
 **Acceso actual: beta común.** No hay distinción Free/Pro en la experiencia: todos tienen los mismos modelos y límites administrados. La búsqueda web está desactivada para priorizar rapidez. Gemini 3.8 Flash es el predeterminado y Opus 5.5 se puede elegir en Conexión. Consulta la [ADR de acceso beta](docs/adr/0006-acceso-beta-comun.md); las referencias a planes de las secciones históricas siguientes sólo aplican a `APP_ACCESS_MODE=plans`.
 
 ## Iniciar

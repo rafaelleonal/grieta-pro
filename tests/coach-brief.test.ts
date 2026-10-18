@@ -61,7 +61,7 @@ test("a core-only response yields usable advice, not a validation failure or inv
       const schema = JSON.parse(String(init?.body)).response_format.json_schema.schema.properties
         .plan.anyOf[0];
       assert.deepEqual(Object.keys(schema.properties).sort(), ["build", "format"]);
-      assert.equal(schema.properties.build.properties.skillOrder, undefined);
+      assert.ok(schema.properties.build.required.includes("skillOrder"));
       // Strict providers emit null for omitted optional sections. These are absence,
       // not malformed fields or a reason to repeat a paid request.
       return response({ brief, levels: null, reactions: null, build: null, macro: null });
@@ -220,7 +220,7 @@ test("Claude sends a fixed named JSON contract without compiling a provider gram
       if (original) assert.equal(text, original);
       original = text;
       const plan = schema.properties.plan.anyOf[0];
-      assert.equal(plan.properties.format.const, "build-v1");
+      assert.equal(plan.properties.format.const, "build-v2");
       assert.deepEqual(plan.required, ["format", "build"]);
       assert.equal(plan.properties.levels, undefined);
       assert.equal(plan.properties.build.properties.core.items.type, "string");

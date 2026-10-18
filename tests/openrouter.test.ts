@@ -833,8 +833,8 @@ test("new plans keep the full catalog prompt bounded and use the reserved Gemini
       assertCompatibleTransportSchema(body.response_format.json_schema.schema);
       const shape = present(body.response_format.json_schema.schema.properties.plan);
       assert.deepEqual(Object.keys(shape.properties), ["format", "build"]);
-      assert.equal(shape.properties.format.const, "build-v1");
-      assert.equal(shape.properties.build.properties.skillOrder, undefined);
+      assert.equal(shape.properties.format.const, "build-v2");
+      assert.ok(shape.properties.build.required.includes("skillOrder"));
       return provider(fixturePlan, []);
     },
     undefined,

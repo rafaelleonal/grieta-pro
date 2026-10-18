@@ -23,12 +23,13 @@ const input: CoachInput = {
   model: GEMINI_FLASH_MODEL,
 };
 const wire = () => ({
-  format: "build-v1",
+  format: "build-v2",
   build: {
     summoners: fixturePlan.build.summoners,
     starting: fixturePlan.build.starting,
     runes: structuredClone(fixturePlan.build.runes),
     core: ["3020", "3089"],
+    skillOrder: { first6: ["Q", "W", "E", "Q", "Q", "R"], max: ["Q", "W", "E"] },
     situational: [{ item: "3157", reason: "Si necesitas evitar daño al entrar.", champions: [] }],
   },
 });
@@ -92,8 +93,8 @@ async function run(plan: unknown, finish: "stop" | "length" = "stop", raw?: stri
       assert.deepEqual(request.reasoning, { enabled: true, effort: "low", exclude: true });
       const shape = request.response_format.json_schema.schema.properties.plan.anyOf[0];
       assert.deepEqual(Object.keys(shape.properties), ["format", "build"]);
-      assert.equal(shape.properties.format.const, "build-v1");
-      assert.equal(shape.properties.build.properties.skillOrder, undefined);
+      assert.equal(shape.properties.format.const, "build-v2");
+      assert.ok(shape.properties.build.required.includes("skillOrder"));
       return streamed(raw ?? JSON.stringify({ decision: "coach", plan }), finish);
     },
     undefined,
@@ -102,7 +103,7 @@ async function run(plan: unknown, finish: "stop" | "length" = "stop", raw?: stri
   return { result, counters: () => ({ calls, dispatches, preparations, briefs }), usage };
 }
 
-test("Flash streams build-v1 under the exact reserved token and price caps", async () => {
+test("Flash streams build-v2 under the exact reserved token and price caps", async () => {
   assert.equal(completionTokenLimit(GEMINI_FLASH_MODEL, "COACH"), 7000);
   assert.equal(completionTokenLimit(GEMINI_FLASH_MODEL, "DRAFT"), 1600);
   assert.equal(maximumCost(GEMINI_FLASH_MODEL, "COACH").toString(), "0.13425");
@@ -110,6 +111,7 @@ test("Flash streams build-v1 under the exact reserved token and price caps", asy
   const result = await attempt.result;
   assert.equal(result.meta.formatVersion, 4);
   assert.deepEqual(result.plan.build.core, ["3020", "3089"]);
+  assert.deepEqual(result.plan.build.skillOrder?.first6, ["Q", "W", "E", "Q", "Q", "R"]);
   assert.equal(result.plan.brief, undefined);
   assert.deepEqual(result.plan.levels, []);
   assert.deepEqual(result.plan.macro, []);
@@ -124,7 +126,7 @@ test("Flash clipped JSON records its known charge and fails without another requ
   const attempt = await run(
     wire(),
     "length",
-    '{"decision":"coach","plan":{"format":"build-v1","build":',
+    '{"decision":"coach","plan":{"format":"build-v2","build":',
   );
   await assert.rejects(attempt.result, /formato inesperado/);
   assert.deepEqual(attempt.counters(), { calls: 1, dispatches: 1, preparations: 0, briefs: 0 });

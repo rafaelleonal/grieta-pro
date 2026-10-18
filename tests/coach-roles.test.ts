@@ -49,11 +49,11 @@ test("all five roles request only loadout choices using their role and starter c
         assert.equal(context.mechanics, undefined);
         assert.match(
           body.messages[0].content,
-          /Recomienda sólo objetos, hechizos de invocador y runas/,
+          /Recomienda sólo objetos, hechizos de invocador, runas/,
         );
         const schema = body.response_format.json_schema.schema.properties.plan.anyOf[0];
         assert.deepEqual(Object.keys(schema.properties), ["format", "build"]);
-        assert.equal(schema.properties.build.properties.skillOrder, undefined);
+        assert.ok(schema.properties.build.required.includes("skillOrder"));
         if (role === "JUNGLE" || role === "SUPPORT") assert.ok(context.startingOptions.length);
         return response({
           format: "build-v1",
