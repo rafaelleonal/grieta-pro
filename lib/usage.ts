@@ -10,6 +10,7 @@ import { getDb } from "./db";
 import { ApiError } from "./http";
 import { safeNotesForStorage } from "./coach-safety";
 import { betaAccessPolicy, getAccessMode } from "./access-policy";
+import type { BudgetBlock } from "./budget-block";
 import type { CoachInput, GeneratedCoachResult, DraftResult } from "./types";
 
 export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
@@ -672,36 +673,50 @@ export async function getAccountUsage(userId: string) {
         plan.monthlySearchLimit - (bucket?.searchUsed || 0) - (bucket?.searchReserved || 0),
       )
     : 0;
-  const available = (model: string, web: boolean) => {
+  const available = (
+    model: string,
+    web: boolean,
+  ): { allowed: boolean; block: BudgetBlock | null } => {
     if (coachRemaining === 0 || (web && (!plan.webSearchAllowed || webRemaining === 0)))
-      return false;
+      return { allowed: false, block: null };
     let reserve: Prisma.Decimal;
     try {
       reserve = maximumCost(model, "COACH", false, web);
     } catch {
-      return false;
+      return { allowed: false, block: null };
     }
-    return refs.every((ref) => {
+    for (const ref of refs) {
       const current = byRef.get(keyFor(ref));
       const limit = bucketBudget(ref, plan);
-      return (
-        !current?.blocked &&
-        (!limit ||
-          (current?.costUsedUsd || new Prisma.Decimal(0))
-            .add(current?.costReservedUsd || 0)
-            .add(reserve)
-            .lte(limit))
-      );
-    });
+      if (current?.blocked) return { allowed: false, block: "paused" };
+      if (
+        limit &&
+        (current?.costUsedUsd || new Prisma.Decimal(0))
+          .add(current?.costReservedUsd || 0)
+          .add(reserve)
+          .gt(limit)
+      ) {
+        const period = ref.period.startsWith("day:") ? "daily" : "monthly";
+        const scope = ref.scope === "PLAN" ? "shared" : ref.scope === "GLOBAL" ? "app" : "user";
+        return { allowed: false, block: `${scope}_${period}` as BudgetBlock };
+      }
+    }
+    return { allowed: true, block: null };
   };
   const coachAvailability = Object.fromEntries(
-    allowedModels.map((model) => [
-      model,
-      {
-        standard: available(model, false),
-        web: available(model, true),
-      },
-    ]),
+    allowedModels.map((model) => {
+      const standard = available(model, false);
+      const web = available(model, true);
+      return [
+        model,
+        {
+          standard: standard.allowed,
+          web: web.allowed,
+          standardBlock: standard.block,
+          webBlock: web.block,
+        },
+      ];
+    }),
   );
   const minuteCalls = minuteBucket
     ? minuteBucket.coachUsed +

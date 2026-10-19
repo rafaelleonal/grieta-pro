@@ -115,6 +115,27 @@ test("budget snapshots distinguish standard and web calls without treating missi
   });
 });
 
+test("budget notice identifies the enforced period and explains uncertain reservations", () => {
+  const daily = blocked("budget", {
+    account: usage({
+      uncertain: 1,
+      coachAvailability: {
+        [flash]: { standard: false, web: false, standardBlock: "user_daily" },
+      },
+    }),
+  });
+  assert.ok(!daily.allowed && daily.message.includes("presupuesto diario"));
+  assert.ok(!daily.allowed && daily.message.includes("1 solicitud por confirmar"));
+  const shared = blocked("budget", {
+    account: usage({
+      coachAvailability: {
+        [flash]: { standard: false, web: false, standardBlock: "shared_monthly" },
+      },
+    }),
+  });
+  assert.ok(!shared.allowed && shared.message.includes("fondo compartido"));
+});
+
 test("concurrency follows its actual limit and rate expiry restores advisory availability", () => {
   assert.deepEqual(generationAccess({ ...base, account: usage({ pending: 1 }) }), {
     allowed: true,

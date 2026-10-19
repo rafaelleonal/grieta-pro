@@ -3,6 +3,7 @@
 import { createAuthClient } from "better-auth/react";
 import type { GenerationAttempt } from "./generation-intent";
 import type { AccessMode } from "./access-policy";
+import type { BudgetBlock } from "./budget-block";
 
 export const authClient = createAuthClient();
 
@@ -30,7 +31,15 @@ export interface AccountStatus {
     pending: number;
     uncertain: number;
     /** Budget snapshot for server-funded coach calls; admission remains authoritative. */
-    coachAvailability?: Record<string, { standard: boolean; web: boolean }>;
+    coachAvailability?: Record<
+      string,
+      {
+        standard: boolean;
+        web: boolean;
+        standardBlock?: BudgetBlock | null;
+        webBlock?: BudgetBlock | null;
+      }
+    >;
     concurrentLimit?: number;
     rateLimitedUntil?: string | null;
     defaultModel?: string;

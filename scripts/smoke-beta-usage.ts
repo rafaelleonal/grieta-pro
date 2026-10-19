@@ -128,23 +128,26 @@ export async function smokeBetaCoachUsage(userId: string) {
       },
     );
 
-    const funds: { ref: Ref; limit: Prisma.Decimal }[] = [
-      { ref: userMonth, limit: free.monthlyBudgetUsd },
-      { ref: userDay, limit: free.dailyBudgetUsd },
+    const funds: { ref: Ref; limit: Prisma.Decimal; block: string }[] = [
+      { ref: userMonth, limit: free.monthlyBudgetUsd, block: "user_monthly" },
+      { ref: userDay, limit: free.dailyBudgetUsd, block: "user_daily" },
       {
         ref: { scope: "PLAN", scopeId: "FREE", period: month },
         limit: new Prisma.Decimal(process.env.AI_FREE_POOL_USD || "5"),
+        block: "shared_monthly",
       },
       {
         ref: { scope: "GLOBAL", scopeId: "app", period: month },
         limit: new Prisma.Decimal(process.env.AI_MONTHLY_BUDGET_USD || "25"),
+        block: "app_monthly",
       },
       {
         ref: { scope: "GLOBAL", scopeId: "app", period: day },
         limit: new Prisma.Decimal(process.env.AI_DAILY_BUDGET_USD || "5"),
+        block: "app_daily",
       },
     ];
-    for (const { ref, limit } of funds) {
+    for (const { ref, limit, block } of funds) {
       for (const patch of [{ costUsedUsd: limit }, { blocked: true }]) {
         await patchBucket(ref, patch, async () => {
           const account = await usage.getAccountUsage(userId);
@@ -153,6 +156,10 @@ export async function smokeBetaCoachUsage(userId: string) {
             false,
             `${ref.scope}/${ref.period}`,
           );
+          assert.equal(
+            account.coachAvailability[usage.GEMINI_FLASH_MODEL].standardBlock,
+            "blocked" in patch ? "paused" : block,
+          );
           await assert.rejects(reserve(), denied);
           await release(await reserve("COACH", true));
         });
@@ -160,10 +167,11 @@ export async function smokeBetaCoachUsage(userId: string) {
     }
 
     await patchBucket(userMinute, { blocked: true }, async () => {
-      assert.equal(
-        (await usage.getAccountUsage(userId)).coachAvailability[usage.GEMINI_FLASH_MODEL].standard,
-        false,
-      );
+      const availability = (await usage.getAccountUsage(userId)).coachAvailability[
+        usage.GEMINI_FLASH_MODEL
+      ];
+      assert.equal(availability.standard, false);
+      assert.equal(availability.standardBlock, "paused");
       await assert.rejects(reserve(), denied);
       await release(await reserve("COACH", true));
     });

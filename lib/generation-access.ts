@@ -1,6 +1,20 @@
 import type { AccountStatus } from "./auth-client";
 import type { AppStatus, Credentials } from "./types";
 import { usesPlanAccess, webSearchEnabled } from "./account-presentation";
+import type { BudgetBlock } from "./budget-block";
+
+const budgetMessages: Record<BudgetBlock, string> = {
+  user_daily: "Tu presupuesto diario de IA no alcanza para este modelo. Se renueva mañana (UTC).",
+  user_monthly:
+    "Tu presupuesto mensual de IA no alcanza para este modelo. Se renueva el próximo mes (UTC).",
+  shared_monthly:
+    "El fondo compartido de la beta no alcanza para este modelo. Se renueva el próximo mes (UTC).",
+  app_daily: "El presupuesto diario general no alcanza para este modelo. Se renueva mañana (UTC).",
+  app_monthly:
+    "El presupuesto mensual general no alcanza para este modelo. Se renueva el próximo mes (UTC).",
+  paused:
+    "Las nuevas consultas están pausadas por una revisión de gasto. Actualiza la disponibilidad más tarde.",
+};
 
 export type GenerationBlock =
   | "selection"
@@ -114,12 +128,14 @@ export function generationAccess({
     return block("model", "Elige un modelo disponible en Conexión de IA.", "settings");
   const available = usage.coachAvailability?.[model];
   const web = webSearchEnabled(account, requestedWeb);
-  if (operation === "coach" && !byok && available && !available[web ? "web" : "standard"])
+  if (operation === "coach" && !byok && available && !available[web ? "web" : "standard"]) {
+    const budgetBlock = available[web ? "webBlock" : "standardBlock"];
     return block(
       "budget",
-      "El presupuesto disponible no alcanza para este modelo. Cambia de modelo o usa tu clave de OpenRouter.",
+      `${budgetBlock ? budgetMessages[budgetBlock] : "El presupuesto disponible no alcanza para este modelo."}${usage.uncertain > 0 ? ` Tienes ${usage.uncertain} solicitud${usage.uncertain === 1 ? "" : "es"} por confirmar; su reserva también cuenta.` : ""} Cambia de modelo o usa tu clave de OpenRouter.`,
       "refresh",
     );
+  }
   if (!selectionReady) return block("selection", "Elige tu campeón y rival.");
   return { allowed: true };
 }
