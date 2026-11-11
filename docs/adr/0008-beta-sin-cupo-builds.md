@@ -1,5 +1,7 @@
 # ADR 0008 · Beta sin cupo de builds
 
+**Sustituida** por la [ADR 0009](0009-builds-simples.md) el 11 de noviembre de 2026: límites diarios simples y caché por matchup; ya no hay reservas, cuotas por plan ni modo `plans`.
+
 - **Estado:** aceptada por instrucción del propietario el 18 de octubre de 2026.
 - **Petición:** retirar temporalmente el límite de cantidad de planes para probar el proyecto, conservar el control de gasto y deshabilitar la generación cuando esté bloqueada.
 

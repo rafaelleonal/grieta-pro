@@ -208,16 +208,17 @@ model Invitation {
 }
 
 model CoachRecord {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   userId        String
-  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  requestId     String    @unique
-  request       AiRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  /// Only builds generated before ADR 0009 point to the retired reservation ledger.
+  requestId     String?    @unique
+  request       AiRequest? @relation(fields: [requestId], references: [id], onDelete: Cascade)
   input         Json
   plan          Json
   meta          Json
-  formatVersion Int       @default(1)
-  createdAt     DateTime  @default(now())
+  formatVersion Int        @default(1)
+  createdAt     DateTime   @default(now())
 
   @@index([userId, createdAt])
 }
@@ -271,4 +272,30 @@ model UsageBucket {
   updatedAt       DateTime   @updatedAt
 
   @@unique([scope, scopeId, period])
+}
+
+/// Shared, validated build per Data Dragon version and matchup (ADR 0009).
+/// Contains only catalog IDs and short model text; never user data.
+model BuildCache {
+  id        String   @id @default(cuid())
+  version   String
+  champion  String
+  enemy     String
+  role      String
+  model     String
+  contract  String
+  result    Json
+  createdAt DateTime @default(now())
+
+  @@unique([version, champion, enemy, role, model, contract])
+}
+
+/// Daily AI builds and reported cost, per account ("user:<id>") and for the app ("global").
+model BuildUsage {
+  scope   String
+  day     String
+  builds  Int     @default(0)
+  costUsd Decimal @default(0) @db.Decimal(18, 8)
+
+  @@id([scope, day])
 }

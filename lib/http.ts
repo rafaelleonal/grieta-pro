@@ -1,4 +1,3 @@
-import { createHash, timingSafeEqual } from "node:crypto";
 import { ApiError } from "./errors";
 
 export { ApiError } from "./errors";
@@ -51,7 +50,7 @@ export function assertSameOrigin(request: Request): void {
 }
 
 /** Bounded streaming read; Content-Length alone does not protect against oversized uploads. */
-export async function readJsonBody(request: Request, maxBytes = 3_600_000): Promise<unknown> {
+export async function readJsonBody(request: Request, maxBytes = 16_000): Promise<unknown> {
   if (
     request.headers.get("content-type")?.split(";", 1)[0].trim().toLowerCase() !==
     "application/json"
@@ -60,10 +59,7 @@ export async function readJsonBody(request: Request, maxBytes = 3_600_000): Prom
   }
   const length = Number(request.headers.get("content-length"));
   if (Number.isFinite(length) && length > maxBytes) {
-    throw new ApiError(
-      413,
-      "La imagen optimizada es demasiado grande. Selecciona de nuevo una foto o captura de hasta 30 MB para reducirla antes de enviarla.",
-    );
+    throw new ApiError(413, "La consulta es demasiado grande.");
   }
   if (!request.body) throw new ApiError(400, "La consulta está vacía.");
   const reader = request.body.getReader();
@@ -76,10 +72,7 @@ export async function readJsonBody(request: Request, maxBytes = 3_600_000): Prom
       total += value.byteLength;
       if (total > maxBytes) {
         await reader.cancel();
-        throw new ApiError(
-          413,
-          "La imagen optimizada es demasiado grande. Selecciona de nuevo una foto o captura de hasta 30 MB para reducirla antes de enviarla.",
-        );
+        throw new ApiError(413, "La consulta es demasiado grande.");
       }
       chunks.push(value);
     }
@@ -90,24 +83,5 @@ export async function readJsonBody(request: Request, maxBytes = 3_600_000): Prom
     return JSON.parse(Buffer.concat(chunks).toString("utf8"));
   } catch {
     throw new ApiError(400, "La consulta no tiene un formato válido.");
-  }
-}
-
-/** Server-funded calls fail closed on public production deployments. */
-export function authorizeServerKey(accessToken?: string): void {
-  const expected = process.env.COACH_ACCESS_TOKEN?.trim();
-  if (!expected) {
-    if (process.env.NODE_ENV === "production") {
-      throw new ApiError(
-        503,
-        "Configura el código de acceso del servidor antes de usar sus conexiones.",
-      );
-    }
-    return;
-  }
-  const supplied = typeof accessToken === "string" ? accessToken : "";
-  const digest = (value: string) => createHash("sha256").update(value).digest();
-  if (!timingSafeEqual(digest(expected), digest(supplied))) {
-    throw new ApiError(401, "El código de acceso no es correcto. Revísalo en Conexión.");
   }
 }

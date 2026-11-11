@@ -1,17 +1,17 @@
 import { ShoppingBag, Zap, Gem } from "lucide-react";
-import type { CoachPreparation, SavedCoachResult } from "@/lib/types";
+import type { SavedCoachResult } from "@/lib/types";
 import { CatalogArt, resolveEntry } from "./catalog-art";
 import type { Maps } from "./shared";
 
 type Choices = Pick<SavedCoachResult["plan"]["build"], "summoners" | "starting" | "runes">;
 
-/** The same stable slots are used while streaming and in the saved plan. */
+/** The same stable slots are used while waiting and in the saved build. */
 export function Preparation({
   build,
   maps,
   pending = false,
 }: {
-  build?: Choices | CoachPreparation | null;
+  build?: Choices | null;
   maps: Maps;
   pending?: boolean;
 }) {

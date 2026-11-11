@@ -39,14 +39,12 @@ export function PlanScreen({ ws }: { ws: CoachWorkspace }) {
             <span className="text-neutral-400">vs.</span>{" "}
             <strong className="font-medium">{enemy?.name || resultInput.enemy}</strong>
           </h1>
-          <span className="text-xs text-neutral-400">
-            {roleName(resultInput.role)} · {resultInput.rank}
-          </span>
+          <span className="text-xs text-neutral-400">{roleName(resultInput.role)}</span>
           {ws.sample ? <Tag tone="warning">Ejemplo</Tag> : null}
         </div>
         <Button className="ml-auto" onClick={() => ws.setEditing(true)}>
           <Pencil size={15} aria-hidden="true" />
-          Editar partida
+          Cambiar matchup
         </Button>
       </div>
       {changed && !ws.busy ? (

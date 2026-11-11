@@ -1,9 +1,6 @@
 "use client";
 
 import { createAuthClient } from "better-auth/react";
-import type { GenerationAttempt } from "./generation-intent";
-import type { AccessMode } from "./access-policy";
-import type { BudgetBlock } from "./budget-block";
 
 export const authClient = createAuthClient();
 
@@ -17,59 +14,14 @@ export interface AccountStatus {
     email: string;
     emailVerified: boolean;
     role: "USER" | "ADMIN";
-    plan: "FREE" | "PRO";
   };
+  /** Builds nuevas generadas hoy (UTC); las de la caché no cuentan. */
   usage?: {
-    accessMode?: AccessMode;
-    coachRemaining: number | null;
-    draftRemaining: number;
-    webRemaining: number;
-    coachLimit: number | null;
-    draftLimit: number;
-    webLimit: number;
+    buildsToday: number;
+    dailyLimit: number;
+    appBudgetReached: boolean;
     resetsAt: string;
-    pending: number;
-    uncertain: number;
-    /** Budget snapshot for server-funded coach calls; admission remains authoritative. */
-    coachAvailability?: Record<
-      string,
-      {
-        standard: boolean;
-        web: boolean;
-        standardBlock?: BudgetBlock | null;
-        webBlock?: BudgetBlock | null;
-      }
-    >;
-    concurrentLimit?: number;
-    rateLimitedUntil?: string | null;
-    defaultModel?: string;
-    allowedModels: string[];
-    webAllowed: boolean;
   };
-}
-
-export interface ReconciliationResult {
-  usage: NonNullable<AccountStatus["usage"]>;
-  checked: number;
-  reconciled: number;
-  attempt?: GenerationAttempt | null;
-}
-
-export async function reconcileAccount(
-  idempotencyKey?: string,
-  signal?: AbortSignal,
-): Promise<ReconciliationResult> {
-  const response = await fetch("/api/account/reconcile", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    cache: "no-store",
-    redirect: "error",
-    body: JSON.stringify(idempotencyKey ? { idempotencyKey } : {}),
-    signal,
-  });
-  if (!response.ok)
-    throw new Error("No pudimos comprobar el consumo todavía. No se ha iniciado otro análisis.");
-  return response.json() as Promise<ReconciliationResult>;
 }
 
 export async function readAccount(signal?: AbortSignal): Promise<AccountStatus> {

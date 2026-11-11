@@ -2,59 +2,26 @@
 
 import { useState, type ReactNode } from "react";
 import Link from "next/link";
-import { Crown, Download, LogOut, ShieldCheck } from "lucide-react";
+import { Download, LogOut } from "lucide-react";
 import { PwaInstall } from "@/components/pwa-manager";
-import { AdminControls } from "./admin-controls";
-import { Mascot, RankTile } from "@/components/brand";
+import { Mascot } from "@/components/brand";
 import { Button, buttonClasses } from "@/components/ui/button";
-import { Alert, Meter } from "@/components/ui/feedback";
-import { Tag } from "@/components/ui/tag";
+import { Meter } from "@/components/ui/feedback";
 import { authClient, authErrorMessage } from "@/lib/auth-client";
-import { roleName } from "@/lib/coach-draft";
-import { accountAccessLabel, usesPlanAccess } from "@/lib/account-presentation";
-import type { Role } from "@/lib/types";
 import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
-import { ConnectionForm } from "./connection-form";
 
 const SECTIONS = [
-  ["consumo", "Consumo"],
-  ["clave", "Clave de OpenRouter"],
+  ["builds", "Builds de hoy"],
   ["perfil", "Perfil"],
   ["privacidad", "Privacidad"],
 ] as const;
 
-type AccountWorkspace = Pick<
-  CoachWorkspace,
-  "credentials" | "status" | "setCredentials" | "clearPrivateState" | "input"
-> & {
-  session: Pick<
-    CoachWorkspace["session"],
-    | "account"
-    | "markLoggedOut"
-    | "refreshAccount"
-    | "checkingConsumption"
-    | "checkConsumption"
-    | "consumptionError"
-  >;
+type AccountWorkspace = Pick<CoachWorkspace, "clearPrivateState"> & {
+  session: Pick<CoachWorkspace["session"], "account" | "markLoggedOut" | "refreshAccount">;
 };
 
-function formatDate(value: string) {
-  const date = new Date(value);
-  return Number.isNaN(date.getTime())
-    ? "en el próximo periodo"
-    : date.toLocaleDateString("es-MX", { day: "numeric", month: "long" });
-}
-
-/** Cuenta y consumo: cuota, clave en memoria, perfil de juego y privacidad. */
-export function AccountScreen({
-  ws,
-  positions,
-  onEditProfile,
-}: {
-  ws: AccountWorkspace;
-  positions: Role[];
-  onEditProfile: () => void;
-}) {
+/** Cuenta (ADR 0009): builds nuevas de hoy, perfil, privacidad e instalación. */
+export function AccountScreen({ ws }: { ws: AccountWorkspace }) {
   const { session } = ws;
   const account = session.account;
   const [busy, setBusy] = useState(false);
@@ -86,7 +53,7 @@ export function AccountScreen({
         <Mascot size={112} />
         <h1 className="text-h1 font-medium">Tu cuenta</h1>
         <p className="max-w-md text-small text-neutral-400">
-          Entra para ver tus planes, consumo y perfil.
+          Entra para pedir builds y ver las que ya generaste.
         </p>
         <Link href="/login" className={buttonClasses("primary")}>
           Entrar o crear cuenta
@@ -96,8 +63,6 @@ export function AccountScreen({
 
   const user = account.user;
   const usage = account.usage;
-  const pending = (usage?.pending || 0) + (usage?.uncertain || 0);
-  const plans = usesPlanAccess(account);
   return (
     <div className="flex flex-1 flex-col gap-5 px-4 py-5 md:px-7 md:py-7 xl:grid xl:grid-cols-[220px_minmax(0,1fr)] xl:items-start xl:gap-7">
       <div className="flex flex-col gap-4 xl:sticky xl:top-6">
@@ -116,119 +81,29 @@ export function AccountScreen({
       </div>
 
       <div className="flex min-w-0 flex-col gap-5">
-        <Section
-          id="consumo"
-          title="Consumo"
-          aside={
-            <Tag tone={plans && user?.plan === "PRO" ? "pro" : "neutral"}>
-              {accountAccessLabel(account)}
-            </Tag>
-          }
-        >
+        <Section id="builds" title="Builds de hoy">
           {usage ? (
-            <div className={plans ? "grid gap-5 lg:grid-cols-[minmax(0,1fr)_300px]" : "grid gap-5"}>
-              <div className="flex flex-col gap-4">
-                {plans &&
-                typeof usage.coachRemaining === "number" &&
-                typeof usage.coachLimit === "number" ? (
-                  <>
-                    <Meter
-                      label="Builds este mes"
-                      value={usage.coachRemaining}
-                      max={usage.coachLimit}
-                      detail={`${usage.coachRemaining} disponibles de ${usage.coachLimit}`}
-                    />
-                    <p className="text-xs text-neutral-400">
-                      Se renuevan el {formatDate(usage.resetsAt)}. Cada generación consume una
-                      build.
-                    </p>
-                  </>
-                ) : (
-                  <div className="space-y-1">
-                    <p className="text-h3 font-medium">Sin límite de builds</p>
-                    <p className="text-xs text-neutral-400">
-                      El gasto sigue controlado por presupuesto. Las capturas mantienen su cupo.
-                    </p>
-                  </div>
-                )}
-                <dl className="grid gap-2 sm:grid-cols-3">
-                  <Stat label="Capturas" value={`${usage.draftRemaining} de ${usage.draftLimit}`} />
-                  <Stat
-                    label="Fuentes web"
-                    value={
-                      usage.webAllowed
-                        ? `${usage.webRemaining} de ${usage.webLimit}`
-                        : "No disponibles"
-                    }
-                  />
-                  <Stat label="Por confirmar" value={String(pending)} />
-                </dl>
-                {pending ? (
-                  <Alert
-                    tone="warning"
-                    action={
-                      <Button
-                        variant="ghost"
-                        loading={session.checkingConsumption}
-                        loadingLabel="Comprobando…"
-                        onClick={() => void session.checkConsumption()}
-                      >
-                        Actualizar saldo
-                      </Button>
-                    }
-                  >
-                    Estas solicitudes mantienen su reserva de gasto hasta confirmar el consumo. Lo
-                    revisamos automáticamente.
-                  </Alert>
-                ) : null}
-                {session.consumptionError ? (
-                  <p role="status" className="text-xs text-warning-text">
-                    {session.consumptionError}
-                  </p>
-                ) : null}
-              </div>
-              {plans ? (
-                <div className="flex flex-col gap-3 rounded-lg p-4 ring-1 ring-inset ring-accent-800">
-                  <strong className="flex items-center gap-2 text-sm font-medium">
-                    <Crown size={16} aria-hidden="true" className="text-accent-300" />
-                    Elociencia Pro
-                  </strong>
-                  <ul className="flex flex-col gap-1.5 text-small text-neutral-300">
-                    <li>Más planes al mes</li>
-                    <li>Fuentes web</li>
-                    <li>Más modelos</li>
-                  </ul>
-                  <p className="text-xs text-neutral-400">
-                    {user?.plan === "PRO"
-                      ? "Pro activo."
-                      : "Pro por invitación o cortesía. Sin pagos en la app."}
-                  </p>
-                </div>
+            <div className="flex flex-col gap-3">
+              <Meter
+                label="Builds nuevas"
+                value={Math.max(0, usage.dailyLimit - usage.buildsToday)}
+                max={usage.dailyLimit}
+                detail={`${usage.buildsToday} usadas de ${usage.dailyLimit}`}
+              />
+              <p className="text-xs text-neutral-400">
+                Se renuevan a las 00:00 UTC. Un matchup que ya se generó en este parche sale al
+                instante y no cuenta.
+              </p>
+              {usage.appBudgetReached ? (
+                <p role="status" className="text-small text-warning-text">
+                  La app alcanzó su presupuesto de IA de hoy: sólo responden los matchups ya
+                  generados.
+                </p>
               ) : null}
             </div>
           ) : (
-            <p className="text-small text-neutral-400">Verifica tu correo para ver tu consumo.</p>
+            <p className="text-small text-neutral-400">Verifica tu correo para pedir builds.</p>
           )}
-        </Section>
-
-        <Section
-          id="clave"
-          title="Clave de OpenRouter"
-          aside={
-            ws.credentials.apiKey ? (
-              <span className="inline-flex items-center gap-1.5 text-xs text-success-text">
-                <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />
-                Activa
-              </span>
-            ) : null
-          }
-        >
-          <ConnectionForm
-            credentials={ws.credentials}
-            status={ws.status}
-            account={account}
-            onSave={ws.setCredentials}
-          />
         </Section>
 
         <div className="grid gap-5 lg:grid-cols-2">
@@ -245,29 +120,6 @@ export function AccountScreen({
               </dd>
               <dt className="text-neutral-400">Rol</dt>
               <dd>{user?.role === "ADMIN" ? "Administrador" : "Jugador"}</dd>
-              <dt className="text-neutral-400">Rango</dt>
-              <dd className="flex items-center gap-2">
-                <RankTile rank={ws.input.rank} size={26} compact />
-                {ws.input.rank} ·
-                <button
-                  type="button"
-                  onClick={onEditProfile}
-                  className="min-h-11 text-accent-300 hover:text-accent-200"
-                >
-                  cambiar
-                </button>
-              </dd>
-              <dt className="text-neutral-400">Posiciones</dt>
-              <dd>
-                {positions.length ? positions.map(roleName).join(" / ") : "Sin elegir"} ·{" "}
-                <button
-                  type="button"
-                  onClick={onEditProfile}
-                  className="min-h-11 text-accent-300 hover:text-accent-200"
-                >
-                  cambiar
-                </button>
-              </dd>
             </dl>
             {error ? (
               <p role="alert" className="text-small text-danger-text">
@@ -287,10 +139,9 @@ export function AccountScreen({
 
           <Section id="privacidad" title="Privacidad">
             <p className="text-small text-neutral-300">
-              No guardamos fotos originales ni prompts enviados. Cerrar sesión limpia el borrador
-              local. Borra tus planes desde Sesiones.
+              Sólo guardamos tu campeón, tu rival, tu rol y la build. Cerrar sesión limpia el
+              borrador local. Borra tus builds desde Sesiones.
             </p>
-            <p className="text-xs text-neutral-400">Borrar planes no cambia tu consumo del mes.</p>
             <Link
               href="/privacidad"
               target="_blank"
@@ -303,7 +154,7 @@ export function AccountScreen({
           <Section id="instalar" title="Instalar app">
             <p className="text-small text-neutral-300">
               Ábrela desde tu pantalla de inicio, en pantalla completa. Sólo guarda archivos
-              públicos, nunca tus planes.
+              públicos, nunca tus builds.
             </p>
             <PwaInstall
               trigger={(open) => (
@@ -315,16 +166,6 @@ export function AccountScreen({
             />
           </Section>
         </div>
-
-        {plans && user?.role === "ADMIN" ? (
-          <Section
-            id="administrar"
-            title="Accesos"
-            aside={<ShieldCheck size={18} aria-hidden="true" className="text-accent-300" />}
-          >
-            <AdminControls />
-          </Section>
-        ) : null}
       </div>
     </div>
   );
@@ -355,14 +196,5 @@ function Section({
       </header>
       {children}
     </section>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex flex-col gap-1 rounded-control bg-bg p-3">
-      <dt className="text-xs text-neutral-400">{label}</dt>
-      <dd className="text-h3 font-medium">{value}</dd>
-    </div>
   );
 }

@@ -2,7 +2,7 @@
 
 ## Propósito y contexto
 
-Elociencia prepara partidas de League of Legends con una respuesta breve en español: build recomendada, hechizos, runas y habilidades de los niveles 1–6. La [ADR 0005](docs/adr/0005-build-hechizos-runas.md) prioriza rapidez y sustituye el alcance anterior de estrategia, niveles, mecánicas y mapa. La [ADR 0007](docs/adr/0007-habilidades-primeros-niveles.md) añade sólo el orden de habilidades inicial, sin consejos tácticos por nivel. Conserva una experiencia responsive, la entrada manual y la opción móvil de foto o galería. El ejemplo local debe identificarse como demostración; no presentes recomendaciones del modelo como estadísticas óptimas o como un rango Challenger acreditado.
+Elociencia prepara partidas de League of Legends con una respuesta breve en español: build recomendada, hechizos, runas y habilidades de los niveles 1–6. La [ADR 0005](docs/adr/0005-build-hechizos-runas.md) prioriza rapidez y sustituye el alcance anterior de estrategia, niveles, mecánicas y mapa. La [ADR 0007](docs/adr/0007-habilidades-primeros-niveles.md) añade sólo el orden de habilidades inicial, sin consejos tácticos por nivel. La [ADR 0009](docs/adr/0009-builds-simples.md) reduce la entrada a tu campeón, tu rival y tu rol, con caché compartida por matchup y límites diarios simples. Conserva una experiencia responsive. El ejemplo local debe identificarse como demostración; no presentes recomendaciones del modelo como estadísticas óptimas o como un rango Challenger acreditado.
 
 Usa TypeScript estricto y pnpm según `package.json`; se recomienda Node.js 24. Mantén los cambios centrados en la petición y respeta las decisiones y autorizaciones del usuario. Esta guía no añade aprobaciones para trabajo local o reversible.
 
@@ -14,8 +14,8 @@ Lee [el contexto de continuidad](docs/agent-handoff.md) para conocer la implemen
 
 - `app/page.tsx` (shell y navegación) y `components/` (una carpeta o archivo por pantalla, `components/ui/` para piezas compartidas): preparación, plan, cuentas y experiencia móvil.
 - `app/api/`: API de Next.js. `lib/auth*`, `lib/history.ts` y `prisma/`: autenticación, propiedad de datos y persistencia.
-- `lib/generation.ts`, `lib/usage.ts`, `lib/generation-admission.ts` y `lib/openrouter.ts`: ejecución, cuotas, presupuestos y proveedor de IA.
-- `lib/validation.ts` y `lib/coach-safety.ts`: esquemas, coherencia y límites del coach. `lib/image-upload.ts` y `lib/server-image.ts`: imágenes en cliente y servidor.
+- `app/api/coach/route.ts`, `lib/build-ai.ts`, `lib/build-contract.ts`, `lib/build-cache.ts`, `lib/build-quota.ts` y `lib/generation-admission.ts`: flujo de la build, proveedor de IA, caché, límites diarios y admisión por minuto.
+- `lib/validation.ts`, `lib/coach-recovery.ts` y `lib/coach-safety.ts`: esquemas, validación contra el catálogo y texto seguro.
 - `proxy.ts`, `lib/browser-security.ts`, `app/layout.tsx`, `components/pwa-manager.tsx` y `public/sw.js`: CSP y PWA.
 - `tests/` y `scripts/smoke-accounts.ts`: pruebas con proveedores simulados y PostgreSQL temporal real.
 
@@ -36,20 +36,18 @@ Estas reglas son decisiones del propietario registradas como ADR en `docs/adr/`.
 
 ## Invariantes que debes conservar
 
-- Autoriza en el servidor con la sesión verificada. Filtra el historial por su propietario, incluyendo cursores, lectura y borrado. En beta el acceso es común según la [ADR 0006](docs/adr/0006-acceso-beta-comun.md); el rol de administrador sigue siendo independiente y Free/Pro sólo se conservan para contabilidad histórica y el modo `plans`; una clave personal de OpenRouter no evita autenticación, cuotas ni concurrencia.
-- En beta no hay cupo mensual de cantidad de builds según la [ADR 0008](docs/adr/0008-beta-sin-cupo-builds.md). Conserva todos los presupuestos, reservas y límites de ritmo y concurrencia; las capturas y el modo `plans` mantienen sus cupos.
-- En coach y capturas, valida origen y sesión y aplica admisión persistente antes de leer el cuerpo. Valida estructura, campeones y contexto antes de enviar a IA. Mantén secretos del servidor, acceso a datos y lógica del proveedor fuera del cliente; las claves personales sólo permanecen en memoria, fuera de logs, almacenamiento y prompts.
-- Reserva cuota y presupuesto de usuario, plan y aplicación atómicamente. Usa importes decimales, transacciones cortas y llamadas de red fuera de ellas. Conserva idempotencia por usuario, clave y huella de entrada; no repitas una llamada pagada desde un reintento de base de datos ni una redirección HTTP.
-- Un timeout o cancelación después del envío no prueba que la consulta sea gratuita: conserva la reserva incierta. Una respuesta rechazada puede ser facturable. Borrar el historial debe retirar también su respuesta de replay, manteniendo la contabilidad.
-- Trata texto, imágenes, catálogos, fuentes web y respuestas del modelo como datos no confiables. Mantén esquemas estrictos y validación de salida; la seguridad no depende de ocultar el prompt. No persistas claves, prompts enviados ni capturas originales. Conserva el contexto permitido mediante las listas de campos existentes.
+- Autoriza en el servidor con la sesión verificada. Filtra el historial por su propietario, incluyendo cursores, lectura y borrado. Borrar un registro anterior a la ADR 0009 retira también su copia en el registro de reservas retirado, conservando la contabilidad.
+- Valida origen y sesión y aplica la admisión por minuto antes de leer el cuerpo. La entrada es sólo campeón, rival y rol del catálogo: no añadas texto libre al prompt sin una ADR nueva. Mantén secretos del servidor y lógica del proveedor fuera del cliente.
+- Una sola llamada pagada por build nueva, sin reintentos automáticos ni redirecciones. Antes de enviarla, comprueba el tope diario de la app y reclama atómicamente una build del día de la cuenta; registra el coste informado (o el estimado) en ambos. Las builds de la caché no cuentan. No vuelvas a introducir reservas que bloqueen un matchup: si una consulta falla, debe poder pedirse otra vez.
+- La caché sólo guarda builds completas, validadas y con catálogo vivo, sin datos de cuentas. Cambiar el contrato o el prompt de forma que altere la respuesta exige subir `BUILD_CONTRACT`.
+- Trata catálogos y respuestas del modelo como datos no confiables. Mantén esquemas estrictos y validación de salida; la seguridad no depende de ocultar el prompt. No persistas claves ni prompts enviados. Una sección inválida se omite y se señala; nunca se repara ni se inventa.
 - Mantén el borrador separado por cuenta y limpia datos privados al salir o cambiar de identidad. La PWA sólo cachea archivos públicos permitidos: nunca HTML privado, API, solicitudes de IA ni reintentos offline. Conserva el nonce por respuesta y el renderizado dinámico necesario para la CSP.
-- El límite de 30 MB corresponde al archivo original en el dispositivo. Optimiza antes de subir; conserva los límites de cuerpo, bytes y píxeles del servidor. Sharp valida y recodifica después de reservar cuota y antes de enviar al proveedor. No confíes sólo en el MIME declarado.
 
-No imprimas ni incluyas `.env.local`, cookies, tokens, fotos privadas o datos reales de usuarios en registros y artefactos. Usa `.env.example` para documentar configuración ficticia. No edites `.next/`, `generated/prisma/` ni `next-env.d.ts` manualmente; genera migraciones nuevas cuando cambie el esquema.
+No imprimas ni incluyas `.env.local`, cookies, tokens o datos reales de usuarios en registros y artefactos. Usa `.env.example` para documentar configuración ficticia. No edites `.next/`, `generated/prisma/` ni `next-env.d.ts` manualmente; genera migraciones nuevas cuando cambie el esquema.
 
 ## Comprobaciones proporcionales
 
-Para documentación, verifica formato y enlaces. Para interfaz, revisa lint, tipos, `pnpm build` y los tamaños 390, 834 y 1440 px. Para IA, imágenes o validaciones, ejecuta las pruebas pertinentes y `pnpm eval:security`. Para autenticación, historial, cuotas o Prisma, ejecuta `pnpm test:accounts`, que usa PostgreSQL temporal y proveedores simulados. Para cambios de Next.js, configuración o runtime, ejecuta `pnpm build`.
+Para documentación, verifica formato y enlaces. Para interfaz, revisa lint, tipos, `pnpm build` y los tamaños 390, 834 y 1440 px. Para IA o validaciones, ejecuta las pruebas pertinentes y `pnpm eval:security`. Para autenticación, historial, caché, límites o Prisma, ejecuta `pnpm test:accounts`, que usa PostgreSQL temporal y proveedores simulados. Para cambios de Next.js, configuración o runtime, ejecuta `pnpm build`.
 
 `pnpm check` reúne formato, lint, tipos y pruebas unitarias para validar una contribución. Revisa dependencias con `pnpm audit --prod --audit-level=moderate` y `pnpm audit:security` cuando corresponda; informa los avisos pendientes sin ocultarlos ni debilitar reglas generales. No hace falta configurar servicios reales para las pruebas automatizadas.
 

@@ -1,5 +1,7 @@
 # ADR 0006 · Acceso común durante la beta
 
+**Sustituida** por la [ADR 0009](0009-builds-simples.md) el 11 de noviembre de 2026: límites diarios simples y caché por matchup; ya no hay reservas, cuotas por plan ni modo `plans`.
+
 **Actualización:** la [ADR 0008](0008-beta-sin-cupo-builds.md) retira posteriormente sólo el cupo de cantidad de builds en beta; conserva los presupuestos y el resto de los controles descritos aquí.
 
 - **Estado:** aceptada por instrucción del propietario el 18 de octubre de 2026.

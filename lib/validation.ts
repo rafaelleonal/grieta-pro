@@ -1,70 +1,16 @@
 import { z } from "zod";
-import type { Catalog, CoachInput, CoachPlan, DraftInput, DraftResult } from "./types";
+import type { Catalog, CoachInput, CoachPlan } from "./types";
 import { ApiError } from "./http";
-import { assertSafeInputText, assertSafeOutputText } from "./coach-safety";
+import { assertSafeOutputText } from "./coach-safety";
 import { shardsFitRows } from "./rune-shards";
 
-export const MAX_IMAGE_BYTES = 2_500_000;
 const roles = z.enum(["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"]);
-const ranks = z.enum([
-  "Sin clasificar",
-  "Hierro",
-  "Bronce",
-  "Plata",
-  "Oro",
-  "Platino",
-  "Esmeralda",
-  "Diamante",
-  "Master",
-  "Grandmaster",
-  "Challenger",
-]);
 const championId = z.string().regex(/^[A-Za-z][A-Za-z0-9]{0,39}$/);
-const optionalCredential = z.preprocess(
-  (value) => (typeof value === "string" && !value.trim() ? undefined : value),
-  z.string().trim().min(1).max(300).regex(/^\S+$/).optional(),
-);
-const credentials = {
-  apiKey: optionalCredential,
-  accessToken: optionalCredential,
-  model: z.preprocess(
-    (value) => (typeof value === "string" && !value.trim() ? undefined : value),
-    z
-      .string()
-      .trim()
-      .min(3)
-      .max(120)
-      .regex(/^[a-zA-Z0-9][a-zA-Z0-9._:/-]+$/)
-      .optional(),
-  ),
-};
 
+/** ADR 0009: la consulta sólo contiene IDs del catálogo y un rol; no hay texto libre. */
 export const coachInputSchema = z
-  .object({
-    ...credentials,
-    champion: championId,
-    enemy: championId,
-    role: roles,
-    rank: ranks,
-    allies: z.array(championId).max(5),
-    enemies: z.array(championId).max(5),
-    allyDuo: championId.optional(),
-    enemyDuo: championId.optional(),
-    notes: z.string().trim().max(1500),
-    webSearch: z.boolean(),
-  })
+  .object({ champion: championId, enemy: championId, role: roles })
   .strict();
-
-export const draftInputSchema = z
-  .object({
-    ...credentials,
-    text: z.string().trim().max(2500).optional(),
-    image: z.string().max(3_340_000).optional(),
-  })
-  .strict()
-  .refine((value) => Boolean(value.text || value.image), {
-    message: "Escribe los campeones o agrega una captura.",
-  });
 
 const shortText = z.string().trim().min(1).max(240);
 const cueText = z.string().trim().min(1).max(72);
@@ -237,111 +183,19 @@ export const coachPlanSchema = z
   })
   .strict();
 
-export const draftResultSchema = z
-  .object({
-    champion: championId.nullable(),
-    enemy: championId.nullable(),
-    role: roles.nullable(),
-    allies: z.array(championId).max(5),
-    enemies: z.array(championId).max(5),
-    notes: z.string().max(1500),
-    warnings: z.array(z.string().min(1).max(240)).max(8),
-  })
-  .strict();
-
-function parseInput<T>(schema: z.ZodType<T>, input: unknown, fallback: string): T {
-  const result = schema.safeParse(input);
-  if (!result.success) throw new ApiError(400, fallback);
-  return result.data;
-}
-
-export function validateCoachInputStructure(input: unknown): CoachInput {
-  const parsed = parseInput(
-    coachInputSchema,
-    input,
-    "Revisa tu campeón, rival, línea y contexto. Puedes agregar hasta 5 campeones por equipo y 1500 caracteres de notas.",
-  );
-  assertSafeInputText(parsed.notes);
-  if ((parsed.allyDuo || parsed.enemyDuo) && parsed.role !== "ADC" && parsed.role !== "SUPPORT")
-    throw new ApiError(400, "Las parejas de línea sólo se usan en bot (ADC o Support).");
-  if (
-    !coherentTeams(
-      parsed.champion,
-      parsed.enemy,
-      [...parsed.allies, ...(parsed.allyDuo ? [parsed.allyDuo] : [])],
-      [...parsed.enemies, ...(parsed.enemyDuo ? [parsed.enemyDuo] : [])],
-    ) ||
-    parsed.allyDuo === parsed.champion ||
-    parsed.enemyDuo === parsed.enemy
-  ) {
-    throw new ApiError(
-      400,
-      "Revisa los equipos: cada campeón debe estar en un solo lado y cada equipo admite hasta 5 jugadores.",
-    );
-  }
-  return parsed;
-}
-
+/** Shape, then catalog: an unknown or repeated champion never reaches the provider. */
 export function validateCoachInput(input: unknown, catalog: Catalog): CoachInput {
-  const parsed = validateCoachInputStructure(input);
+  const parsed = coachInputSchema.safeParse(input);
+  if (!parsed.success) throw new ApiError(400, "Elige tu campeón, tu rival y tu rol.");
   const ids = new Set(catalog.champions.map((champion) => champion.id));
-  const duo = [parsed.allyDuo, parsed.enemyDuo].filter((id): id is string => Boolean(id));
-  if (
-    [parsed.champion, parsed.enemy, ...parsed.allies, ...parsed.enemies, ...duo].some(
-      (id) => !ids.has(id),
-    )
-  ) {
+  if (!ids.has(parsed.data.champion) || !ids.has(parsed.data.enemy))
     throw new ApiError(
       400,
       "Uno de los campeones no existe en el catálogo actual. Vuelve a seleccionarlo.",
     );
-  }
-  return {
-    ...parsed,
-    // The duo partner is its own field; never repeat it in the rest of the team.
-    allies: [...new Set(parsed.allies)].filter(
-      (id) => id !== parsed.champion && id !== parsed.allyDuo,
-    ),
-    enemies: [...new Set(parsed.enemies)].filter(
-      (id) => id !== parsed.enemy && id !== parsed.enemyDuo,
-    ),
-  };
-}
-
-export function validateImage(image: string): void {
-  const match = /^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/]+={0,2})$/.exec(image);
-  if (!match || match[2].length % 4 !== 0) {
-    throw new ApiError(400, "Usa una captura PNG, JPG o WebP válida.");
-  }
-  const bytes = Buffer.from(match[2], "base64");
-  if (bytes.byteLength > MAX_IMAGE_BYTES) {
-    throw new ApiError(
-      413,
-      "La imagen optimizada es demasiado grande. Selecciona de nuevo una foto o captura de hasta 30 MB desde la app.",
-    );
-  }
-  const mime = match[1];
-  const valid =
-    bytes.byteLength >= 12 &&
-    ((mime === "image/png" &&
-      bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]))) ||
-      (mime === "image/jpeg" && bytes[0] === 255 && bytes[1] === 216 && bytes[2] === 255) ||
-      (mime === "image/webp" &&
-        bytes.toString("ascii", 0, 4) === "RIFF" &&
-        bytes.toString("ascii", 8, 12) === "WEBP"));
-  if (!valid)
-    throw new ApiError(400, "El archivo no corresponde a una imagen PNG, JPG o WebP válida.");
-}
-
-export function validateDraftInput(input: unknown): DraftInput {
-  const parsed = parseInput(
-    draftInputSchema,
-    input,
-    "Escribe los campeones (hasta 2500 caracteres) o vuelve a seleccionar tu foto o captura desde la app para optimizarla.",
-  );
-  if (parsed.text) assertSafeInputText(parsed.text);
-  if (parsed.image) validateImage(parsed.image);
-  return parsed;
+  if (parsed.data.champion === parsed.data.enemy)
+    throw new ApiError(400, "Elige un rival distinto de tu campeón.");
+  return parsed.data;
 }
 
 /** Validate every displayable string before discarding unknown IDs or rendering any result. */
@@ -349,19 +203,6 @@ export function assertSafeOutput(value: unknown): void {
   if (typeof value === "string") assertSafeOutputText(value);
   else if (Array.isArray(value)) value.forEach(assertSafeOutput);
   else if (value && typeof value === "object") Object.values(value).forEach(assertSafeOutput);
-}
-
-function coherentTeams(
-  champion: string | null,
-  enemy: string | null,
-  allies: string[],
-  enemies: string[],
-): boolean {
-  const alliedTeam = new Set(champion ? [champion, ...allies] : allies);
-  const enemyTeam = new Set(enemy ? [enemy, ...enemies] : enemies);
-  return (
-    alliedTeam.size <= 5 && enemyTeam.size <= 5 && ![...alliedTeam].some((id) => enemyTeam.has(id))
-  );
 }
 
 export const COACH_PLAN_VALIDATION_CATEGORIES = [
@@ -490,137 +331,4 @@ export function validateCoachSkillOrder(
       } else if (ranks[rank] > Math.ceil(level / 2)) throw invalid("skill_order");
     });
   }
-}
-
-/** Validate every referenced resource before displaying any model-proposed plan. */
-export function sanitizeCoachPlan(
-  input: unknown,
-  catalog: Catalog,
-  context?: Pick<CoachInput, "champion" | "enemy" | "allies" | "enemies">,
-): { plan: CoachPlan; warnings: string[] } {
-  const result = coachPlanSchema.safeParse(input);
-  const invalid = (category: CoachPlanValidationCategory) => new CoachPlanValidationError(category);
-  if (!result.success) throw invalid("schema");
-  if (new Set(result.data.levels.map((level) => level.level)).size !== 6) throw invalid("levels");
-  const plan = result.data;
-  assertSafeOutput(plan);
-  const championIds = new Set(catalog.champions.map((champion) => champion.id));
-  const composition = new Map(plan.composition.map((entry) => [entry.champion, entry.team]));
-  if (
-    composition.size !== plan.composition.length ||
-    plan.composition.some((entry) => !championIds.has(entry.champion)) ||
-    plan.composition.filter((entry) => entry.team === "ally").length > 5 ||
-    plan.composition.filter((entry) => entry.team === "enemy").length > 5
-  )
-    throw invalid("composition");
-  if (context) {
-    const expected = new Map<string, "ally" | "enemy">([
-      ...[context.champion, ...context.allies].map((id) => [id, "ally"] as const),
-      ...[context.enemy, ...context.enemies].map((id) => [id, "enemy"] as const),
-    ]);
-    if (
-      composition.size !== expected.size ||
-      [...expected].some(([id, team]) => composition.get(id) !== team)
-    )
-      throw invalid("composition_context");
-  }
-  const checkReferences = (ids: string[] | undefined) => {
-    if (ids && (new Set(ids).size !== ids.length || ids.some((id) => !composition.has(id))))
-      throw invalid("champion_references");
-  };
-  [
-    ...plan.levels,
-    ...plan.phases.mid,
-    ...plan.phases.late,
-    ...Object.values(plan.reactions).flat(),
-    ...plan.enemyKeys,
-    ...plan.compNotes,
-    ...plan.build.situational,
-    plan.build.runes.alternative,
-    plan.build.summoners.alternative,
-  ].forEach((entry) => {
-    if (entry) checkReferences(entry.champions);
-  });
-  if (new Set(plan.enemyKeys.map((entry) => entry.key)).size !== plan.enemyKeys.length)
-    throw invalid("enemy_keys");
-  validateCoachRunes(plan.build.runes, catalog);
-  validateCoachSummoners(plan.build.summoners, catalog);
-  validateCoachSkillOrder(plan.build.skillOrder, context);
-  const itemIds = new Set(catalog.items.map((item) => item.id));
-  const warnings: string[] = [];
-  const keep = (id: string) => {
-    if (itemIds.has(id)) return true;
-    if (!warnings.length)
-      warnings.push(
-        "Se omitieron objetos que no existen o no se pueden comprar en la Grieta del Invocador en este catálogo.",
-      );
-    return false;
-  };
-  plan.levels.sort((a, b) => Number(a.level) - Number(b.level));
-  plan.build.starting = [...new Set(plan.build.starting)].filter(keep);
-  validateStartingGold(plan.build.starting, catalog);
-  plan.build.core = [...new Set(plan.build.core)].filter(keep);
-  const situationalItems = new Set<string>();
-  plan.build.situational = plan.build.situational.filter((item) => {
-    if (!keep(item.item) || situationalItems.has(item.item)) return false;
-    situationalItems.add(item.item);
-    return true;
-  });
-  const suggestedItems = new Set([
-    ...plan.build.starting,
-    ...plan.build.core,
-    ...plan.build.situational.map((entry) => entry.item),
-  ]);
-  let omittedPhaseItems = false;
-  for (const phase of ["linea", "mid", "late"] as const) {
-    plan.build.nowByPhase[phase] = [...new Set(plan.build.nowByPhase[phase])].filter((id) => {
-      if (!keep(id)) return false;
-      if (!suggestedItems.has(id)) {
-        omittedPhaseItems = true;
-        return false;
-      }
-      return true;
-    });
-  }
-  if (omittedPhaseItems)
-    warnings.push("Se omitieron compras por fase que no coincidían con la build sugerida.");
-  return { plan, warnings };
-}
-
-export function sanitizeDraftResult(input: unknown, catalog: Catalog): DraftResult {
-  const result = draftResultSchema.safeParse(input);
-  if (!result.success)
-    throw new ApiError(
-      502,
-      "No pudimos leer el draft con claridad. Prueba con los nombres por texto.",
-    );
-  const draft = result.data;
-  assertSafeOutput(draft);
-  const ids = new Set(catalog.champions.map((champion) => champion.id));
-  let omitted = false;
-  const keep = (id: string) => {
-    if (ids.has(id)) return true;
-    omitted = true;
-    return false;
-  };
-  if (draft.champion && !keep(draft.champion)) draft.champion = null;
-  if (draft.enemy && !keep(draft.enemy)) draft.enemy = null;
-  draft.allies = [...new Set(draft.allies)].filter(keep);
-  draft.enemies = [...new Set(draft.enemies)].filter(keep);
-  if (!coherentTeams(draft.champion, draft.enemy, draft.allies, draft.enemies)) {
-    throw new ApiError(
-      502,
-      "La IA devolvió equipos contradictorios. Revisa los nombres por texto o selecciona los campeones manualmente.",
-    );
-  }
-  if (omitted)
-    draft.warnings.push(
-      "Se omitieron campeones que no pudimos confirmar en el catálogo. Selecciónalos manualmente.",
-    );
-  if (!draft.champion)
-    draft.warnings.push("Confirma cuál es tu campeón antes de aplicar el draft.");
-  if (!draft.enemy) draft.warnings.push("Confirma tu rival de línea antes de aplicar el draft.");
-  if (!draft.role) draft.warnings.push("La línea no está confirmada; selecciónala manualmente.");
-  draft.warnings = [...new Set(draft.warnings)].slice(0, 10);
-  return draft;
 }

@@ -12,7 +12,7 @@ export function planText(result: SavedCoachResult, maps: Maps, sample: boolean, 
   const runeName = (id: string) => resolveEntry(maps.runes, id)?.name || id;
   const text = [
     sample ? "DEMOSTRACIÓN LOCAL · SIN IA · SIN VERIFICAR" : "BUILD RECOMENDADA",
-    `${maps.champions.get(input.champion)?.name || input.champion} vs. ${maps.champions.get(input.enemy)?.name || input.enemy} · ${ROLE_LABELS[input.role]} · ${input.rank}`,
+    `${maps.champions.get(input.champion)?.name || input.champion} vs. ${maps.champions.get(input.enemy)?.name || input.enemy} · ${ROLE_LABELS[input.role]}`,
   ];
   const summoners = build.summoners;
   if (Array.isArray(summoners)) {

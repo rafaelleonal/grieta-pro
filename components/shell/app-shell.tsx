@@ -1,11 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ChevronRight, Download, PanelLeftClose, PanelLeftOpen, Settings2 } from "lucide-react";
+import { ChevronRight, Download, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { BrandLogo, BrandTile } from "@/components/brand";
 import { PwaInstall } from "@/components/pwa-manager";
 import { useSidebar } from "@/components/hooks/use-sidebar";
-import { accountAccessLabel, usesPlanAccess } from "@/lib/account-presentation";
 import { cn } from "@/components/ui/cn";
 import type { AccountStatus } from "@/lib/auth-client";
 import { NAV_ITEMS, NEW_PREPARATION, VIEW_TITLES, type View } from "./navigation";
@@ -14,7 +13,6 @@ export type ShellProps = {
   view: View;
   onNavigate: (view: View) => void;
   onNewPreparation: () => void;
-  onOpenSettings: () => void;
   account: AccountStatus | null;
   keyReady: boolean;
   topbar?: ReactNode;
@@ -27,7 +25,9 @@ function initials(name?: string) {
 
 function accessLabel(account: AccountStatus | null) {
   if (!account?.authenticated) return "Entrar o crear cuenta";
-  return accountAccessLabel(account);
+  return account.usage
+    ? `Hoy ${account.usage.buildsToday}/${account.usage.dailyLimit} builds`
+    : "Beta";
 }
 
 /**
@@ -38,7 +38,6 @@ export function AppShell({
   view,
   onNavigate,
   onNewPreparation,
-  onOpenSettings,
   account,
   keyReady,
   topbar,
@@ -190,22 +189,11 @@ export function AppShell({
                 type="button"
                 onClick={() => onNavigate("account")}
                 className="inline-flex min-h-11 items-center rounded-full px-3 text-label ring-1 ring-inset ring-neutral-700"
-                aria-label="Mi acceso y consumo"
+                aria-label="Builds nuevas de hoy"
               >
-                {accountAccessLabel(account)}
-                {usesPlanAccess(account) && typeof account.usage.coachRemaining === "number"
-                  ? ` · ${account.usage.coachRemaining}`
-                  : ""}
+                Hoy {account.usage.buildsToday}/{account.usage.dailyLimit}
               </button>
             ) : null}
-            <button
-              type="button"
-              onClick={onOpenSettings}
-              className="grid size-11 place-items-center rounded-full text-neutral-300 hover:bg-neutral-900"
-              aria-label="Conexión y modelo"
-            >
-              <Settings2 size={19} aria-hidden="true" />
-            </button>
           </div>
         </header>
 

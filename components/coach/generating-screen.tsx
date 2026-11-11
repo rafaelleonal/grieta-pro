@@ -3,19 +3,17 @@ import { useMemo } from "react";
 import { Preparation } from "@/components/plan/preparation";
 import { catalogMaps } from "@/components/plan/shared";
 import { Button, Spinner } from "@/components/ui/button";
-import type { Catalog, CoachInput, CoachPreparation } from "@/lib/types";
+import type { Catalog, CoachInput } from "@/lib/types";
 
-/** Show only validated build choices while the same request finishes. */
+/** Espera de una build nueva; los matchups ya generados responden al instante. */
 export function GeneratingScreen({
   input,
   catalog,
   onCancel,
-  preparation,
 }: {
   input: CoachInput;
   catalog: Catalog | null;
   onCancel: () => void;
-  preparation?: CoachPreparation | null;
 }) {
   const maps = useMemo(() => (catalog ? catalogMaps(catalog) : null), [catalog]);
   const name = (id: string) => maps?.champions.get(id)?.name || id;
@@ -28,23 +26,14 @@ export function GeneratingScreen({
           </h1>
           <p role="status" className="mt-1 flex items-center gap-2 text-small text-neutral-400">
             <Spinner className="size-3.5" />
-            {preparation?.runes
-              ? "Completando tus compras…"
-              : "Preparando build, hechizos y runas…"}
+            Preparando hechizos, runas y build…
           </p>
         </div>
-        <Button onClick={onCancel}>Cancelar</Button>
+        <Button onClick={onCancel}>Dejar de esperar</Button>
       </header>
       <div className="grid items-start gap-4 md:grid-cols-2">
-        {maps ? (
-          <Preparation build={preparation} maps={maps} pending />
-        ) : (
-          <p role="status">Cargando catálogo…</p>
-        )}
+        {maps ? <Preparation build={null} maps={maps} pending /> : null}
       </div>
-      <p className="text-xs text-neutral-400">
-        Avance provisional. Se guarda al terminar. Cancelar puede consumir cuota.
-      </p>
     </section>
   );
 }

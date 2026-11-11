@@ -53,7 +53,7 @@ export function SessionPreview({
       <Overline>
         {date.toLocaleDateString("es-MX", { day: "numeric", month: "short" })} ·{" "}
         {date.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" })} ·{" "}
-        {roleName(record.input.role)} · {record.input.rank}
+        {roleName(record.input.role)}
       </Overline>
       <h2 className="text-h2 font-medium">
         {name(record.input.champion)} vs {name(record.input.enemy)}

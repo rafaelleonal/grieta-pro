@@ -1,53 +1,42 @@
 "use client";
 
-import { useState, type ComponentProps } from "react";
-import { AlertCircle, Info } from "lucide-react";
-import { CoachFailure } from "@/components/coach-failure";
+import { type ComponentProps } from "react";
+import { AlertCircle, Info, RotateCcw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/feedback";
-import type { Role } from "@/lib/types";
 import type { CoachWorkspace } from "@/components/hooks/use-coach-workspace";
 import { AccessNotice } from "./access-notice";
-import { CaptureScreen } from "./capture-screen";
 import { GeneratingScreen } from "./generating-screen";
 import { PlanScreen } from "./plan-screen";
 import { PrepareScreen } from "./prepare-screen";
 
-/** Etapas del coach: preparar (manual o captura) → generando → plan. */
+/** Etapas del coach: elegir matchup → esperar la build → build. */
 export function CoachScreen({
   ws,
   preferences,
-  positions,
-  onOpenSessions,
-  onRankChange,
 }: {
-  onRankChange: (rank: string) => void;
   ws: CoachWorkspace;
   preferences: ComponentProps<typeof PrepareScreen>["preferences"];
-  positions: Role[];
-  onOpenSessions: () => void;
 }) {
-  const [mode, setMode] = useState<"manual" | "capture">("manual");
   const showPlan = Boolean(ws.result && ws.resultInput && ws.catalog && !ws.editing);
-  const failure = ws.coachFailure && ws.error && !ws.busy;
 
   return (
     <div className="flex flex-1 flex-col">
       <div className="flex flex-col gap-3 px-4 pt-4 empty:hidden md:px-7">
-        <AccessNotice
-          session={ws.session}
-          access={ws.generationAccess}
-          onSettings={() => ws.setSettingsOpen(true)}
-          recoveryVisible={Boolean(failure)}
-        />
-        {ws.catalogError || (ws.error && !ws.coachFailure) ? (
+        <AccessNotice session={ws.session} access={ws.generationAccess} />
+        {ws.catalogError || ws.error ? (
           <Alert
             tone="danger"
             role="alert"
             icon={<AlertCircle size={18} />}
-            title={
-              ws.catalogError
-                ? "No pudimos cargar los campeones"
-                : "No pudimos completar la solicitud"
+            title={ws.catalogError ? "No pudimos cargar los campeones" : "No llegó la build"}
+            action={
+              ws.error && !ws.busy && ws.generationAccess.allowed ? (
+                <Button variant="ghost" onClick={() => void ws.generate()}>
+                  <RotateCcw size={15} aria-hidden="true" />
+                  Reintentar
+                </Button>
+              ) : undefined
             }
           >
             {ws.catalogError || ws.error}
@@ -58,34 +47,13 @@ export function CoachScreen({
             {ws.notice}
           </Alert>
         ) : null}
-        {failure ? (
-          <CoachFailure
-            uncertain={ws.session.hasReservedRequests}
-            error={ws.error}
-            previousPlan={Boolean(ws.result)}
-            onHistory={onOpenSessions}
-          />
-        ) : null}
       </div>
-      {ws.busy === "coach" ? (
-        <GeneratingScreen
-          input={ws.input}
-          catalog={ws.catalog}
-          onCancel={ws.cancel}
-          preparation={ws.preparation}
-        />
+      {ws.busy ? (
+        <GeneratingScreen input={ws.input} catalog={ws.catalog} onCancel={ws.cancel} />
       ) : showPlan ? (
         <PlanScreen ws={ws} />
-      ) : mode === "capture" ? (
-        <CaptureScreen ws={ws} onManual={() => setMode("manual")} />
       ) : (
-        <PrepareScreen
-          ws={ws}
-          preferences={preferences}
-          positions={positions}
-          onCapture={() => setMode("capture")}
-          onRankChange={onRankChange}
-        />
+        <PrepareScreen ws={ws} preferences={preferences} />
       )}
     </div>
   );

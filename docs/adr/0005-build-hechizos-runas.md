@@ -1,5 +1,7 @@
 # ADR 0005 · Build, hechizos y runas
 
+**Actualización:** la [ADR 0009](0009-builds-simples.md) mantiene este alcance de respuesta y reduce la entrada a campeón, rival y rol; sustituye las cuotas, reservas, foto o galería y selección de modelo citadas aquí.
+
 - **Estado:** aceptada por instrucción expresa del propietario el 18 de octubre de 2026.
 - **Decisión:** simplificar el producto y priorizar la rapidez de respuesta frente a la estrategia. Usar Opus 5.5 como modelo predeterminado donde el plan lo permita.
 

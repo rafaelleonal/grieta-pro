@@ -1,7 +1,7 @@
 import { getAuthStatus } from "@/lib/auth";
 import { requireUser } from "@/lib/auth-session";
+import { getBuildUsage } from "@/lib/build-quota";
 import { ApiError, errorResponse, jsonResponse } from "@/lib/http";
-import { getAccountUsage } from "@/lib/usage";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
@@ -10,12 +10,11 @@ export async function GET(request: Request) {
   if (!status.configured) return jsonResponse({ ...status, authenticated: false });
   try {
     const session = await requireUser(request);
-    const usage = await getAccountUsage(session.user.id);
     return jsonResponse({
       ...status,
       authenticated: true,
-      user: { ...session.user, plan: usage.plan },
-      usage,
+      user: session.user,
+      usage: await getBuildUsage(session.user.id),
     });
   } catch (error) {
     if (error instanceof ApiError && error.status === 401)

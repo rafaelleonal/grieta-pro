@@ -9,7 +9,7 @@ import { Alert } from "@/components/ui/feedback";
 const BENEFITS = [
   [Layers, "Build, hechizos y runas para tu partida"],
   [History, "Tus sesiones guardadas en tu cuenta"],
-  [Lock, "Sin guardar tus capturas originales"],
+  [Lock, "Sólo guardamos tu matchup y la build"],
 ] as const;
 
 /** Acceso: marca a la izquierda y panel de cuenta a la derecha; una columna en móvil. */

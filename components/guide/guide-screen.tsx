@@ -5,8 +5,8 @@ import { LegalLinks } from "@/components/legal-links";
 import { RiotNotice } from "@/components/riot-notice";
 
 const STEPS = [
-  ["Elige", "Elige campeón y rival, o importa una captura."],
-  ["Revisa", "Consulta build, hechizos y runas para tu selección."],
+  ["Elige", "Elige tu campeón y tu rival; el rol se sugiere solo."],
+  ["Revisa", "Consulta hechizos, runas, build y habilidades 1–6."],
   ["Juega", "Sigue el orden de compras y ajusta los situacionales."],
 ] as const;
 
@@ -43,14 +43,14 @@ export function GuideScreen({
 
       <div className="grid gap-4 md:grid-cols-3">
         <InfoCard title="Datos">
-          <li>Tu selección y contexto.</li>
+          <li>Tu campeón, tu rival y tu rol.</li>
           <li>Catálogo actual de Riot.</li>
-          <li>Fuentes web cuando estén disponibles.</li>
+          <li>Builds ya generadas de ese matchup en el parche.</li>
         </InfoCard>
         <InfoCard title="Límites">
           <li>Sin tasas de victoria.</li>
           <li>Sin lectura en vivo ni acceso al cliente.</li>
-          <li>Sin guardar fotos originales.</li>
+          <li>Sin búsqueda web ni estadísticas actuales.</li>
         </InfoCard>
         <section className="flex flex-col gap-3 rounded-lg p-5 ring-1 ring-inset ring-neutral-800">
           <h2 className="text-h3 font-medium">Atajo</h2>
@@ -75,7 +75,7 @@ export function GuideScreen({
       </div>
 
       <div className="flex flex-col gap-3 rounded-lg bg-accent-900/60 p-5 ring-1 ring-inset ring-accent-800 md:flex-row md:items-center">
-        <p className="flex-1 text-body">Prueba una demostración sin consumir cuota.</p>
+        <p className="flex-1 text-body">Prueba una demostración sin cuenta.</p>
         <Button variant="primary" onClick={onExample}>
           Ver ejemplo
           <ArrowRight size={16} aria-hidden="true" />

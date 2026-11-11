@@ -1,6 +1,22 @@
 # Contexto para retomar Elociencia
 
-Actualizado el **12 de octubre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
+Actualizado el **11 de noviembre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
+
+## Continuación del 11 de noviembre: builds simples
+
+El propietario informó que la app «nunca funcionó»: una solicitud quedaba pendiente y bloqueaba las siguientes, y la respuesta tardaba. Pidió auditar y simplificar. La decisión está en la [ADR 0009](adr/0009-builds-simples.md), que sustituye las ADR 0006 y 0008 y los controles de reservas de la 0005.
+
+**Causa del bloqueo:** una consulta cortada después del envío quedaba `UNKNOWN`. Sin un ID de OpenRouter con `finish_reason` terminal nunca se conciliaba, y `reserveGeneration` devolvía esa consulta a cualquier intento con la misma huella. El matchup quedaba bloqueado para siempre, y su reserva de peor caso (USD 0.134 con Flash) agotaba el presupuesto de USD 1 al día y al mes.
+
+**Ahora:** la entrada es campeón, rival y rol (sugerido por el campeón). Se hace una sola llamada a Flash sin streaming con un esquema estricto y un prompt de unos 27 KB (antes unos 52 KB). Hay caché compartida `BuildCache` por versión, matchup, rol, modelo y contrato, y límites diarios `BuildUsage` (`AI_USER_DAILY_BUILDS`, `AI_DAILY_BUDGET_USD`) más la admisión por minuto. Si falla, se puede pedir otra vez. Se retiraron foto o captura, Riot, onboarding y perfil de juego, selección de modelo, clave personal, reservas, conciliación, streaming, Laminar y los scripts asociados. La migración `202611110001_simple_builds` no borra datos históricos.
+
+Archivos clave: `app/api/coach/route.ts`, `lib/build-ai.ts`, `lib/build-contract.ts`, `lib/build-cache.ts`, `lib/build-quota.ts`, `lib/generation-admission.ts`, `components/hooks/use-coach-workspace.ts` y `components/coach/prepare-screen.tsx`.
+
+**Verificación local:** `pnpm check` (105 pruebas), `pnpm eval:security` (11), `pnpm test:accounts` con PostgreSQL temporal y proveedor y Data Dragon simulados (caché, reintento tras fallo, límite diario concurrente, tope de la app, build parcial no compartida, historial y registros antiguos) y `pnpm build`. Interfaz revisada a 390, 834 y 1440 px sin desbordamiento, con una cuenta sintética en una base QA aislada y una build sembrada en la caché. No se hicieron llamadas pagadas: la latencia real de Flash con el prompt reducido no está medida.
+
+**Pendiente:** aplicar la migración en Production (`pnpm db:migrate` contra la base alojada, con `DIRECT_URL`), configurar `AI_USER_DAILY_BUILDS` si se quiere otro valor y poner un límite de crédito a la clave de OpenRouter. Actualizar Next.js a 16.4.1 o posterior: `pnpm audit --prod` informa dos vulnerabilidades críticas en 16.4.0, además de avisos en zod y fast-uri. `next build` se detiene en ejecuciones alternas para mostrar ese aviso.
+
+Las secciones siguientes son antecedentes.
 
 ## Continuación del 18 de octubre: beta sin cupo de builds
 

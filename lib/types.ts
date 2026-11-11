@@ -42,23 +42,11 @@ export interface Catalog {
   runes: GameRune[];
   summoners: SummonerSpell[];
 }
-export interface Credentials {
-  apiKey?: string;
-  accessToken?: string;
-  model?: string;
-}
-export interface CoachInput extends Credentials {
+/** Lo único que pide la app (ADR 0009): tu campeón, el rival de línea y tu rol. */
+export interface CoachInput {
   champion: string;
   enemy: string;
   role: Role;
-  rank: string;
-  allies: string[];
-  enemies: string[];
-  /** Bot 2v2 (ADC o Support): tu pareja de línea y la pareja de tu rival, opcionales. */
-  allyDuo?: string;
-  enemyDuo?: string;
-  notes: string;
-  webSearch: boolean;
 }
 /** Stored plans generated before the two-screen design remain readable. */
 export interface LegacyCoachPlan {
@@ -213,6 +201,8 @@ export interface BuildCoachResult extends Omit<PartialCoachResult, "meta"> {
   meta: Omit<CoachResult["meta"], "formatVersion"> & {
     formatVersion: 4;
     partial?: PartialCoachResult["meta"]["partial"];
+    /** La build salió de la caché compartida del matchup, sin otra llamada a la IA. */
+    cached?: boolean;
   };
 }
 export type GeneratedCoachResult = CoachResult | PartialCoachResult | BuildCoachResult;
@@ -225,29 +215,9 @@ export function isCurrentCoachResult(
 ): result is CoachResult | BuildCoachResult {
   return result.meta.formatVersion !== 3 && "phases" in result.plan;
 }
-export interface DraftInput extends Credentials {
-  text?: string;
-  image?: string;
-}
-export interface DraftResult {
-  champion: string | null;
-  enemy: string | null;
-  role: Role | null;
-  allies: string[];
-  enemies: string[];
-  notes: string;
-  warnings: string[];
-}
 export interface AppStatus {
+  /** El servidor tiene una clave de OpenRouter para generar builds. */
   configured: boolean;
-  accessRequired: boolean;
-  riotConfigured: boolean;
-  defaultModel: string;
-}
-export interface RiotResult {
-  participants: { champion: string; name: string; team: "ally" | "enemy"; isSelf: boolean }[];
-  self: string;
-  gameMode: string;
 }
 
 /** Plan guardado en el historial privado del jugador. */
@@ -257,8 +227,3 @@ export type HistoryRecord = {
   result: SavedCoachResult;
   createdAt: string;
 };
-
-/** Validated, transient champion-select choices; never persisted separately. */
-export type CoachPreparation = Partial<
-  Pick<CoachPlan["build"], "summoners" | "starting" | "runes">
->;

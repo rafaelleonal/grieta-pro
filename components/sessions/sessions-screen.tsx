@@ -256,7 +256,7 @@ function SessionRow({
           <span className="truncate text-xs text-neutral-400">{recordSummary(record)}</span>
         </span>
         <span className="hidden flex-none text-xs text-neutral-300 sm:block">
-          {roleName(record.input.role)} · {record.input.rank}
+          {roleName(record.input.role)}
         </span>
         <span className="hidden w-24 flex-none text-xs text-neutral-400 md:block">
           {relativeTime(record.createdAt)}

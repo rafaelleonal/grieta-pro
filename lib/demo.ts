@@ -1,16 +1,7 @@
 import type { CoachInput, CoachResult } from "./types";
 
 /** The demo's full composition is explicit; it never fills a real player's missing picks. */
-export const demoInput: Omit<CoachInput, "apiKey" | "accessToken" | "model"> = {
-  champion: "Ahri",
-  enemy: "Yasuo",
-  role: "MID",
-  rank: "Oro",
-  allies: ["Ornn", "Vi", "Jinx", "Lulu"],
-  enemies: ["Malphite", "LeeSin", "Kaisa", "Rakan"],
-  notes: "",
-  webSearch: false,
-};
+export const demoInput: CoachInput = { champion: "Ahri", enemy: "Yasuo", role: "MID" };
 
 export const demoResult: CoachResult = {
   plan: {

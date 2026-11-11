@@ -63,16 +63,8 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
       mark(section, error.category);
     }
   };
-  const known = new Set(
-    [
-      context.champion,
-      context.enemy,
-      ...context.allies,
-      ...context.enemies,
-      context.allyDuo,
-      context.enemyDuo,
-    ].filter((id): id is string => Boolean(id)),
-  );
+  // Builds reference only the two champions of the matchup (ADR 0009).
+  const known = new Set([context.champion, context.enemy]);
   const references = (entry: { champions?: string[] }) => {
     if (
       entry.champions &&
@@ -223,8 +215,8 @@ export function recoverCoachPlan(input: unknown, catalog: Catalog, context: Coac
     return false;
   });
   const expected = new Map([
-    ...[context.champion, ...context.allies].map((id) => [id, "ally"] as const),
-    ...[context.enemy, ...context.enemies].map((id) => [id, "enemy"] as const),
+    [context.champion, "ally" as const],
+    [context.enemy, "enemy" as const],
   ]);
   const composition =
     read(raw.composition, shape.composition, "composition", (entries) => {

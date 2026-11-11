@@ -7,20 +7,15 @@ import { Alert } from "@/components/ui/feedback";
 import type { GenerationAccess } from "@/lib/generation-access";
 import type { AccountSession } from "@/components/hooks/use-account-session";
 
-/** Actions update account/configuration only; they never generate a paid response. */
+/** Explica por qué no se puede pedir una build; sus acciones nunca llaman a la IA. */
 export function AccessNotice({
   session,
   access,
-  onSettings,
-  recoveryVisible = false,
 }: {
   session: Pick<AccountSession, "refreshAccount">;
   access: GenerationAccess;
-  onSettings: () => void;
-  recoveryVisible?: boolean;
 }) {
   if (access.allowed || access.reason === "selection" || access.reason === "busy") return null;
-  if (recoveryVisible && ["concurrency", "quota"].includes(access.reason)) return null;
   const link = (href: string, label: string) => (
     <Link href={href} className={buttonClasses("ghost")}>
       {label}
@@ -32,21 +27,10 @@ export function AccessNotice({
       link("/login", "Entrar")
     ) : access.action === "verify" ? (
       link("/verify-email", "Verificar")
-    ) : access.action === "settings" ? (
-      <Button variant="ghost" onClick={onSettings}>
-        Configurar IA
-      </Button>
     ) : access.action === "refresh" ? (
-      <>
-        <Button variant="ghost" onClick={() => void session.refreshAccount()}>
-          Actualizar disponibilidad
-        </Button>
-        {access.reason === "budget" ? (
-          <Button variant="ghost" onClick={onSettings}>
-            Cambiar modelo o clave
-          </Button>
-        ) : null}
-      </>
+      <Button variant="ghost" onClick={() => void session.refreshAccount()}>
+        Reintentar
+      </Button>
     ) : undefined;
   return (
     <Alert

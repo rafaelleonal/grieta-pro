@@ -1,11 +1,10 @@
-import { isBotLane } from "@/lib/coach-draft";
 import type { CoachInput, Role } from "@/lib/types";
 
-export type SlotKey = "champion" | "enemy" | "allyDuo" | "enemyDuo";
+export type SlotKey = "champion" | "enemy";
 
 export type Slot = {
   key: SlotKey;
-  /** Etiqueta corta en la tarjeta («Tú · ADC», «Su support»). */
+  /** Etiqueta corta en la tarjeta («Tú», «Tu rival»). */
   label: string;
   /** Texto de la tarjeta vacía. */
   emptyTitle: string;
@@ -17,20 +16,10 @@ export type Slot = {
   optional: boolean;
 };
 
-const ROLE_SHORT: Record<Role, string> = {
-  TOP: "Top",
-  JUNGLE: "Jungla",
-  MID: "Mid",
-  ADC: "ADC",
-  SUPPORT: "Support",
-};
-
-/**
- * Ranuras del matchup. En bot (ADC o Support) son cuatro: tú, tu pareja, tu rival de
- * línea (mismo rol) y su pareja. Las parejas son opcionales.
- */
+/** Ranuras del matchup: tú y tu rival de línea (o el jungla rival). */
 export function matchupSlots(role: Role): Slot[] {
-  const solo: Slot[] = [
+  const jungle = role === "JUNGLE";
+  return [
     {
       key: "champion",
       label: "Tú",
@@ -42,44 +31,12 @@ export function matchupSlots(role: Role): Slot[] {
     },
     {
       key: "enemy",
-      label: role === "JUNGLE" ? "Jungla rival" : "Tu rival",
-      emptyTitle: role === "JUNGLE" ? "Elige su jungla" : "Elige a tu rival",
-      choosing: role === "JUNGLE" ? "el jungla rival" : "tu rival",
+      label: jungle ? "Jungla rival" : "Tu rival",
+      emptyTitle: jungle ? "Elige su jungla" : "Elige a tu rival",
+      choosing: jungle ? "el jungla rival" : "tu rival",
       role,
       team: "enemy",
       optional: false,
-    },
-  ];
-  if (!isBotLane(role)) return solo;
-  const partner: Role = role === "ADC" ? "SUPPORT" : "ADC";
-  return [
-    { ...solo[0], label: `Tú · ${ROLE_SHORT[role]}` },
-    {
-      key: "enemy",
-      label: `Su ${ROLE_SHORT[role]}`,
-      emptyTitle: `Elige su ${ROLE_SHORT[role]}`,
-      choosing: `su ${ROLE_SHORT[role]}`,
-      role,
-      team: "enemy",
-      optional: false,
-    },
-    {
-      key: "allyDuo",
-      label: `Tu ${ROLE_SHORT[partner]}`,
-      emptyTitle: `Tu ${ROLE_SHORT[partner]}`,
-      choosing: `tu ${ROLE_SHORT[partner]}`,
-      role: partner,
-      team: "ally",
-      optional: true,
-    },
-    {
-      key: "enemyDuo",
-      label: `Su ${ROLE_SHORT[partner]}`,
-      emptyTitle: `Su ${ROLE_SHORT[partner]}`,
-      choosing: `su ${ROLE_SHORT[partner]}`,
-      role: partner,
-      team: "enemy",
-      optional: true,
     },
   ];
 }

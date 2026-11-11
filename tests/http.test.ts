@@ -1,31 +1,10 @@
 import assert from "node:assert/strict";
 import { afterEach, test } from "node:test";
-import {
-  ApiError,
-  assertSameOrigin,
-  authorizeServerKey,
-  errorResponse,
-  readJsonBody,
-} from "../lib/http";
+import { ApiError, assertSameOrigin, errorResponse, readJsonBody } from "../lib/http";
 
 const originalEnv = { ...process.env };
 afterEach(() => {
   process.env = { ...originalEnv };
-});
-
-test("production server credentials fail closed until access is configured", () => {
-  process.env = { ...process.env, NODE_ENV: "production" };
-  delete process.env.COACH_ACCESS_TOKEN;
-  assert.throws(
-    () => authorizeServerKey(),
-    (error) => error instanceof ApiError && error.status === 503,
-  );
-  process.env.COACH_ACCESS_TOKEN = "test-only-long-access-token";
-  assert.throws(
-    () => authorizeServerKey("incorrect"),
-    (error) => error instanceof ApiError && error.status === 401,
-  );
-  assert.doesNotThrow(() => authorizeServerKey("test-only-long-access-token"));
 });
 
 test("cross-origin browser calls are rejected before provider requests", () => {

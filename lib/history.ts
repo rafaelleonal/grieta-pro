@@ -1,6 +1,7 @@
 import { getDb } from "./db";
 import { ApiError } from "./http";
 import { Prisma, type CoachRecord } from "../generated/prisma/client";
+import type { BuildCoachResult, CoachInput } from "./types";
 function publicRecord(row: CoachRecord) {
   const meta = row.meta && typeof row.meta === "object" && !Array.isArray(row.meta) ? row.meta : {};
   const current =
@@ -55,21 +56,34 @@ export async function readHistory(userId: string, id: string) {
   if (!row) throw new ApiError(404, "No encontramos ese registro.");
   return publicRecord(row);
 }
+/** Every build shown to an account is also kept in its private history. */
+export async function saveHistory(userId: string, input: CoachInput, result: BuildCoachResult) {
+  const row = await getDb().coachRecord.create({
+    data: {
+      userId,
+      input: { champion: input.champion, enemy: input.enemy, role: input.role },
+      plan: result.plan as unknown as Prisma.InputJsonValue,
+      meta: result.meta as unknown as Prisma.InputJsonValue,
+      formatVersion: result.meta.formatVersion,
+    },
+  });
+  return row.id;
+}
 export async function deleteHistory(userId: string, id: string) {
-  // Remove the cached replay too: deleting history must not leave a second copy
-  // of the notes/plan in the ledger, nor permit the same key to regenerate.
+  // Builds from before ADR 0009 also left a replay copy in the retired ledger;
+  // deleting history removes that copy too.
   await getDb().$transaction(async (tx) => {
     const row = await tx.coachRecord.findFirst({ where: { userId, id } });
     if (!row) throw new ApiError(404, "No encontramos ese registro.");
-    await tx.aiRequest.update({
-      where: { id: row.requestId },
-      data: {
-        response: Prisma.DbNull,
-        failureStatus: 410,
-        failureMessage:
-          "Este análisis fue eliminado del historial. Inicia una nueva consulta si lo necesitas.",
-      },
-    });
+    if (row.requestId)
+      await tx.aiRequest.update({
+        where: { id: row.requestId },
+        data: {
+          response: Prisma.DbNull,
+          failureStatus: 410,
+          failureMessage: "Este análisis fue eliminado del historial.",
+        },
+      });
     await tx.coachRecord.delete({ where: { id: row.id } });
   });
 }

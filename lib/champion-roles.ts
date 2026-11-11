@@ -306,3 +306,12 @@ export function moveChampionFavorite(
   [ordered[current], ordered[next]] = [ordered[next], ordered[current]];
   return ordered;
 }
+
+/**
+ * Rol sugerido al elegir tu campeón: conserva el rol actual si el campeón es habitual
+ * en él; si no, el primer rol donde lo es. El jugador puede cambiarlo después.
+ */
+export function inferRole(champion: string, current: Role): Role {
+  if (COMMON_CHAMPIONS[current].includes(champion)) return current;
+  return CHAMPION_ROLES.find((role) => COMMON_CHAMPIONS[role].includes(champion)) || current;
+}

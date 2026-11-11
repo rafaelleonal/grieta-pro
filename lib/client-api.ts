@@ -1,17 +1,9 @@
-/** POST JSON con clave de idempotencia; mensajes de error seguros para mostrar. */
-export async function postJson<T>(
-  path: string,
-  body: unknown,
-  signal: AbortSignal,
-  idempotencyKey = crypto.randomUUID(),
-): Promise<T> {
-  if (!navigator.onLine)
-    throw new Error(
-      "Sin conexión. Conecta internet y vuelve a solicitar el análisis cuando estés listo.",
-    );
+/** POST JSON con mensajes de error seguros para mostrar. */
+export async function postJson<T>(path: string, body: unknown, signal: AbortSignal): Promise<T> {
+  if (!navigator.onLine) throw new Error("Sin conexión. Conéctate y vuelve a intentarlo.");
   const response = await fetch(path, {
     method: "POST",
-    headers: { "Content-Type": "application/json", "Idempotency-Key": idempotencyKey },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
     signal,
     redirect: "error",
@@ -21,9 +13,7 @@ export async function postJson<T>(
     throw new Error(
       typeof data?.error === "string"
         ? data.error
-        : typeof data?.message === "string"
-          ? data.message
-          : "No pudimos completar la solicitud. Intenta de nuevo.",
+        : "No pudimos completar la solicitud. Intenta de nuevo.",
     );
   if (!data) throw new Error("El servidor devolvió una respuesta vacía. Intenta de nuevo.");
   return data as T;

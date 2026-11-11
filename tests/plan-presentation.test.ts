@@ -152,12 +152,10 @@ test("build format renders the same choices while generation has no strategy pla
       input: demoInput,
       catalog: fixtureCatalog,
       onCancel: () => undefined,
-      preparation: { summoners: demoResult.plan.build.summoners },
     }),
   );
-  assert.ok(loading.includes("Destello"));
-  assert.ok(loading.includes("Preparando runas"));
-  assert.ok(loading.includes("Cancelar puede consumir cuota"));
+  assert.ok(loading.includes("Preparando hechizos, runas y build"));
+  assert.ok(loading.includes("Dejar de esperar"));
   for (const section of ["matchup", "nivel", "mapa", "prioridad"])
     assert.ok(!loading.includes(section), section);
 });
