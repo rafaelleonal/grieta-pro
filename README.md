@@ -8,7 +8,7 @@ Los [términos de uso y la política de privacidad](docs/legal-and-riot.md) est�
 
 Elige tu campeón y tu rival desde la cuadrícula del rol o con la búsqueda; ningún campeón queda bloqueado fuera de posición. Con una cuenta verificada puedes marcar hasta doce favoritos por rol. Consulta [favoritos](docs/accounts-and-usage.md#campeones-por-rol-y-favoritos).
 
-**Flujo actual ([ADR 0009](docs/adr/0009-builds-simples.md)):** una sola consulta a Gemini 3.8 Flash por matchup nuevo, caché compartida por versión de Data Dragon y límites diarios simples. Si una consulta falla, se puede pedir otra vez de inmediato. Las referencias a planes, reservas, capturas o Riot en documentos anteriores son históricas.
+**Flujo actual ([ADR 0009](docs/adr/0009-builds-simples.md)):** una sola consulta a Opus 5.5 por matchup nuevo ([ADR 0010](docs/adr/0010-opus-modelo-unico.md)), caché compartida por versión de Data Dragon y límites diarios simples. Si una consulta falla, se puede pedir otra vez de inmediato. Las referencias a planes, reservas, capturas o Riot en documentos anteriores son históricas.
 
 ## Iniciar
 
@@ -59,7 +59,7 @@ Conecta el celular y la computadora a la misma red Wi-Fi. `pnpm dev` y `pnpm sta
 
 Puedes explorar el ejemplo sin credenciales. El ejemplo es contenido de demostración: no representa una consulta de IA ni una recomendación actualizada. Para pedir una build propia, entra con tu cuenta verificada; el servidor necesita `OPENROUTER_API_KEY`.
 
-El modelo es `google/gemini-3.8-flash`, o `google/gemini-3.1-pro-preview` si lo configuras en `OPENROUTER_MODEL`. Las recomendaciones del modelo no son estadísticas óptimas ni una garantía de calidad. El historial anterior sigue siendo legible sin regeneración automática.
+El modelo es siempre `anthropic/claude-opus-5.5`, sin selector ni variable de entorno ([ADR 0010](docs/adr/0010-opus-modelo-unico.md)). Las recomendaciones del modelo no son estadísticas óptimas ni una garantía de calidad. El historial anterior sigue siendo legible sin regeneración automática.
 
 Al recibir el resultado se contrae el formulario; puedes abrirlo para editar tu selección. La entrada manual y foto/galería móvil permanecen disponibles. Recargar no recupera un resultado privado: ábrelo desde **Mis sesiones**. La fuente Inter se sirve localmente con su [licencia OFL](app/fonts/OFL.txt). Consulta la [decisión de producto](docs/adr/0005-build-hechizos-runas.md) y la [verificación local](docs/build-simplificada.md).
 
@@ -80,9 +80,8 @@ Al cambiar los iconos o `offline.html`, incrementa la versión de `CACHE_NAME` e
 | Variable                            | Uso                                                                                                                        |
 | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
 | `OPENROUTER_API_KEY`                | Clave de OpenRouter del servidor. Ponle un límite de crédito en OpenRouter: es el tope duro de gasto.                      |
-| `OPENROUTER_MODEL`                  | Opcional. `google/gemini-3.8-flash` (predeterminado) o `google/gemini-3.1-pro-preview`. Cualquier otro valor usa Flash.    |
 | `AI_USER_DAILY_BUILDS`              | Builds nuevas por cuenta y día (UTC). Predeterminado: 30.                                                                  |
-| `AI_DAILY_BUDGET_USD`               | Tope diario de la app en USD con el coste que informa OpenRouter (USD 0.03 estimados si no lo informa). Predeterminado: 5. |
+| `AI_DAILY_BUDGET_USD`               | Tope diario de la app en USD con el coste que informa OpenRouter (USD 0.10 estimados si no lo informa). Predeterminado: 5. |
 | `DATABASE_URL`                      | Conexión privada PostgreSQL del runtime. Local en desarrollo; en Prisma Postgres usa la conexión pooled con TLS.           |
 | `DIRECT_URL`                        | Opcional para la CLI: conexión directa de migraciones y administración. Si está ausente se usa `DATABASE_URL`.             |
 | `BETTER_AUTH_SECRET`                | Secreto aleatorio privado de al menos 32 caracteres.                                                                       |

@@ -1,5 +1,5 @@
 import { requireVerifiedUser } from "@/lib/auth-session";
-import { buildModel, generateBuild } from "@/lib/build-ai";
+import { BUILD_MODEL, generateBuild } from "@/lib/build-ai";
 import { buildCacheKey, readCachedBuild, storeCachedBuild } from "@/lib/build-cache";
 import { claimDailyBuild, recordBuildCost } from "@/lib/build-quota";
 import { getCatalog, getChampionDetails } from "@/lib/catalog";
@@ -9,7 +9,7 @@ import { ApiError, assertSameOrigin, errorResponse, jsonResponse, readJsonBody }
 import { validateCoachInput } from "@/lib/validation";
 
 export const runtime = "nodejs";
-// One Flash call is usually a few seconds; the provider call itself times out at 45 s.
+// One Opus call at low effort took about 8 s; the provider call itself times out at 45 s.
 export const maxDuration = 60;
 
 /** Pass a failed side effect to the logs without failing a build the player already has. */
@@ -30,8 +30,7 @@ export async function POST(request: Request): Promise<Response> {
     const body = await readJsonBody(request, 1_024);
     const catalog = await getCatalog();
     const input = validateCoachInput(body, catalog);
-    const model = buildModel();
-    const key = buildCacheKey(input, catalog.version, model);
+    const key = buildCacheKey(input, catalog.version, BUILD_MODEL);
 
     const cached = await readCachedBuild(key);
     if (cached) {
@@ -57,7 +56,6 @@ export async function POST(request: Request): Promise<Response> {
         { champion, enemy },
         {
           apiKey,
-          model,
           onCost: (value) => {
             cost = recordBuildCost(user.id, day, value).catch(logFailure("cost"));
           },

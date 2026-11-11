@@ -2,6 +2,12 @@
 
 Actualizado el **11 de noviembre de 2026**. Esta instantánea permite continuar desde un clon nuevo sin depender del historial del chat. Comprueba el estado del código, los servicios y las credenciales antes de actuar; las verificaciones citadas son evidencia fechada.
 
+## Continuación del 11 de noviembre: Opus 5.5 como modelo único
+
+Por petición del propietario, que usará la app solo, las builds usan siempre `anthropic/claude-opus-5.5`, sin selector ni `OPENROUTER_MODEL` ([ADR 0010](adr/0010-opus-modelo-unico.md)). El esfuerzo es bajo, con 6 000 tokens y tarifas máximas USD 4/20. El contrato va en el prompt sin `response_format` y `BUILD_CONTRACT` es `build-v4`. El coste estimado sin informe es USD 0.10. No hubo llamadas pagadas: el transporte se apoya en la comparación real del 18 de octubre (unos 8 s y USD 0.08 con el prompt anterior). Si Production conserva `OPENROUTER_MODEL`, se ignora y se puede borrar.
+
+La rama `simplify-builds` con la ADR 0009 y este cambio no está publicada: `main` y producción siguen mostrando el selector y la clave personal hasta que se haga push y se despliegue. `main` tiene además `f2271f7` (parches de dependencias), que esta rama no incluye.
+
 ## Continuación del 11 de noviembre: builds simples
 
 El propietario informó que la app «nunca funcionó»: una solicitud quedaba pendiente y bloqueaba las siguientes, y la respuesta tardaba. Pidió auditar y simplificar. La decisión está en la [ADR 0009](adr/0009-builds-simples.md), que sustituye las ADR 0006 y 0008 y los controles de reservas de la 0005.
@@ -161,18 +167,18 @@ La validación de estructura no valida la calidad táctica. Revisar por separado
 
 Las claves se obtienen del propietario o de su gestor privado. Este documento contiene nombres de variables, nunca sus valores. En la máquina de trabajo actual se usa `.env`; se eliminó `.env.local` por petición del usuario porque tenía prioridad sobre él. En un clon nuevo, conserva cualquier archivo privado existente antes de copiar `.env.example`.
 
-| Variables                                                                             | Qué configurar                                                                                                                                                 |
-| ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `OPENROUTER_API_KEY`, `OPENROUTER_MODEL`                                              | Clave del servidor y modelo permitido. Predeterminado: Gemini 3.1 Pro Preview con razonamiento medio; Pro también permite Sonnet según la política persistida. |
-| `DATABASE_URL`                                                                        | PostgreSQL local en desarrollo; pooled de Prisma Postgres con TLS verificado en Production.                                                                    |
-| `DIRECT_URL`                                                                          | Conexión directa para migraciones. No mezclar la administración de Production con la base local.                                                               |
-| `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`                | Secreto privado y orígenes exactos; HTTPS en Production.                                                                                                       |
-| `RESEND_API_KEY`, `AUTH_EMAIL_FROM`                                                   | Proveedor y remitente. `onboarding@resend.dev` sólo sirve para pruebas al correo dueño de Resend; correo público requiere dominio verificado.                  |
-| `AUTH_MAILPIT_URL`                                                                    | Buzón local opcional. Resend tiene prioridad si su clave está presente: usar un entorno local separado sin esa clave para el buzón.                            |
-| `AI_MONTHLY_BUDGET_USD`, `AI_DAILY_BUDGET_USD`, `AI_FREE_POOL_USD`, `AI_PRO_POOL_USD` | Fondos compartidos y separados por plan; no son presupuestos individuales.                                                                                     |
-| `APP_REGISTRATION_MODE`                                                               | `open` por defecto, invitación opcional; no desactivar la verificación.                                                                                        |
-| `RIOT_API_KEY`                                                                        | Opcional, importación voluntaria de una partida activa; no se necesita para Data Dragon.                                                                       |
-| `LEGAL_OPERATOR_NAME`, `LEGAL_CONTACT_EMAIL`, `LEGAL_CONTACT_ADDRESS`                 | Datos públicos del responsable, pendientes de completar/verificar para publicar los documentos legales.                                                        |
+| Variables                                                                             | Qué configurar                                                                                                                                |
+| ------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `OPENROUTER_API_KEY`                                                                  | Clave del servidor. El modelo es fijo: Opus 5.5 ([ADR 0010](adr/0010-opus-modelo-unico.md)); `OPENROUTER_MODEL` ya no se usa.                 |
+| `DATABASE_URL`                                                                        | PostgreSQL local en desarrollo; pooled de Prisma Postgres con TLS verificado en Production.                                                   |
+| `DIRECT_URL`                                                                          | Conexión directa para migraciones. No mezclar la administración de Production con la base local.                                              |
+| `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `BETTER_AUTH_TRUSTED_ORIGINS`                | Secreto privado y orígenes exactos; HTTPS en Production.                                                                                      |
+| `RESEND_API_KEY`, `AUTH_EMAIL_FROM`                                                   | Proveedor y remitente. `onboarding@resend.dev` sólo sirve para pruebas al correo dueño de Resend; correo público requiere dominio verificado. |
+| `AUTH_MAILPIT_URL`                                                                    | Buzón local opcional. Resend tiene prioridad si su clave está presente: usar un entorno local separado sin esa clave para el buzón.           |
+| `AI_MONTHLY_BUDGET_USD`, `AI_DAILY_BUDGET_USD`, `AI_FREE_POOL_USD`, `AI_PRO_POOL_USD` | Fondos compartidos y separados por plan; no son presupuestos individuales.                                                                    |
+| `APP_REGISTRATION_MODE`                                                               | `open` por defecto, invitación opcional; no desactivar la verificación.                                                                       |
+| `RIOT_API_KEY`                                                                        | Opcional, importación voluntaria de una partida activa; no se necesita para Data Dragon.                                                      |
+| `LEGAL_OPERATOR_NAME`, `LEGAL_CONTACT_EMAIL`, `LEGAL_CONTACT_ADDRESS`                 | Datos públicos del responsable, pendientes de completar/verificar para publicar los documentos legales.                                       |
 
 ```sh
 pnpm install --frozen-lockfile

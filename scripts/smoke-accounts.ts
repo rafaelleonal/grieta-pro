@@ -728,8 +728,8 @@ async function main() {
         where: { scope_day: { scope: `user:${alice.user.id}`, day: today } },
       });
       assert.equal(afterRetry.builds, 3);
-      // 0.0123 + estimated 0.03 for the failure + 0.0123.
-      assert.equal(afterRetry.costUsd.toString(), "0.0546");
+      // 0.0123 + estimated 0.10 for the failure + 0.0123.
+      assert.equal(afterRetry.costUsd.toString(), "0.1246");
 
       const limited = await buildRequest(alice.cookie, {
         champion: "Zed",

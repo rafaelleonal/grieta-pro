@@ -21,7 +21,7 @@ Edita ese archivo en el servidor y configura los valores sin comillas alrededor:
 - `DIRECT_URL`: conexión **direct** para Prisma CLI; en Prisma Postgres usa `sslmode=require&sslaccept=strict`. La CLI utiliza `DATABASE_URL` si `DIRECT_URL` está ausente.
 - `BETTER_AUTH_SECRET`: un secreto aleatorio exclusivo de este entorno, de al menos 32 caracteres.
 - `BETTER_AUTH_URL`: el origen público exacto, por ejemplo `https://coach.tu-dominio.com`. Configura `BETTER_AUTH_TRUSTED_ORIGINS` sólo si necesitas otros orígenes exactos.
-- `OPENROUTER_API_KEY`, `OPENROUTER_MODEL` y los presupuestos `AI_*` que hayas elegido. `RIOT_API_KEY` sigue siendo opcional.
+- `OPENROUTER_API_KEY` y los presupuestos `AI_*` que hayas elegido. `RIOT_API_KEY` sigue siendo opcional.
 - `APP_REGISTRATION_MODE`: conserva la decisión actual de tu entorno. Copiar el valor de ejemplo no debe abrir el registro por accidente.
 - Cuando actives las cuentas de producción: `RESEND_API_KEY` y `AUTH_EMAIL_FROM` de un dominio verificado. [Configuración de proveedores](provider-setup.md).
 

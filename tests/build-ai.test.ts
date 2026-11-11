@@ -1,12 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import {
-  buildModel,
-  buildPrompt,
-  generateBuild,
-  GEMINI_FLASH_MODEL,
-  GEMINI_PRO_MODEL,
-} from "../lib/build-ai";
+import { BUILD_MODEL, buildPrompt, generateBuild } from "../lib/build-ai";
 import { BUILD_JSON_SCHEMA } from "../lib/build-contract";
 import type { ChampionDetails } from "../lib/catalog";
 import { ApiError } from "../lib/errors";
@@ -72,7 +66,7 @@ function provider(content: unknown, extra: Record<string, unknown> = {}, status 
 const isStatus = (status: number) => (error: unknown) =>
   error instanceof ApiError && error.status === status;
 
-test("one strict, non-streaming request returns a complete validated build and its cost", async () => {
+test("one non-streaming Opus request returns a complete validated build and its cost", async () => {
   const { fetcher, calls } = provider(wire());
   const costs: (string | null)[] = [];
   const generated = await generateBuild(input, fixtureCatalog, both, {
@@ -82,14 +76,19 @@ test("one strict, non-streaming request returns a complete validated build and i
   });
   assert.equal(calls.length, 1);
   const body = calls[0].body;
-  assert.equal(body.model, GEMINI_FLASH_MODEL);
+  assert.equal(body.model, BUILD_MODEL);
   assert.equal(body.stream, undefined);
-  assert.deepEqual((body.response_format as { json_schema: { schema: unknown } }).json_schema, {
-    name: "league_build",
-    strict: true,
-    schema: BUILD_JSON_SCHEMA,
+  // Claude receives the contract in the prompt; the server validates the JSON strictly.
+  assert.equal(body.response_format, undefined);
+  const system = (body.messages as { role: string; content: string }[])[0];
+  assert.equal(system.role, "system");
+  assert.ok(system.content.includes(JSON.stringify(BUILD_JSON_SCHEMA)));
+  assert.deepEqual(body.reasoning, { enabled: true, effort: "low", exclude: true });
+  assert.deepEqual(body.provider, {
+    require_parameters: true,
+    allow_fallbacks: false,
+    max_price: { prompt: 4, completion: 20, request: 0 },
   });
-  assert.deepEqual((body.provider as { allow_fallbacks: boolean }).allow_fallbacks, false);
   assert.deepEqual(costs, ["0.01230000"]);
   assert.equal(generated.complete, true);
   const build = generated.result.plan.build;
@@ -232,17 +231,30 @@ test("provider failures map to safe messages and still report an unknown cost", 
   assert.deepEqual(costs, [null]);
 });
 
-test("the configured model is used only when it is supported", () => {
+test("the model is always Opus 5.5, even with a leftover OPENROUTER_MODEL", async () => {
   const previous = process.env.OPENROUTER_MODEL;
   try {
-    process.env.OPENROUTER_MODEL = GEMINI_PRO_MODEL;
-    assert.equal(buildModel(), GEMINI_PRO_MODEL);
-    process.env.OPENROUTER_MODEL = "anthropic/claude-opus-5.5";
-    assert.equal(buildModel(), GEMINI_FLASH_MODEL);
-    delete process.env.OPENROUTER_MODEL;
-    assert.equal(buildModel(), GEMINI_FLASH_MODEL);
+    process.env.OPENROUTER_MODEL = "google/gemini-3.8-flash";
+    const { fetcher, calls } = provider(wire());
+    const generated = await generateBuild(input, fixtureCatalog, both, { apiKey: "k", fetcher });
+    assert.equal(calls[0].body.model, BUILD_MODEL);
+    assert.equal(generated.result.meta.model, BUILD_MODEL);
   } finally {
     if (previous === undefined) delete process.env.OPENROUTER_MODEL;
     else process.env.OPENROUTER_MODEL = previous;
   }
+});
+
+test("a single surrounding json fence is accepted; other text around the JSON is not", async () => {
+  const fenced = provider("```json\n" + JSON.stringify(wire()) + "\n```");
+  const generated = await generateBuild(input, fixtureCatalog, both, {
+    apiKey: "k",
+    fetcher: fenced.fetcher,
+  });
+  assert.equal(generated.complete, true);
+  const chatty = provider("Aquí tienes la build:\n" + JSON.stringify(wire()));
+  await assert.rejects(
+    generateBuild(input, fixtureCatalog, both, { apiKey: "k", fetcher: chatty.fetcher }),
+    isStatus(502),
+  );
 });

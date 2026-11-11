@@ -32,10 +32,9 @@ Las claves de esta guía son variables del servidor. No añadas `NEXT_PUBLIC_` n
 
 ```dotenv
 OPENROUTER_API_KEY=
-OPENROUTER_MODEL=google/gemini-3.8-flash
 ```
 
-El campo de clave vacío debe contener tu clave real. El modelo es un ID exacto de la política del servidor, no un nombre libre. Las políticas iniciales permiten:
+El campo de clave vacío debe contener tu clave real. El modelo es fijo: las builds usan siempre Opus 5.5 ([ADR 0010](adr/0010-opus-modelo-unico.md)) y `OPENROUTER_MODEL` ya no se usa. Lo que sigue en esta sección describe las políticas históricas por plan:
 
 | Plan | Modelos                                                                                                                              |
 | ---- | ------------------------------------------------------------------------------------------------------------------------------------ |

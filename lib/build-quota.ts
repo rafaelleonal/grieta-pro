@@ -9,8 +9,8 @@ import { ApiError } from "./errors";
  */
 const DEFAULT_USER_DAILY_BUILDS = 30;
 const DEFAULT_DAILY_BUDGET_USD = "5";
-/** Charged to the app budget when the provider does not report a cost. */
-export const ESTIMATED_BUILD_COST_USD = "0.03";
+/** Charged to the app budget when the provider does not report a cost (Opus: ~USD 0.08). */
+export const ESTIMATED_BUILD_COST_USD = "0.10";
 
 export function buildLimits() {
   const builds = Number(process.env.AI_USER_DAILY_BUILDS?.trim() || DEFAULT_USER_DAILY_BUILDS);

@@ -3,11 +3,11 @@ import { ApiError } from "./http";
 import { assertSafeOutput } from "./validation";
 
 /**
- * Contrato de la build (ADR 0009). El proveedor recibe un esquema JSON estricto y
- * fijo; los IDs del catálogo, las ramas de runas y el orden de habilidades se validan
- * después en el servidor, nunca dentro del decodificador del proveedor.
+ * Contrato de la build (ADR 0009 y 0010). El modelo recibe en el prompt un esquema JSON
+ * fijo; el servidor valida la forma, los IDs del catálogo, las ramas de runas y el orden
+ * de habilidades, nunca dentro del decodificador del proveedor.
  */
-export const BUILD_CONTRACT = "build-v3";
+export const BUILD_CONTRACT = "build-v4";
 
 const text = { type: "string" } as const;
 const list = { type: "array", items: text } as const;

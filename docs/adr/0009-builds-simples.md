@@ -1,5 +1,7 @@
 # ADR 0009 · Builds simples: campeón, rival y caché
 
+**Actualización:** la [ADR 0010](0010-opus-modelo-unico.md) sustituye el modelo: Opus 5.5 fijo, con el contrato en el prompt. El resto de esta decisión se conserva.
+
 - **Estado:** aceptada por el propietario el 11 de noviembre de 2026.
 - **Petición:** la app «nunca funcionó» de forma fiable: una solicitud quedaba «pendiente» y bloqueaba las siguientes, y la respuesta tardaba demasiado. Pidió una auditoría y simplificar: elegir tu campeón y el rival y recibir de inmediato la build contra ese matchup, con hechizos y runas.
 

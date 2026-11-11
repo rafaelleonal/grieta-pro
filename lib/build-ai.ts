@@ -11,15 +11,14 @@ import { recoverBuildCoachPlan } from "./coach-recovery";
 import { RUNE_SHARD_ROWS } from "./rune-shards";
 
 const ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
-export const GEMINI_FLASH_MODEL = "google/gemini-3.8-flash";
-export const GEMINI_PRO_MODEL = "google/gemini-3.1-pro-preview";
+/** Modelo único de las builds (ADR 0010): no hay selector ni variable de entorno. */
+export const BUILD_MODEL = "anthropic/claude-opus-5.5";
 
-/** Precios máximos por millón de tokens: OpenRouter rechaza un proveedor más caro. */
-const MODELS = {
-  [GEMINI_FLASH_MODEL]: { prompt: 0.75, completion: 3.75, effort: "low", maxTokens: 6000 },
-  [GEMINI_PRO_MODEL]: { prompt: 2, completion: 12, effort: "low", maxTokens: 8000 },
-} as const;
-type SupportedModel = keyof typeof MODELS;
+/**
+ * Precios máximos por millón de tokens: OpenRouter rechaza un proveedor más caro.
+ * Opus 5.5 no permite desactivar el razonamiento; el esfuerzo bajo es su único control.
+ */
+const POLICY = { prompt: 4, completion: 20, effort: "low", maxTokens: 6000 } as const;
 
 const TIMEOUT_MS = 45_000;
 const MAX_RESPONSE_BYTES = 256_000;
@@ -28,11 +27,6 @@ const MAX_RESPONSE_BYTES = 256_000;
 const ITEM_DETAIL_GOLD = 2200;
 const ITEM_DETAIL_CHARS = 100;
 const ABILITY_CHARS = 220;
-
-export function buildModel(): SupportedModel {
-  const configured = process.env.OPENROUTER_MODEL?.trim();
-  return configured && configured in MODELS ? (configured as SupportedModel) : GEMINI_FLASH_MODEL;
-}
 
 /** One row per item name; Data Dragon repeats some items under longer other-mode IDs. */
 export function promptItems(catalog: Catalog): Catalog["items"] {
@@ -101,7 +95,12 @@ export function buildPrompt(
     ),
   };
   return [
-    { role: "system", content: BUILD_INSTRUCTIONS },
+    {
+      role: "system",
+      // Claude's constrained decoder rejected earlier build grammars, so the contract
+      // travels in the prompt and the server validates the JSON strictly.
+      content: `${BUILD_INSTRUCTIONS}\nEsquema JSON (un solo objeto, sin Markdown): ${JSON.stringify(BUILD_JSON_SCHEMA)}`,
+    },
     {
       role: "user",
       content: `Build para ${name(input.champion)} (${input.role}) contra ${name(input.enemy)}.\n${JSON.stringify(context)}`,
@@ -127,6 +126,12 @@ async function readBody(response: Response): Promise<Record<string, unknown>> {
   return body as Record<string, unknown>;
 }
 
+/** The contract asks for bare JSON; tolerate only a single surrounding ```json fence. */
+function jsonText(content: string): string {
+  const fenced = /^```(?:json)?\s*\n([\s\S]*?)\n?```$/.exec(content.trim());
+  return fenced ? fenced[1] : content;
+}
+
 function reportedCost(usage: unknown): string | null {
   const cost = usage && typeof usage === "object" ? (usage as { cost?: unknown }).cost : undefined;
   if (typeof cost === "number" && Number.isFinite(cost) && cost >= 0 && cost < 1000)
@@ -147,15 +152,13 @@ export async function generateBuild(
   details: { champion: ChampionDetails | null; enemy: ChampionDetails | null },
   options: {
     apiKey: string;
-    model?: SupportedModel;
     fetcher?: typeof fetch;
     signal?: AbortSignal;
     /** Called once after the request is sent, with the reported cost or null. */
     onCost?: (cost: string | null) => void;
   },
 ): Promise<GeneratedBuild> {
-  const model = options.model || buildModel();
-  const policy = MODELS[model];
+  const model = BUILD_MODEL;
   const timeout = AbortSignal.timeout(TIMEOUT_MS);
   const signal = options.signal ? AbortSignal.any([timeout, options.signal]) : timeout;
   let response: Response;
@@ -173,16 +176,12 @@ export async function generateBuild(
       body: JSON.stringify({
         model,
         messages: buildPrompt(input, catalog, details),
-        max_completion_tokens: policy.maxTokens,
-        reasoning: { enabled: true, effort: policy.effort, exclude: true },
-        response_format: {
-          type: "json_schema",
-          json_schema: { name: "league_build", strict: true, schema: BUILD_JSON_SCHEMA },
-        },
+        max_completion_tokens: POLICY.maxTokens,
+        reasoning: { enabled: true, effort: POLICY.effort, exclude: true },
         provider: {
           require_parameters: true,
           allow_fallbacks: false,
-          max_price: { prompt: policy.prompt, completion: policy.completion, request: 0 },
+          max_price: { prompt: POLICY.prompt, completion: POLICY.completion, request: 0 },
         },
       }),
     });
@@ -211,7 +210,7 @@ export async function generateBuild(
     throw new ApiError(502, "La IA no completó la build. Vuelve a intentarlo.");
   let json: unknown;
   try {
-    json = JSON.parse(choice.message.content);
+    json = JSON.parse(jsonText(choice.message.content));
   } catch {
     throw new ApiError(502, "La IA devolvió un formato inesperado. Vuelve a intentarlo.");
   }

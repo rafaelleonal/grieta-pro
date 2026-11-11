@@ -16,7 +16,9 @@ Desde la continuación del 18 de octubre, el modo predeterminado `APP_ACCESS_MOD
 
 ## Predeterminado vigente
 
-Gemini 3.8 Flash es el predeterminado por decisión del propietario tras la [comparación real](flash-build-comparison.md). Conserva razonamiento bajo, límite de 7 000 tokens para coach y reserva manual de USD 0.13425. Opus sigue disponible. Los apartados fechados siguientes documentan configuraciones anteriores; no cambian cuotas ni fondos al elegir el nuevo predeterminado.
+Desde el 11 de noviembre de 2026 el modelo es siempre Opus 5.5, sin selector ([ADR 0010](adr/0010-opus-modelo-unico.md)); los límites vigentes están en la [ADR 0009](adr/0009-builds-simples.md). El párrafo siguiente y los apartados fechados son históricos.
+
+Gemini 3.8 Flash era el predeterminado por decisión del propietario tras la [comparación real](flash-build-comparison.md). Conserva razonamiento bajo, límite de 7 000 tokens para coach y reserva manual de USD 0.13425. Opus sigue disponible. Los apartados fechados siguientes documentan configuraciones anteriores; no cambian cuotas ni fondos al elegir el nuevo predeterminado.
 
 ## Actualización del 18 de octubre de 2026
 
