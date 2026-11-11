@@ -6,7 +6,7 @@ Actualizado el **11 de noviembre de 2026**. Esta instantánea permite continuar 
 
 Por petición del propietario, que usará la app solo, las builds usan siempre `anthropic/claude-opus-5.5`, sin selector ni `OPENROUTER_MODEL` ([ADR 0010](adr/0010-opus-modelo-unico.md)). El esfuerzo es bajo, con 6 000 tokens y tarifas máximas USD 4/20. El contrato va en el prompt sin `response_format` y `BUILD_CONTRACT` es `build-v4`. El coste estimado sin informe es USD 0.10. No hubo llamadas pagadas: el transporte se apoya en la comparación real del 18 de octubre (unos 8 s y USD 0.08 con el prompt anterior). Si Production conserva `OPENROUTER_MODEL`, se ignora y se puede borrar.
 
-La rama `simplify-builds` con la ADR 0009 y este cambio no está publicada: `main` y producción siguen mostrando el selector y la clave personal hasta que se haga push y se despliegue. `main` tiene además `f2271f7` (parches de dependencias), que esta rama no incluye.
+La rama `simplify-builds` reúne la ADR 0009, este cambio y el parche de dependencias `f2271f7` de `main` (Next.js 16.4.6). Está en `origin`, pero no en `main`: producción sigue mostrando el selector y la clave personal hasta que se fusione y se despliegue.
 
 ## Continuación del 11 de noviembre: builds simples
 
@@ -218,3 +218,4 @@ Para cambios de documentación basta comprobar formato y enlaces. Para cambios d
 - Riot: se implementan Account-V1 y Spectator-V5 para composición de partida activa. OAuth/RSO, maestría, historial Match-V5, asignación automática de rol y champion select no están implementados. Aprobación de producto público y monetización siguen siendo pasos separados.
 - Docker/VPS están preparados en [su guía](vps-deployment.md); Netlify es una alternativa documentada, aún sin despliegue validado y con una espera que debe revisarse.
 - Decisión de licencia open source y facturación de Pro pendientes; no inventar condiciones ni activar cobros.
+- Dependencias, 11 de noviembre de 2026: resueltos los avisos de producción con `next`, `@next/env` y `eslint-config-next` 16.4.6, `zod` 4.6.7 y un override de `fast-uri` a 3.1.9 (ver [verificación](quality-checks.md#11-de-noviembre-de-2026-actualización-de-dependencias-por-seguridad)). `pnpm audit --prod --audit-level=moderate` queda sin avisos y `next build` ya no se detiene por el aviso de seguridad. Sigue pendiente `minimatch` 10.2.6 (moderado, sólo desarrollo vía ESLint): revisarlo cuando una versión estable de typescript-eslint admita `minimatch` 11.0.1 o posterior.

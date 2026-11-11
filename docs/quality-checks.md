@@ -234,3 +234,18 @@ Las pruebas actuales pasaron 200/200, TypeScript y lint; seguridad, 34 casos; y 
 Los archivos modificados se formatearon; el chequeo global de formato mantiene tres pendientes preexistentes de `brand/`. No se modificaron esos archivos, las claves, los planes, presupuestos, precios, reservas anteriores ni dependencias. No hay migraciones ni nuevas consultas pagadas.
 
 La compilación de producción pasó. Las capturas de los tres estados están en `artifacts/qa/value-first-ui/`, excluido de Git. La validación de esta iteración fue local y simulada; no acredita por sí sola un despliegue ni una nueva generación real.
+
+## 11 de noviembre de 2026: actualización de dependencias por seguridad
+
+`pnpm audit --prod --audit-level=moderate` informaba 8 avisos: Next.js 16.4.0 (dos críticos y uno alto), zod 4.6.5 (alto) y fast-uri 3.1.8 a través de Prisma (dos moderados y dos bajos). Se actualizaron `next`, `@next/env` y `eslint-config-next` a 16.4.6 y `zod` a 4.6.7 con `pnpm`, y se añadió un override de `fast-uri` 3.x a 3.1.9 en `pnpm-workspace.yaml`. Prisma sigue en 7.10.0: 7.10.1 conserva la misma cadena de `fast-uri`. La documentación incluida en Next.js 16.4.6 no describe cambios de comportamiento que afecten al proyecto.
+
+| Comprobación                               | Resultado                   | Alcance                                                                                                     |
+| ------------------------------------------ | --------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `pnpm audit --prod --audit-level=moderate` | Sin avisos conocidos        | Dependencias de producción según el registro consultado.                                                    |
+| `pnpm audit:security`                      | 1 aviso moderado            | `minimatch` 10.2.6 en la cadena de desarrollo de ESLint; la corrección exige una versión mayor no admitida. |
+| `pnpm check`                               | Correcto; 299 pruebas       | Formato, lint sin advertencias, tipos estrictos y pruebas unitarias.                                        |
+| `pnpm eval:security`                       | 34 casos correctos          | Límites deterministas con proveedor simulado.                                                               |
+| `pnpm test:accounts`                       | 31 grupos correctos         | PostgreSQL temporal real con IA y correo simulados.                                                         |
+| `pnpm build`                               | Correcto en dos ejecuciones | Compilación de producción de Next.js 16.4.6, sin la parada por aviso de seguridad.                          |
+
+Las comprobaciones fueron locales, con proveedores simulados y sin consultas pagadas. No acreditan un despliegue ni la ejecución en GitHub Actions.
